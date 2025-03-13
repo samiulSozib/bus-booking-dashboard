@@ -17,22 +17,21 @@ import {
     SHOW_COUNTRY_SUCCESS,
     SHOW_COUNTRY_FAIL,
 } from '../constants/countriesConstants';
+import { base_url } from "../../utils/const";
 
 const getAuthToken = () => {
     return localStorage.getItem("token") || ""; // Get the token or return an empty string if not found
 };
-const base_url=`https://api.milliekit.com/api/v1`
-const token="191|SKDJAAPjkU4NK9dq4Bg47XV0xqaXu3nMq5NAQjxR623c4d5a"
 
 // Fetch Countries
 export const _fetchCountries = (searchTag) => async (dispatch) => {
     dispatch({ type: FETCH_COUNTRIES_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const response = await axios.get(`${base_url}/admin/location/countries?search=${searchTag}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'application/json',
             },
         });
@@ -56,10 +55,10 @@ export const _showCountry = (countryId) => async (dispatch) => {
     dispatch({ type: SHOW_COUNTRY_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const response = await axios.get(`${base_url}/admin/location/countries/${countryId}/show`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'application/json',
             },
         });
@@ -103,7 +102,7 @@ export const _addCountry = (countryData,toast) => async (dispatch) => {
         
         const response = await axios.post(`${base_url}/admin/location/countries`, formData, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
@@ -157,7 +156,7 @@ export const _editCountry = (countryId, updatedData,toast) => async (dispatch) =
 
         const response = await axios.post(`${base_url}/admin/location/countries/update`, formData, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
@@ -195,7 +194,7 @@ export const _deleteCountry = (countryId,toast) => async () => {
         const token = getAuthToken();
         await axios.delete(`https://api.milliekit.com/api/v1/admin/location/countries/${countryId}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
             },
         });
 

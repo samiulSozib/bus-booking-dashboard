@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { signIn } from "../../redux/actions/authAction";
+import { signIn } from "../../store/slices/authSlice";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,11 +21,7 @@ export default function SignInForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/packages/default");
-    }
-  }, [isAuthenticated, navigate]);
+  
 
   // Formik for handling form submission and validation
   const formik = useFormik({

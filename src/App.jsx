@@ -19,6 +19,9 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Country from "./pages/Location/Country/Country";
 import Province from "./pages/Location/Province/Province";
 import City from "./pages/Location/City/City";
+import BusRoute from "./pages/Route/Route";
+import Station from "./pages/Station/Station";
+import User from "./pages/User/User";
 
 export default function App() {
   return (
@@ -32,6 +35,12 @@ export default function App() {
             <Route index path="/location/countries" element={<ProtectedRoute><Country /></ProtectedRoute>} />
             <Route index path="/location/provinces" element={<ProtectedRoute><Province/></ProtectedRoute>}/>
             <Route index path="/location/cities" element={<ProtectedRoute><City/></ProtectedRoute>}/>
+            <Route index path="/routes" element={<ProtectedRoute><BusRoute/></ProtectedRoute>}/>
+            <Route index path="/stations" element={<ProtectedRoute><Station/></ProtectedRoute>}/>
+            <Route index path="/users" element={<ProtectedRoute><User/></ProtectedRoute>}/>
+
+
+
 
 
             {/* Others Page */}

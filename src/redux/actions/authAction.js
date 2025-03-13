@@ -3,8 +3,9 @@ import { LOGOUT, SIGN_IN_FAIL, SIGN_IN_REQUEST, SIGN_IN_SUCCESS } from "../const
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import i18next from "i18next";
+import { base_url } from "../../utils/const";
 
-const login_url = `https://api.milliekit.com/api/v1/auth`;
+const login_url = `${base_url}/auth`;
 
 export const signIn = (signInInfo) => {
     return async (dispatch) => {

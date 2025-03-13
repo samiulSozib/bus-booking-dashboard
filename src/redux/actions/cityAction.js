@@ -18,14 +18,13 @@ import {
     
 } from '../constants/citiesConstants';
 import { SHOW_COUNTRY_FAIL } from "../constants/countriesConstants";
+import { base_url } from "../../utils/const";
 
 
 const getAuthToken = () => {
     return localStorage.getItem("api_token") || ""; // Get the token or return an empty string if not found
 };
 
-const base_url='https://api.milliekit.com/api/v1'
-const token="191|SKDJAAPjkU4NK9dq4Bg47XV0xqaXu3nMq5NAQjxR623c4d5a"
 
 
 // Fetch Cities
@@ -33,10 +32,10 @@ export const _fetchCities = (provinceId,searchTag) => async (dispatch) => {
     dispatch({ type: FETCH_CITIES_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const response = await axios.get(`${base_url}/admin/location/${provinceId}/cities/list?search=${searchTag}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
             },
         });
         console.log(response)
@@ -58,10 +57,10 @@ export const _showCity = (cityId) => async (dispatch) => {
     dispatch({ type: SHOW_CITY_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const response = await axios.get(`${base_url}/admin/location/cities/${cityId}/show`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
             },
         });
         console.log(response)
@@ -83,7 +82,7 @@ export const _addCity = (cityData, toast) => async (dispatch) => {
     dispatch({ type: ADD_CITY_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const formData = new FormData();
         formData.append('province_id',cityData.provinceId)
         formData.append('name', JSON.stringify({
@@ -94,9 +93,9 @@ export const _addCity = (cityData, toast) => async (dispatch) => {
         formData.append('code',cityData.cityCode)
         formData.append("sort",0)
 
-        const response = await axios.post(`https://api.milliekit.com/api/v1/admin/location/cities`, formData, {
+        const response = await axios.post(`${base_url}/admin/location/cities`, formData, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
@@ -132,7 +131,7 @@ export const _editCity = (cityId, updatedData, toast) => async (dispatch) => {
     dispatch({ type: EDIT_CITY_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const formData = new FormData();
         formData.append("id",cityId)
         formData.append('province_id',updatedData.provinceId)
@@ -144,9 +143,9 @@ export const _editCity = (cityId, updatedData, toast) => async (dispatch) => {
         formData.append('code',updatedData.cityCode)
         formData.append("sort",0)
 
-        const response = await axios.post(`https://api.milliekit.com/api/v1/admin/location/cities/update`, formData, {
+        const response = await axios.post(`${base_url}/admin/location/cities/update`, formData, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
@@ -184,9 +183,9 @@ export const _deleteCity = (districtId, toast) => async (dispatch) => {
 
     try {
         const token = getAuthToken();
-        await axios.delete(`https://api.milliekit.com/api/v1/admin/location/cities/${districtId}`, {
+        await axios.delete(`${base_url}/admin/location/cities/${districtId}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
             },
         });
 

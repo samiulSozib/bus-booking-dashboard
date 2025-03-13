@@ -7,9 +7,9 @@ import App from "./App.jsx";
 import { AppWrapper } from "./components/common/PageMeta.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { Provider } from "react-redux";
-import store from "./redux/store.js";
 import "./i18n"; // i18next ইম্পোর্ট করুন
 import { I18nextProvider } from "react-i18next";
+import store from "./store/store.js";
 
 
 

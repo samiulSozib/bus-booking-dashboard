@@ -17,13 +17,12 @@ import {
     SHOW_PROVINCE_REQUEST,
     SHOW_PROVINCE_FAIL,
 } from '../constants/provinceConstants';
+import { base_url } from "../../utils/const";
 
 const getAuthToken = () => {
-    return localStorage.getItem("api_token") || ""; // Get the token or return an empty string if not found
+    return localStorage.getItem("token") || ""; // Get the token or return an empty string if not found
 };
 
-const base_url='https://api.milliekit.com/api/v1'
-const token="191|SKDJAAPjkU4NK9dq4Bg47XV0xqaXu3nMq5NAQjxR623c4d5a"
 
 
 // Fetch Provinces
@@ -31,10 +30,10 @@ export const _fetchProvinces = (countryId,searchTag) => async (dispatch) => {
     dispatch({ type: FETCH_PROVINCES_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const response = await axios.get(`${base_url}/admin/location/${countryId}/provinces?search=${searchTag}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type':'application/json'
             },
         });
@@ -57,10 +56,10 @@ export const _showProvince = (provinceId) => async (dispatch) => {
     dispatch({ type: SHOW_PROVINCE_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const response = await axios.get(`${base_url}/admin/location/provinces/${provinceId}/show`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type':'application/json'
             },
         });
@@ -84,7 +83,7 @@ export const _addProvince = (provinceData, toast) => async (dispatch) => {
     dispatch({ type: ADD_PROVINCE_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const formData = new FormData();
         formData.append('name', JSON.stringify({
             en: provinceData.provinceName.en || '',
@@ -101,7 +100,7 @@ export const _addProvince = (provinceData, toast) => async (dispatch) => {
         //return
         const response = await axios.post(`${base_url}/admin/location/provinces`, formData, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
@@ -138,7 +137,7 @@ export const _editProvince = (provinceId, updatedData, toast) => async (dispatch
     dispatch({ type: EDIT_PROVINCE_REQUEST });
 
     try {
-        //const token = getAuthToken();
+        const token = getAuthToken();
         const formData = new FormData();
         formData.append('name', JSON.stringify({
             en: updatedData.provinceName.en || '',
@@ -152,7 +151,7 @@ export const _editProvince = (provinceId, updatedData, toast) => async (dispatch
 
         const response = await axios.post(`${base_url}/admin/location/provinces/update`, formData, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
                 'Content-Type': 'multipart/form-data',
             },
         });
@@ -188,9 +187,9 @@ export const _deleteProvince = (provinceId, toast) => async (dispatch) => {
 
     try {
         const token = getAuthToken();
-        await axios.delete(`https://api.milliekit.com/api/v1/admin/location/provinces/${provinceId}`, {
+        await axios.delete(`${base_url}/admin/location/provinces/${provinceId}`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `${token}`,
             },
         });
 
