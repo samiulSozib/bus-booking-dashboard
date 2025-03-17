@@ -22,6 +22,9 @@ import City from "./pages/Location/City/City";
 import BusRoute from "./pages/Route/Route";
 import Station from "./pages/Station/Station";
 import User from "./pages/User/User";
+import Bus from "./pages/Bus/Bus";
+import AddBus from "./pages/Bus/AddBus";
+import Driver from "./pages/Driver/Driver";
 
 export default function App() {
   return (
@@ -38,6 +41,11 @@ export default function App() {
             <Route index path="/routes" element={<ProtectedRoute><BusRoute/></ProtectedRoute>}/>
             <Route index path="/stations" element={<ProtectedRoute><Station/></ProtectedRoute>}/>
             <Route index path="/users" element={<ProtectedRoute><User/></ProtectedRoute>}/>
+            <Route index path="/buses" element={<ProtectedRoute><Bus/></ProtectedRoute>}/>
+            <Route index path="/add-bus/:busId?" element={<ProtectedRoute><AddBus/></ProtectedRoute>}/>
+            <Route index path="/drivers" element={<ProtectedRoute><Driver/></ProtectedRoute>}/>
+
+
 
 
 

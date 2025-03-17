@@ -7,6 +7,7 @@ import routeReducer from "./slices/routeSlice"
 import stationReducer from "./slices/stationSlice"
 import tripReducer from "./slices/tripSlice"
 import userReducer from "./slices/userSlice"
+import busReducer from "./slices/busSlice"
 
 const store = configureStore({
     reducer: {
@@ -17,7 +18,8 @@ const store = configureStore({
         routes:routeReducer,
         stations:stationReducer,
         trips:tripReducer,
-        users:userReducer
+        users:userReducer,
+        buses:busReducer
     },
 });
 

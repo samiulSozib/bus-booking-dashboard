@@ -54,7 +54,16 @@ const navItems = [
     name: "User",
     path:"/users"
   },
-
+  {
+    icon:<UserIcon/>,
+    name:'Bus',
+    path:'/buses'
+  },
+  {
+    icon:<User_Group/>,
+    name:'Drivers',
+    path:'/drivers'
+  }
 ];
 
 const othersItems = [
