@@ -1,4 +1,3 @@
-import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
@@ -8,9 +7,10 @@ import {
     TableCell,
     TableHeader,
     TableRow,
-} from "../../../components/ui/table";
-import { Delete, Edit, View } from "../../../icons";
-import { addDriver, editDriver, fetchDrivers, showDriver } from "../../../store/slices/driverSlice";
+} from "../../components/ui/table";
+import { addDriver, editDriver, fetchDrivers, showDriver } from "../../store/slices/driverSlice";
+import { Edit } from "../../icons";
+import { useDispatch, useSelector } from "react-redux";
 
 // Validation schema
 const driverSchema = Yup.object().shape({
@@ -64,10 +64,11 @@ export default function DriverList() {
             password,
             status,
         };
+        console.log(driverData)
 
         try {
             // Validate form data using Yup
-            await driverSchema.validate(driverData, { abortEarly: false });
+            //await driverSchema.validate(driverData, { abortEarly: false });
 
             if (isEditing) {
                 // Edit driver

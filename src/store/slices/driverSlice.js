@@ -10,7 +10,7 @@ export const fetchDrivers = createAsyncThunk(
     async (searchTag, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/drivers?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/vendor/drivers?search=${searchTag}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ export const showDriver = createAsyncThunk(
     async (driverId, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/drivers/${driverId}/show`, {
+            const response = await axios.get(`${base_url}/vendor/drivers/${driverId}/show`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export const addDriver = createAsyncThunk(
             formData.append('password', driverData.password);
             formData.append('status', driverData.status);
 
-            const response = await axios.post(`${base_url}/admin/drivers`, formData, {
+            const response = await axios.post(`${base_url}/vendor/drivers`, formData, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'multipart/form-data',
@@ -64,6 +64,7 @@ export const addDriver = createAsyncThunk(
             });
             return response.data.body.item;
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -76,6 +77,7 @@ export const editDriver = createAsyncThunk(
         try {
             const token = getAuthToken();
             const formData = new FormData();
+            formData.append("id",driverId)
             formData.append('first_name', updatedData.first_name);
             formData.append('last_name', updatedData.last_name);
             formData.append('email', updatedData.email);
@@ -83,7 +85,7 @@ export const editDriver = createAsyncThunk(
             formData.append('password', updatedData.password);
             formData.append('status', updatedData.status);
 
-            const response = await axios.post(`${base_url}/admin/drivers/${driverId}/update`, formData, {
+            const response = await axios.post(`${base_url}/vendor/drivers/update`, formData, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'multipart/form-data',
@@ -102,7 +104,7 @@ export const deleteDriver = createAsyncThunk(
     async (driverId, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            await axios.delete(`${base_url}/admin/drivers/${driverId}`, {
+            await axios.delete(`${base_url}/vendor/drivers/${driverId}`, {
                 headers: {
                     Authorization: `${token}`,
                 },
