@@ -7,10 +7,10 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Users
 export const fetchUsers = createAsyncThunk(
     "users/fetch",
-    async (searchTag = "", { rejectWithValue }) => {
+    async ({searchTag = "",role=""}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/users?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/admin/users?search=${searchTag}&role=${role}`, {
                 headers: { Authorization: `${token}` },
             });
             return response.data.body.items;

@@ -25,6 +25,9 @@ import User from "./pages/User/User";
 import Bus from "./pages/Bus/Bus";
 import AddBus from "./pages/Bus/AddBus";
 import Driver from "./pages/Driver/Driver";
+import Trip from "./pages/Trip/Trip";
+import Discount from "./pages/Discount/Discount";
+import WalletTransaction from "./pages/WalletTransaction/WalletTransaction";
 
 export default function App() {
   return (
@@ -44,6 +47,11 @@ export default function App() {
             <Route index path="/buses" element={<ProtectedRoute><Bus/></ProtectedRoute>}/>
             <Route index path="/add-bus/:busId?" element={<ProtectedRoute><AddBus/></ProtectedRoute>}/>
             <Route index path="/drivers" element={<ProtectedRoute><Driver/></ProtectedRoute>}/>
+            <Route index path="/trips" element={<ProtectedRoute><Trip/></ProtectedRoute>}/>
+            <Route index path="/discounts" element={<ProtectedRoute><Discount/></ProtectedRoute>}/>
+            <Route index path="/wallet-transactions" element={<ProtectedRoute><WalletTransaction/></ProtectedRoute>}/>
+
+
 
 
 

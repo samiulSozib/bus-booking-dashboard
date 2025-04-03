@@ -96,3 +96,33 @@ export function categorizeServices(data) {
   
     return categorized;
   }
+
+
+// Correct way to export function declarations
+export function formatForDisplay(datetime) {
+  if (!datetime) return '';
+  return datetime.replace('T', ' ');
+}
+
+export function formatForInput(displayTime) {
+  if (!displayTime) return '';
+  return displayTime.replace(' ', 'T');
+}
+
+export function formatForDisplayDiscount(datetime) {
+  if (!datetime) return '';
+  // Convert from "Y-m-d H:i:s" to datetime-local format (YYYY-MM-DDTHH:MM)
+  const [date, time] = datetime.split(' ');
+  return date + 'T' + time;
+}
+export function formatForInputDiscount(displayTime) {
+  if (!displayTime) return '';
+  // Convert from datetime-local format (YYYY-MM-DDTHH:MM) to "Y-m-d H:i:s"
+  // Add :00 seconds if not present
+  const [date, time] = displayTime.split('T');
+  return `${date} ${time}:00`.replace(/:00:00$/, ':00');
+}
+
+export function user_type(){
+  return localStorage.getItem("profile")||"";
+}

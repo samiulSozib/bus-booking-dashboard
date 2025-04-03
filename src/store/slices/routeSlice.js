@@ -7,13 +7,19 @@ const getAuthToken = () => {
     return localStorage.getItem("token") || ""; // Get the token or return an empty string if not found
 };
 
+const user_type=()=>{
+    return localStorage.getItem("profile")||"";
+}
+
 // Fetch Routes
 export const fetchRoutes = createAsyncThunk(
     'routes/fetchRoutes',
     async (searchTag, { rejectWithValue }) => {
+        const type=JSON.parse(user_type())
+        console.log(type.role)
         const token = getAuthToken();
         try {
-            const response = await axios.get(`${base_url}/admin/routes?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/${type.role}/routes/list?search=${searchTag}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
@@ -21,6 +27,7 @@ export const fetchRoutes = createAsyncThunk(
             });
             return response.data.body.items;
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error.message);
         }
     }

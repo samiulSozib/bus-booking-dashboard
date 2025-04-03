@@ -1,0 +1,653 @@
+import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHeader,
+    TableRow,
+} from "../../components/ui/table";
+import { Delete, Edit, View } from "../../icons";
+import { addTrip, editTrip, fetchTrips, showTrip } from "../../store/slices/tripSlice";
+import { fetchBuses } from "../../store/slices/busSlice";
+import { fetchRoutes } from "../../store/slices/routeSlice";
+import { fetchUsers } from "../../store/slices/userSlice";
+import Swal from "sweetalert2";
+import * as Yup from "yup";
+import { formatForDisplay, formatForInput } from "../../utils/utils";
+
+// Yup validation schema
+const tripSchema = Yup.object().shape({
+    vendor_id: Yup.number().required("Vendor is required"),
+    route_id: Yup.number().required("Route is required"),
+    bus_id: Yup.number().required("Bus is required"),
+    total_seats: Yup.number().required("Total seats is required"),
+    ticket_price: Yup.number().required("Ticket price is required"),
+    departure_time: Yup.string().required("Departure time is required"),
+    arrival_time: Yup.string().required("Arrival time is required"),
+    status: Yup.string()
+        .oneOf(["active", "inactive"], "Invalid status")
+        .required("Status is required"),
+});
+
+const user_type=()=>{
+    return localStorage.getItem("profile")||"";
+}
+
+export default function TripList() {
+    const dispatch = useDispatch();
+    const { trips, selectedTrip, loading } = useSelector((state) => state.trips);
+    const { buses } = useSelector((state) => state.buses);
+    const { routes } = useSelector((state) => state.routes);
+    const { users } = useSelector((state) => state.users);
+
+    // State for table filtering
+    const [searchTag, setSearchTag] = useState("");
+    const [selectedVendorId, setSelectedVendorId] = useState(null);
+    const [selectedRouteId, setSelectedRouteId] = useState(null);
+    const [selectedBusId, setSelectedBusId] = useState(null);
+    const [showVendorDropdown, setShowVendorDropdown] = useState(false);
+    const [showRouteDropdown, setShowRouteDropdown] = useState(false);
+    const [showBusDropdown, setShowBusDropdown] = useState(false);
+    const [vendorSearchTag, setVendorSearchTag] = useState("");
+    const [routeSearchTag, setRouteSearchTag] = useState("");
+    const [busSearchTag, setBusSearchTag] = useState("");
+    const [errors, setErrors] = useState({});
+
+    // State for Add/Edit Trip Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [vendorId, setVendorId] = useState(null);
+    const [routeId, setRouteId] = useState(null);
+    const [busId, setBusId] = useState(null);
+    const [totalSeats, setTotalSeats] = useState("");
+    const [ticketPrice, setTicketPrice] = useState("");
+    const [departureTime, setDepartureTime] = useState("");
+    const [arrivalTime, setArrivalTime] = useState("");
+    const [status, setStatus] = useState("active");
+    const [currentTripId, setCurrentTripId] = useState(null);
+    const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
+    const [modalRouteSearchTag, setModalRouteSearchTag] = useState("");
+    const [modalBusSearchTag, setModalBusSearchTag] = useState("");
+    const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
+    const [showModalRouteDropdown, setShowModalRouteDropdown] = useState(false);
+    const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
+
+    const isAdmin=JSON.parse(user_type()).role==="admin"
+
+
+    // Fetch buses, routes, and vendors on component mount
+    useEffect(() => {
+        dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
+        dispatch(fetchBuses({ searchTag: modalBusSearchTag }));
+        dispatch(fetchRoutes());
+        dispatch(fetchTrips())
+    }, [dispatch, modalBusSearchTag, routeSearchTag]);
+
+    
+    
+
+    // Pre-fill form when editing a trip
+    useEffect(() => {
+        if (selectedTrip) {
+            setVendorId(selectedTrip.vendor.id);
+            setRouteId(selectedTrip.route.id);
+            setBusId(selectedTrip.bus.id);
+            setTotalSeats(selectedTrip.total_seats);
+            setTicketPrice(selectedTrip.ticket_price);
+            setDepartureTime(selectedTrip.departure_time);
+            setArrivalTime(selectedTrip.arrival_time);
+            setStatus(selectedTrip.status);
+        }
+    }, [selectedTrip, users, routes, buses]);
+
+    // Handle vendor selection (for table filtering)
+    const handleVendorSelect = (vendor) => {
+        setSelectedVendorId(vendor.value);
+        setShowVendorDropdown(false);
+        setVendorSearchTag(vendor.label);
+    };
+
+    // Handle route selection (for table filtering)
+    const handleRouteSelect = (route) => {
+        setSelectedRouteId(route.value);
+        setShowRouteDropdown(false);
+        setRouteSearchTag(route.label);
+    };
+
+    // Handle bus selection (for table filtering)
+    const handleBusSelect = (bus) => {
+        setSelectedBusId(bus.value);
+        setShowBusDropdown(false);
+        setBusSearchTag(bus.label);
+    };
+
+    // Handle vendor selection in modal
+    const handleModalVendorSelect = (vendor) => {
+        setVendorId(vendor.vendor.id);
+        setModalVendorSearchTag(vendor.first_name);
+        setShowModalVendorDropdown(false);
+    };
+
+    // Handle route selection in modal
+    const handleModalRouteSelect = (route) => {
+        setRouteId(route.id);
+        setModalRouteSearchTag(route.name);
+        setShowModalRouteDropdown(false);
+    };
+
+    // Handle bus selection in modal
+    const handleModalBusSelect = (bus) => {
+        setBusId(bus.id);
+        setModalBusSearchTag(bus.name);
+        setShowModalBusDropdown(false);
+    };
+
+    // Handle add/edit trip form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const tripData = {
+            //vendor_id: vendorId.value,
+            route_id: routeId,
+            bus_id: busId,
+            total_seats: totalSeats,
+            ticket_price: ticketPrice,
+            departure_time: departureTime,
+            arrival_time: arrivalTime,
+            status,
+            
+        };
+
+        if(isAdmin){
+            tripData.vendor_id=vendorId
+        }
+        console.log(tripData)
+        //return
+
+        try {
+            await tripSchema.validate(tripData, { abortEarly: false });
+
+            if (isEditMode) {
+                await dispatch(
+                    editTrip({ tripId: currentTripId, updatedData: tripData })
+                ).unwrap();
+                Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: "Trip updated successfully.",
+                });
+            } else {
+                await dispatch(addTrip(tripData)).unwrap();
+                Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: "Trip added successfully.",
+                });
+            }
+
+            resetModal();
+        } catch (error) {
+            if (error instanceof Yup.ValidationError) {
+                const newErrors = {};
+                error.inner.forEach((err) => {
+                    newErrors[err.path] = err.message;
+                });
+                setErrors(newErrors);
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: error || "Failed to add/update trip. Please try again.",
+                });
+            }
+        }
+    };
+
+    // Reset modal state
+    const resetModal = () => {
+        setIsEditMode(false);
+        setVendorId(null);
+        setRouteId(null);
+        setBusId(null);
+        setTotalSeats("");
+        setTicketPrice("");
+        setDepartureTime("");
+        setArrivalTime("");
+        setStatus("active");
+        setIsModalOpen(false);
+        setCurrentTripId(null);
+        setErrors({});
+    };
+
+    // Handle edit trip button click
+    const handleEditTrip = (tripId) => {
+        dispatch(showTrip(tripId));
+        setIsEditMode(true);
+        setIsModalOpen(true);
+        setCurrentTripId(tripId);
+    };
+
+
+    return (
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
+            {/* Trip Search and Add Button */}
+            <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-row gap-2 items-center">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                        Trip List
+                    </h3>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <input
+                        type="text"
+                        className="rounded-md"
+                        placeholder="Search trip..."
+                        value={searchTag}
+                        onChange={(e) => setSearchTag(e.target.value)}
+                    />
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                    >
+                        Add Trip
+                    </button>
+                </div>
+            </div>
+
+            {/* Table Filtering Section */}
+            <div className="flex flex-row items-center justify-end gap-3 mb-4">
+                
+
+                {/* Route Dropdown */}
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Search route..."
+                        value={routeSearchTag}
+                        onChange={(e) => {
+                            setRouteSearchTag(e.target.value);
+                            setShowRouteDropdown(true);
+                        }}
+                        onFocus={() => setShowRouteDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {showRouteDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {routes
+                                .filter((route) =>
+                                    route.label.toLowerCase().includes(routeSearchTag.toLowerCase())
+                                )
+                                .map((route) => (
+                                    <div
+                                        key={route.value}
+                                        onClick={() => handleRouteSelect(route)}
+                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                    >
+                                        {route.label}
+                                    </div>
+                                ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Bus Dropdown */}
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Search bus..."
+                        value={busSearchTag}
+                        onChange={(e) => {
+                            setBusSearchTag(e.target.value);
+                            setShowBusDropdown(true);
+                        }}
+                        onFocus={() => setShowBusDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {showBusDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {buses
+                                .filter((bus) =>
+                                    bus.label.toLowerCase().includes(busSearchTag.toLowerCase())
+                                )
+                                .map((bus) => (
+                                    <div
+                                        key={bus.value}
+                                        onClick={() => handleBusSelect(bus)}
+                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                    >
+                                        {bus.label}
+                                    </div>
+                                ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Trip Table */}
+            <div className="max-w-full overflow-x-auto">
+                {loading ? (
+                    <div className="flex justify-center items-center h-32">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+                    </div>
+                ) : (
+                    <Table>
+                        <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
+                            <TableRow>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Vendor
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Route
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Bus
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Total Seats
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Ticket Price
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Departure Time
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Arrival Time
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Status
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    Action
+                                </TableCell>
+                            </TableRow>
+                        </TableHeader>
+
+                        <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {trips.map((trip) => (
+                                <TableRow key={trip.id}>
+                                    <TableCell className="py-3">
+                                        <div className="flex items-center gap-3">
+                                            <div>
+                                                <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                                                    {trip.vendor_id}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.route_id}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.bus_id}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.total_seats}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.ticket_price}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.departure_time}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.arrival_time}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.status}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        <div className="flex flex-row items-center justify-start gap-2">
+                                            <Edit
+                                                className="w-6 h-6 cursor-pointer"
+                                                onClick={() => handleEditTrip(trip.id)}
+                                            />
+                                            {/* <Delete className="w-6 h-6" />
+                                            <View className="w-6 h-6" /> */}
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </div>
+
+            {/* Add/Edit Trip Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[70vh] overflow-y-auto">
+                        <h2 className="text-lg font-semibold mb-4">
+                            {isEditMode ? "Edit Trip" : "Add Trip"}
+                        </h2>
+                        <form onSubmit={handleSubmit}>
+                            
+                            
+
+                            {isAdmin && (
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Vendor *
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search vendor..."
+                                            value={modalVendorSearchTag}
+                                            onChange={(e) => {
+                                                setModalVendorSearchTag(e.target.value);
+                                                setShowModalVendorDropdown(true);
+                                            }}
+                                            onFocus={() => setShowModalVendorDropdown(true)}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                        {showModalVendorDropdown && (
+                                            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                {users
+                                                    .filter((user) => 
+                                                        user.first_name.toLowerCase().includes(modalVendorSearchTag.toLowerCase())
+                                                    )
+                                                    .map((vendor) => (
+                                                        <div
+                                                            key={vendor.id}
+                                                            onClick={() => handleModalVendorSelect(vendor)}
+                                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                        >
+                                                            {vendor.first_name}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {errors.vendor_id && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.vendor_id}</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Route Dropdown in Modal */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Route *
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search route..."
+                                        value={modalRouteSearchTag}
+                                        onChange={(e) => {
+                                            setModalRouteSearchTag(e.target.value);
+                                            setShowModalRouteDropdown(true);
+                                        }}
+                                        onFocus={() => setShowModalRouteDropdown(true)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    />
+                                    {showModalRouteDropdown && (
+                                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                            {routes
+                                                .filter((route) =>
+                                                    route.name.toLowerCase().includes(modalRouteSearchTag.toLowerCase())
+                                                )
+                                                .map((route) => (
+                                                    <div
+                                                        key={route.id}
+                                                        onClick={() => handleModalRouteSelect(route)}
+                                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                    >
+                                                        {route.name}
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    )}
+                                </div>
+                                {errors.route_id && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.route_id}</p>
+                                )}
+                            </div>
+
+                            {/* Bus Dropdown in Modal */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Bus *
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search bus..."
+                                        value={modalBusSearchTag}
+                                        onChange={(e) => {
+                                            
+                                            setModalBusSearchTag(e.target.value);
+                                            setShowModalBusDropdown(true);
+                                        }}
+                                        onFocus={() => setShowModalBusDropdown(true)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    />
+                                    {showModalBusDropdown && (
+                                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                            {buses
+                                                
+                                                .map((bus) => (
+                                                    <div
+                                                        key={bus.id}
+                                                        onClick={() => handleModalBusSelect(bus)}
+                                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                    >
+                                                        {bus.name}
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    )}
+                                </div>
+                                {errors.bus_id && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.bus_id}</p>
+                                )}
+                            </div>
+
+                            {/* Total Seats */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Total Seats *
+                                </label>
+                                <input
+                                    type="number"
+                                    value={totalSeats}
+                                    onChange={(e) => setTotalSeats(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                {errors.total_seats && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.total_seats}</p>
+                                )}
+                            </div>
+
+                            {/* Ticket Price */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Ticket Price *
+                                </label>
+                                <input
+                                    type="number"
+                                    value={ticketPrice}
+                                    onChange={(e) => setTicketPrice(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                {errors.ticket_price && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.ticket_price}</p>
+                                )}
+                            </div>
+
+                            {/* Departure Time */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Departure Time *
+                                </label>
+                                <input
+                                    type="datetime-local"
+                                    value={formatForDisplay(departureTime)}
+                                    onChange={(e) => setDepartureTime(formatForDisplay(e.target.value))}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                {errors.departure_time && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.departure_time}</p>
+                                )}
+                            </div>
+
+                            {/* Arrival Time */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Arrival Time *
+                                </label>
+                                <input
+                                    type="datetime-local"
+                                    value={formatForDisplay(arrivalTime)}
+                                    onChange={(e) => setArrivalTime(formatForDisplay(e.target.value))}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                {errors.arrival_time && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.arrival_time}</p>
+                                )}
+                            </div>
+
+                            {/* Status */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Status *
+                                </label>
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                                {errors.status && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.status}</p>
+                                )}
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    onClick={resetModal}
+                                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                >
+                                    {isEditMode ? "Update" : "Add"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

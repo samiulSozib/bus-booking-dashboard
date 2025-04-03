@@ -73,7 +73,7 @@ import {ReactComponent as SetPassword} from './set-password.svg?react'
 import {ReactComponent as Delete} from './delete-button-svgrepo-com.svg?react'
 import  {ReactComponent as Home} from './home-4-svgrepo-com.svg?react'
 import {ReactComponent as View} from './view-disable-svgrepo-com.svg?react'
-
+import {ReactComponent as FunnelIcon} from './funnel.svg?react'
 
 
 
@@ -159,5 +159,6 @@ export {
   SetPassword,
   Delete,
   Home,
-  View
+  View,
+  FunnelIcon
 };

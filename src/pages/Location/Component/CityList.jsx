@@ -13,6 +13,7 @@ import { fetchCountries } from "../../../store/slices/countrySlice";
 import { fetchProvinces } from "../../../store/slices/provinceSlice";
 import Swal from "sweetalert2";
 import * as Yup from 'yup';
+import Pagination from "../../../components/pagination/pagination";
 
 
 // Yup validation schema
@@ -44,6 +45,8 @@ export default function CityList() {
     const [countrySearchTag, setCountrySearchTag] = useState(""); // For country dropdown search
     const [provinceSearchTag, setProvinceSearchTag] = useState(""); // For province dropdown search
     const [errors, setErrors] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(10);
 
 
     // State for Add/Edit City Modal
@@ -359,6 +362,12 @@ export default function CityList() {
                 </Table>
             )}
             </div>
+
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
 
             {/* Add/Edit City Modal */}
             {isModalOpen && (

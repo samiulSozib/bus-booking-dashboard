@@ -3,7 +3,9 @@ import axios from 'axios';
 import { base_url } from '../../utils/const';
 
 const getAuthToken = () => localStorage.getItem("token") || "";
-
+const user_type=()=>{
+  return localStorage.getItem("profile")||"";
+}
 
 // Async Thunks
 
@@ -150,13 +152,14 @@ export const updateSeat = createAsyncThunk(
 // Fetch all buses
 export const fetchBuses = createAsyncThunk(
   'bus/fetchBuses',
-  async (searchTag="", { rejectWithValue }) => {
+  async ({searchTag=""}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/vendor/buses?search=${searchTag}`,{headers:{Authorization: `${token}`}});
+      const type=JSON.parse(user_type())
+      const response = await axios.get(`${base_url}/${type.role}/buses?search=${searchTag}`,{headers:{Authorization: `${token}`}});
+      console.log(searchTag)
       return response.data.body.items;
     } catch (error) {
-      console.log(error)
       return rejectWithValue(error?.response?.statusText);
     }
   }

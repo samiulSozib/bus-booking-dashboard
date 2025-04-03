@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
-import * as Yup from 'yup';
-import Swal from 'sweetalert2';
+import * as Yup from "yup";
+import Swal from "sweetalert2";
 import {
     Table,
     TableBody,
@@ -9,19 +9,20 @@ import {
     TableHeader,
     TableRow,
 } from "../../../components/ui/table";
-import { Delete, Edit, View } from "../../../icons";
+import { Delete, Edit, View, FunnelIcon } from "../../../icons"; // Add FunnelIcon
 import { addCountry, editCountry, fetchCountries, showCountry } from "../../../store/slices/countrySlice";
+import Pagination from "../../../components/pagination/pagination";
 
 // Validation schema
 const countrySchema = Yup.object().shape({
     countryName: Yup.object().shape({
-        en: Yup.string().required('English name is required'),
+        en: Yup.string().required("English name is required"),
         ps: Yup.string().optional(),
         fa: Yup.string().optional(),
     }),
     countryCode: Yup.string()
-        .required('Country code is required')
-        .matches(/^[A-Z]{3}$/, 'Country code must be exactly 3 uppercase letters'),
+        .required("Country code is required")
+        .matches(/^[A-Z]{3}$/, "Country code must be exactly 3 uppercase letters"),
 });
 
 export default function CountryList() {
@@ -35,10 +36,14 @@ export default function CountryList() {
     const [countryName, setCountryName] = useState({ en: "", ps: "", fa: "" });
     const [countryCode, setCountryCode] = useState("");
     const [errors, setErrors] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(10);
+    const [isFilterOpen, setIsFilterOpen] = useState(false); // State for filter dropdown
+    const [filters, setFilters] = useState({ searchTag: "", code: "" }); // State for filters
 
     useEffect(() => {
-        dispatch(fetchCountries(searchTag));
-    }, [dispatch, searchTag]);
+        dispatch(fetchCountries());
+    }, [dispatch, filters, currentPage]);
 
     useEffect(() => {
         if (selectedCountry) {
@@ -63,17 +68,17 @@ export default function CountryList() {
                 // Edit country
                 await dispatch(editCountry({ countryId: currentCountryId, updatedData: countryData })).unwrap();
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Country updated successfully!',
+                    icon: "success",
+                    title: "Success",
+                    text: "Country updated successfully!",
                 });
             } else {
                 // Add country
                 await dispatch(addCountry(countryData)).unwrap();
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Country added successfully!',
+                    icon: "success",
+                    title: "Success",
+                    text: "Country added successfully!",
                 });
             }
 
@@ -89,7 +94,7 @@ export default function CountryList() {
                 // Yup validation errors
                 const newErrors = {};
                 error.inner.forEach((err) => {
-                    const path = err.path.split('.');
+                    const path = err.path.split(".");
                     if (path.length === 2) {
                         // Handle nested fields (e.g., countryName.en)
                         if (!newErrors[path[0]]) newErrors[path[0]] = {};
@@ -103,9 +108,9 @@ export default function CountryList() {
             } else {
                 // API or other errors
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message || 'Failed to add/update country. Please try again.',
+                    icon: "error",
+                    title: "Error",
+                    text: error.message || "Failed to add/update country. Please try again.",
                 });
             }
         }
@@ -116,6 +121,15 @@ export default function CountryList() {
         setIsEditing(true);
         setCurrentCountryId(countryId);
         setIsModalOpen(true);
+    };
+
+    const handleApplyFilters = () => {
+        setIsFilterOpen(false); // Close filter dropdown
+    };
+
+    const handleResetFilters = () => {
+        setFilters({ searchTag: "", code: "" }); // Reset filters
+        setIsFilterOpen(false); // Close filter dropdown
     };
 
     return (
@@ -197,14 +211,12 @@ export default function CountryList() {
                                         setIsEditing(false);
                                         setCurrentCountryId(null);
                                         setErrors({}); // Clear errors
-
                                     }}
                                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    
                                     type="submit"
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
@@ -224,13 +236,76 @@ export default function CountryList() {
                     </h3>
                 </div>
                 <div className="flex items-center gap-3">
+                    {/* Search Input */}
                     <input
                         type="text"
                         className="rounded-md"
                         placeholder="Search"
-                        prefix=""
-                        onChange={(e) => setSearchTag(e.target.value)}
+                        value={filters.searchTag}
+                        onChange={(e) => setFilters({ ...filters, searchTag: e.target.value })}
                     />
+
+                    {/* Filter Button and Dropdown */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                        >
+                            <FunnelIcon className="h-5 w-5" />
+                            Filter
+                        </button>
+
+                        {/* Filter Dropdown */}
+                        {isFilterOpen && (
+                            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                <div className="p-4 space-y-4">
+                                    {/* Search Tag Filter */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Search Tag
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={filters.searchTag}
+                                            onChange={(e) => setFilters({ ...filters, searchTag: e.target.value })}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+
+                                    {/* Country Code Filter */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Country Code
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={filters.code}
+                                            onChange={(e) => setFilters({ ...filters, code: e.target.value })}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Filter Buttons */}
+                                <div className="p-4 border-t border-gray-200 flex justify-end gap-3">
+                                    <button
+                                        onClick={handleResetFilters}
+                                        className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    >
+                                        Reset
+                                    </button>
+                                    <button
+                                        onClick={handleApplyFilters}
+                                        className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    >
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Add Country Button */}
                     <button
                         onClick={() => {
                             setIsModalOpen(true);
@@ -288,16 +363,21 @@ export default function CountryList() {
                                                 className="w-6 h-6 cursor-pointer"
                                                 onClick={() => handleEdit(country.id)}
                                             />
-                                            {/* <Delete className="w-6 h-6" />
-                                            <View className="w-6 h-6"/> */}
                                         </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
                     </Table>
                 )}
             </div>
+
+            {/* Pagination */}
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
         </div>
     );
 }

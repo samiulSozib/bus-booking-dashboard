@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
-
-// Assume these icons are imported from an icon library
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   ChevronDownIcon,
   HorizontaLDots,
@@ -13,66 +11,8 @@ import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { useTranslation } from "react-i18next";
 import SidebarBottom from "./SidebarBottom";
-
-const navItems = [
-  {
-    icon: <Dashboard />,
-    name: "DASHBOARD",
-    path: "/",
-  },
-  
-  {
-    icon: <User_Group />,
-    name: "Location",
-    subItems: [
-      { name: "Country", path: "/location/countries" },
-      { name: "Province", path: "/location/provinces"},
-      { name: "City", path:"/location/cities"}
-    ],
-  },
-
-  {
-    icon: <User_Group />,
-    name: "Route",
-    path:"/routes"
-  },
-
-  {
-    icon: <User_Group />,
-    name: "Station",
-    path:"/stations"
-  },
-
-  {
-    icon: <User_Group />,
-    name: "Trip",
-    path:"/trips"
-  },
-
-  {
-    icon: <User_Group />,
-    name: "User",
-    path:"/users"
-  },
-  {
-    icon:<UserIcon/>,
-    name:'Bus',
-    path:'/buses'
-  },
-  {
-    icon:<User_Group/>,
-    name:'Drivers',
-    path:'/drivers'
-  }
-];
-
-const othersItems = [
-  {
-    icon: <UserIcon />,
-    name: "PROFILE",
-    path: "/",
-  },
-];
+import { user_type } from "../utils/utils";
+import { parse } from "postcss";
 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
@@ -83,39 +23,138 @@ const AppSidebar = () => {
   const [subMenuHeight, setSubMenuHeight] = useState({});
   const subMenuRefs = useRef({});
 
+  // Get user role
+  const user = JSON.parse(user_type())
+  const isAdmin = user?.role === "admin";
+  const isVendor = user?.role === "vendor";
+
+  // Memoized navigation items configuration
+  const navItems = useMemo(() => [
+    {
+      icon: <Dashboard />,
+      name: "DASHBOARD",
+      path: "/",
+      roles: ["admin", "vendor"]
+    },
+    {
+      icon: <User_Group />,
+      name: "Location",
+      roles: ["admin"],
+      subItems: [
+        { name: "Country", path: "/location/countries" },
+        { name: "Province", path: "/location/provinces" },
+        { name: "City", path: "/location/cities" }
+      ],
+    },
+    {
+      icon: <User_Group />,
+      name: "Route",
+      path: "/routes",
+      roles: ["admin"]
+    },
+    {
+      icon: <User_Group />,
+      name: "Station",
+      path: "/stations",
+      roles: ["admin"]
+    },
+    {
+      icon: <User_Group />,
+      name: "Discount",
+      path: "/discounts",
+      roles: ["admin"]
+    },
+    {
+      icon: <User_Group />,
+      name: "Trip",
+      path: "/trips",
+      roles: ["admin", "vendor"]
+    },
+    {
+      icon: <User_Group />,
+      name: "User",
+      path: "/users",
+      roles: ["admin"]
+    },
+    {
+      icon: <User_Group />,
+      name: "Wallet Transaction",
+      path: "/wallet-transactions",
+      roles: ["admin"]
+    },
+    {
+      icon: <UserIcon />,
+      name: "Bus",
+      path: "/buses",
+      roles: ["admin", "vendor"]
+    },
+    {
+      icon: <User_Group />,
+      name: "Drivers",
+      path: "/drivers",
+      roles: ["admin", "vendor"]
+    }
+  ], []);
+
+  const othersItems = useMemo(() => [
+    {
+      icon: <UserIcon />,
+      name: "PROFILE",
+      path: "/profile",
+      roles: ["admin", "vendor"]
+    },
+  ], []);
+
+  // Memoize filtered items
+  const filterItemsByRole = useCallback((items) => {
+    return items.filter(item => {
+      if (!item.roles) return false;
+      if (isAdmin) return true;
+      if (isVendor) return item.roles.includes("vendor");
+      return false;
+    });
+  }, [isAdmin, isVendor]);
+
+  const filteredNavItems = useMemo(() => filterItemsByRole(navItems), [filterItemsByRole, navItems]);
+  const filteredOthersItems = useMemo(() => filterItemsByRole(othersItems), [filterItemsByRole, othersItems]);
+
+  // RTL detection
   useEffect(() => {
     setIsRtl(i18n.dir() === "rtl");
   }, [i18n.language]);
 
+  // Active route detection
   const isActive = useCallback(
     (path) => location.pathname === path,
     [location.pathname]
   );
 
+  // Submenu auto-expand logic
   useEffect(() => {
     let submenuMatched = false;
-    ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+    
+    const checkSubItems = (items, menuType) => {
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
-              setOpenSubmenu({
-                type: menuType,
-                index,
-              });
+              setOpenSubmenu({ type: menuType, index });
               submenuMatched = true;
             }
           });
         }
       });
-    });
+    };
+
+    checkSubItems(navItems, "main");
+    checkSubItems(othersItems, "others");
 
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [location, isActive]);
+  }, [location.pathname, isActive, navItems, othersItems]);
 
+  // Calculate submenu height when opened
   useEffect(() => {
     if (openSubmenu !== null) {
       const key = `${openSubmenu.type}-${openSubmenu.index}`;
@@ -128,23 +167,21 @@ const AppSidebar = () => {
     }
   }, [openSubmenu]);
 
+  // Toggle submenu
   const handleSubmenuToggle = (index, menuType) => {
     setOpenSubmenu((prevOpenSubmenu) => {
-      if (
-        prevOpenSubmenu &&
-        prevOpenSubmenu.type === menuType &&
-        prevOpenSubmenu.index === index
-      ) {
+      if (prevOpenSubmenu?.type === menuType && prevOpenSubmenu?.index === index) {
         return null;
       }
       return { type: menuType, index };
     });
   };
 
-  const renderMenuItems = (items, menuType) => (
+  // Render menu items
+  const renderMenuItems = useCallback((items, menuType) => (
     <ul className="flex flex-col gap-1">
       {items.map((nav, index) => (
-        <li key={t(nav.name)}>
+        <li key={`${menuType}-${index}-${nav.name}`}>
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
@@ -240,7 +277,7 @@ const AppSidebar = () => {
         </li>
       ))}
     </ul>
-  );
+  ), [openSubmenu, isExpanded, isHovered, isMobileOpen, isActive, t, subMenuHeight]);
 
   return (
     <aside
@@ -294,7 +331,7 @@ const AppSidebar = () => {
               >
                 {isExpanded || isHovered || isMobileOpen ? "" : <HorizontaLDots className="size-6" />}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(filteredNavItems, "main")}
             </div>
 
             <div>
@@ -305,7 +342,7 @@ const AppSidebar = () => {
               >
                 {isExpanded || isHovered || isMobileOpen ? "General" : <HorizontaLDots />}
               </h2>
-              {renderMenuItems(othersItems, "others")}
+              {renderMenuItems(filteredOthersItems, "others")}
             </div>
           </div>
         </nav>
