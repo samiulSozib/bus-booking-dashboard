@@ -7,9 +7,11 @@ const getAuthToken = () => {
     return localStorage.getItem("token") || ""; // Get the token or return an empty string if not found
 };
 
-const user_type=()=>{
-    return localStorage.getItem("profile")||"";
-}
+export function user_type(){
+    // return JSON.parse(localStorage.getItem("profile")||"{}");
+    const profile = localStorage.getItem("profile");
+    return profile ? JSON.parse(profile) : null;
+  }
 
 // Fetch Routes
 export const fetchRoutes = createAsyncThunk(
