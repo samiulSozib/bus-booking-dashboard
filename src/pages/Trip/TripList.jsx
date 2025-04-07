@@ -75,7 +75,7 @@ export default function TripList() {
     const [showModalRouteDropdown, setShowModalRouteDropdown] = useState(false);
     const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
 
-    const isAdmin=JSON.parse(user_type()).role==="admin"
+    const isAdmin=user_type().role==="admin"
 
 
     // Fetch buses, routes, and vendors on component mount

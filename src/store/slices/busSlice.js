@@ -155,7 +155,7 @@ export const fetchBuses = createAsyncThunk(
   async ({searchTag=""}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type=JSON.parse(user_type())
+      const type=user_type()
       const response = await axios.get(`${base_url}/${type.role}/buses?search=${searchTag}`,{headers:{Authorization: `${token}`}});
       console.log(searchTag)
       return response.data.body.items;

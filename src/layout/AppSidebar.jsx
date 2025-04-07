@@ -24,7 +24,7 @@ const AppSidebar = () => {
   const subMenuRefs = useRef({});
 
   // Get user role
-  const user = JSON.parse(user_type())
+  const user = user_type()
   const isAdmin = user?.role === "admin";
   const isVendor = user?.role === "vendor";
 

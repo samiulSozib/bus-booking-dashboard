@@ -15,7 +15,7 @@ const user_type=()=>{
 export const fetchRoutes = createAsyncThunk(
     'routes/fetchRoutes',
     async (searchTag, { rejectWithValue }) => {
-        const type=JSON.parse(user_type())
+        const type=user_type()
         console.log(type.role)
         const token = getAuthToken();
         try {

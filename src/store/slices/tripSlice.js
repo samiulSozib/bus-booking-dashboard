@@ -13,7 +13,7 @@ export const fetchTrips = createAsyncThunk(
     async (searchTag, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const type=JSON.parse(user_type())
+            const type=user_type()
 
             const response = await axios.get(`${base_url}/${type.role}/trips?search=${searchTag}`, {
                 headers: {
@@ -34,7 +34,7 @@ export const showTrip = createAsyncThunk(
     async (tripId, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const type=JSON.parse(user_type())
+            const type=user_type()
             const response = await axios.get(`${base_url}/${type.role}/trips/${tripId}/show`, {
                 headers: {
                     Authorization: `${token}`,
@@ -55,7 +55,7 @@ export const addTrip = createAsyncThunk(
     async (tripData, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const type=JSON.parse(user_type())
+            const type=user_type()
             const formData = new FormData();
             if(tripData.vendor_id){
                 formData.append('vendor_id', tripData.vendor_id);
@@ -89,7 +89,7 @@ export const editTrip = createAsyncThunk(
     async ({ tripId, updatedData }, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const type=JSON.parse(user_type())
+            const type=user_type()
             const formData = new FormData();
             if(updatedData.vendor_id){
                 formData.append('vendor_id', updatedData.vendor_id);

@@ -124,5 +124,5 @@ export function formatForInputDiscount(displayTime) {
 }
 
 export function user_type(){
-  return localStorage.getItem("profile")||"";
+  return JSON.parse(localStorage.getItem("profile")||"");
 }
