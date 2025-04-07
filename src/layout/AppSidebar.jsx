@@ -38,59 +38,59 @@ const AppSidebar = () => {
     },
     {
       icon: <User_Group />,
-      name: "Location",
+      name: "LOCATION",
       roles: ["admin"],
       subItems: [
-        { name: "Country", path: "/location/countries" },
-        { name: "Province", path: "/location/provinces" },
-        { name: "City", path: "/location/cities" }
+        { name: "COUNTRY", path: "/location/countries" },
+        { name: "PROVINCE", path: "/location/provinces" },
+        { name: "CITY", path: "/location/cities" }
       ],
     },
     {
       icon: <User_Group />,
-      name: "Route",
+      name: "ROUTES",
       path: "/routes",
       roles: ["admin"]
     },
     {
       icon: <User_Group />,
-      name: "Station",
+      name: "STATIONS",
       path: "/stations",
       roles: ["admin"]
     },
     {
       icon: <User_Group />,
-      name: "Discount",
+      name: "DISCOUNTS",
       path: "/discounts",
       roles: ["admin"]
     },
     {
       icon: <User_Group />,
-      name: "Trip",
+      name: "TRIPS",
       path: "/trips",
       roles: ["admin", "vendor"]
     },
     {
       icon: <User_Group />,
-      name: "User",
+      name: "USERS",
       path: "/users",
       roles: ["admin"]
     },
     {
       icon: <User_Group />,
-      name: "Wallet Transaction",
+      name: "WALLET_TRANSACTION",
       path: "/wallet-transactions",
       roles: ["admin"]
     },
     {
       icon: <UserIcon />,
-      name: "Bus",
+      name: "BUS",
       path: "/buses",
       roles: ["admin", "vendor"]
     },
     {
       icon: <User_Group />,
-      name: "Drivers",
+      name: "DRIVERS",
       path: "/drivers",
       roles: ["admin", "vendor"]
     }
@@ -267,7 +267,7 @@ const AppSidebar = () => {
                           : "menu-dropdown-item-inactive"
                       }`}
                     >
-                      {subItem.name}
+                      {t(subItem.name)}
                     </Link>
                   </li>
                 ))}

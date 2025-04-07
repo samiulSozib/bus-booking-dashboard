@@ -7,7 +7,7 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Countries
 export const fetchCountries = createAsyncThunk(
     "countries/fetchCountries",
-    async (searchTag, { rejectWithValue }) => {
+    async ({searchTag=""}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
             const response = await axios.get(`${base_url}/admin/location/countries?search=${searchTag}`, {
@@ -16,7 +16,10 @@ export const fetchCountries = createAsyncThunk(
                     'Content-Type': 'application/json',
                 },
             });
-            return response.data.body.items;
+            return {
+                items: response.data.body.items,
+                pagination: response.data.body.data
+            };
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -119,6 +122,11 @@ const countriesSlice = createSlice({
         countries: [],
         selectedCountry: null,
         error: null,
+        pagination: {
+            current_page: 1,
+            last_page: 1,
+            total: 0
+        }
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -129,7 +137,8 @@ const countriesSlice = createSlice({
             })
             .addCase(fetchCountries.fulfilled, (state, action) => {
                 state.loading = false;
-                state.countries = action.payload;
+                state.countries = action.payload.items;
+                state.pagination = action.payload.pagination;
             })
             .addCase(fetchCountries.rejected, (state, action) => {
                 state.loading = false;
@@ -139,7 +148,8 @@ const countriesSlice = createSlice({
                 state.selectedCountry = action.payload;
             })
             .addCase(addCountry.fulfilled, (state, action) => {
-                state.countries.push(action.payload);
+                state.countries.unshift(action.payload); // Add new country at the beginning
+                state.pagination.total += 1; // Increment total count
             })
             .addCase(editCountry.fulfilled, (state, action) => {
                 state.countries = state.countries.map((country) =>
@@ -148,6 +158,7 @@ const countriesSlice = createSlice({
             })
             .addCase(deleteCountry.fulfilled, (state, action) => {
                 state.countries = state.countries.filter((country) => country.id !== action.payload);
+                state.pagination.total -= 1; // Decrement total count
             });
     },
 });

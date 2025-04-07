@@ -126,7 +126,7 @@ export default function SignInForm() {
               </div>
 
               {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Checkbox
                     checked={isChecked}
@@ -142,7 +142,7 @@ export default function SignInForm() {
                 >
                   {t("FORGOT_PASSWORD")}
                 </Link>
-              </div>
+              </div> */}
 
               {/* Sign In Button */}
               <div>
@@ -159,7 +159,7 @@ export default function SignInForm() {
           </form>
 
           {/* Sign Up Link */}
-          <div className="mt-6 text-center">
+          {/* <div className="mt-6 text-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {t("DONT_HAVE_AN_ACCOUNT")}{" "}
               <Link
@@ -169,7 +169,7 @@ export default function SignInForm() {
                 {t("SIGN_UP")}
               </Link>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

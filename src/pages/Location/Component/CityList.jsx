@@ -14,6 +14,7 @@ import { fetchProvinces } from "../../../store/slices/provinceSlice";
 import Swal from "sweetalert2";
 import * as Yup from 'yup';
 import Pagination from "../../../components/pagination/pagination";
+import { useTranslation } from "react-i18next";
 
 
 // Yup validation schema
@@ -47,6 +48,7 @@ export default function CityList() {
     const [errors, setErrors] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(10);
+    const {t}=useTranslation()
 
 
     // State for Add/Edit City Modal
@@ -65,8 +67,8 @@ export default function CityList() {
 
     // Fetch countries on component mount
     useEffect(() => {
-        dispatch(fetchCountries());
-    }, [dispatch]);
+        dispatch(fetchCountries({searchTag:countrySearchTag}));
+    }, [dispatch,countrySearchTag]);
 
  
 
@@ -219,7 +221,7 @@ export default function CityList() {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-2 items-center">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        City List
+                    {t("CITY_LIST")}
                     </h3>
                 </div>
 
@@ -227,7 +229,7 @@ export default function CityList() {
                     <input
                         type="text"
                         className="rounded-md"
-                        placeholder="Search city..."
+                        placeholder={t("SEARCH_CITY")}
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
@@ -235,7 +237,7 @@ export default function CityList() {
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
-                        Add City
+                        {t("ADD_CITY")}
                     </button>
                 </div>
             </div>
@@ -246,7 +248,7 @@ export default function CityList() {
                 <div className="relative">
                     <input
                         type="text"
-                        placeholder="Search country..."
+                        placeholder={t("SEARCH_COUNTRY")}
                         value={countrySearchTag}
                         onChange={(e) => {
                             setCountrySearchTag(e.target.value);
@@ -279,7 +281,7 @@ export default function CityList() {
                     <div className="relative">
                         <input
                             type="text"
-                            placeholder="Search province..."
+                            placeholder={t("SEARCH_PROVINCE")}
                             value={provinceSearchTag}
                             onChange={(e) => {
                                 setProvinceSearchTag(e.target.value);
@@ -320,13 +322,13 @@ export default function CityList() {
                     <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                         <TableRow>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Name
+                            {t("CITY_NAME")}
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Code
+                            {t("CITY_CODE")}
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Action
+                            {t("ACTION")}
                             </TableCell>
                         </TableRow>
                     </TableHeader>
@@ -374,18 +376,18 @@ export default function CityList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md">
                         <h2 className="text-lg font-semibold mb-4">
-                            {isEditMode ? "Edit City" : "Add City"}
+                            {isEditMode ? t("EDIT_CITY") : t("ADD_CITY")}
                         </h2>
                         <form onSubmit={handleSubmit}>
                             {/* Country Dropdown in Modal */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Country *
+                                {t("COUNTRY")} *
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        placeholder="Search country..."
+                                        placeholder={t("SEARCH_COUNTRY")}
                                         value={modalCountrySearchTag}
                                         onChange={(e) => {
                                             setModalCountrySearchTag(e.target.value);
@@ -421,12 +423,12 @@ export default function CityList() {
                             {modalSelectedCountryId && (
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Province *
+                                    {t("PROVINCE")} *
                                     </label>
                                     <div className="relative">
                                         <input
                                             type="text"
-                                            placeholder="Search province..."
+                                            placeholder={t("SEARCH_PROVINCE")}
                                             value={modalProvinceSearchTag}
                                             onChange={(e) => {
                                                 setModalProvinceSearchTag(e.target.value);
@@ -462,7 +464,7 @@ export default function CityList() {
                             {/* City Name (English) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    City Name (en) *
+                                {t("ENGLISH_NAME")} *
                                 </label>
                                 <input
                                     type="text"
@@ -480,7 +482,7 @@ export default function CityList() {
                             {/* City Name (Pashto) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    City Name (ps)
+                                {t("PASHTO_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -495,7 +497,7 @@ export default function CityList() {
                             {/* City Name (Farsi) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    City Name (fa)
+                                {t("FARSI_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -510,7 +512,7 @@ export default function CityList() {
                             {/* City Code */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    City Code *
+                                {t("CITY_CODE")} *
                                 </label>
                                 <input
                                     type="text"
@@ -530,13 +532,13 @@ export default function CityList() {
                                     onClick={resetModal}
                                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    Cancel
+                                    {t("CANCEL")}
                                 </button>
                                 <button
                                     type="submit"
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    {isEditMode ? "Update" : "Add"}
+                                    {isEditMode ? t("UPDATE") : t("ADD")}
                                
 
                                 </button>

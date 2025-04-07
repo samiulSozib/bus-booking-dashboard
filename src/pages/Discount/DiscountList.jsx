@@ -21,6 +21,7 @@ import { fetchTrips } from "../../store/slices/tripSlice";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { formatForDisplayDiscount, formatForInput, formatForInputDiscount } from "../../utils/utils";
+import { useTranslation } from "react-i18next";
 
 // Yup validation schema
 // Corrected Yup validation schema
@@ -84,6 +85,7 @@ export default function DiscountList() {
   const { routes } = useSelector((state) => state.routes);
   const { buses } = useSelector((state) => state.buses);
   const { trips } = useSelector((state) => state.trips);
+  const {t}=useTranslation()
 
   // State for table filtering
   const [searchTag, setSearchTag] = useState("");
@@ -267,13 +269,13 @@ export default function DiscountList() {
       {/* Header and Search */}
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Discount List
+          {t("DISCOUNT_LIST")}
         </h3>
         <div className="flex items-center gap-3">
           <input
             type="text"
             className="rounded-md"
-            placeholder="Search discounts..."
+            placeholder={t("SEARCH")}
             value={searchTag}
             onChange={(e) => setSearchTag(e.target.value)}
           />
@@ -293,7 +295,7 @@ export default function DiscountList() {
             onClick={() => setIsModalOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
-            Add Discount
+            {t("ADD_DISCOUNT")}
           </button>
         </div>
       </div>
@@ -310,14 +312,14 @@ export default function DiscountList() {
           <Table>
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">ID</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Scope</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Amount</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Type</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Start Date</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">End Date</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Status</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Actions</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ID")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("SCOPE")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("AMOUNT")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("TYPE")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("START_DATE")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("END_DATE")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("STATUS")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ACTION")}</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -369,13 +371,13 @@ export default function DiscountList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">
-              {isEditMode ? "Edit Discount" : "Add New Discount"}
+              {isEditMode ? t("EDIT_DISCOUNT") : t("ADD_DISCOUNT")}
             </h2>
             <form onSubmit={handleSubmit}>
               {/* Scope */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Scope *
+                {t("SCOPE")}  *
                 </label>
                 <select
                   value={formData.scope}
@@ -397,7 +399,7 @@ export default function DiscountList() {
               {formData.scope === 'vendor' && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Vendor *
+                  {t("VENDOR")} *
                   </label>
                   <select
                     value={formData.vendor_id || ''}
@@ -420,7 +422,7 @@ export default function DiscountList() {
               {formData.scope === 'route' && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Route *
+                  {t("ROUTES")} *
                   </label>
                   <select
                     value={formData.route_id || ''}
@@ -443,7 +445,7 @@ export default function DiscountList() {
               {formData.scope === 'bus' && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bus *
+                  {t("BUS")} *
                   </label>
                   <select
                     value={formData.bus_id || ''}
@@ -466,7 +468,7 @@ export default function DiscountList() {
               {formData.scope === 'trip' && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Trip *
+                  {t("TRIPS")} *
                   </label>
                   <select
                     value={formData.trip_id || ''}
@@ -489,7 +491,7 @@ export default function DiscountList() {
               {/* Discount Amount */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Discount Amount *
+                {t("AMOUNT")} *
                 </label>
                 <input
                   type="number"
@@ -506,7 +508,7 @@ export default function DiscountList() {
               {/* Discount Type */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Discount Type *
+                {t("TYPE")} *
                 </label>
                 <select
                   value={formData.discount_type}
@@ -524,7 +526,7 @@ export default function DiscountList() {
               {/* Start Date */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date *
+                {t("START_DATE")} *
                 </label>
                 <input
                   type="datetime-local"
@@ -540,7 +542,7 @@ export default function DiscountList() {
               {/* End Date */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Date *
+                {t("END_DATE")} *
                 </label>
                 <input
                   type="datetime-local"
@@ -556,7 +558,7 @@ export default function DiscountList() {
               {/* Status */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status *
+                {t("STATUS")} *
                 </label>
                 <select
                   value={formData.status}
@@ -582,13 +584,13 @@ export default function DiscountList() {
                   }}
                   className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
                 >
-                  Cancel
+                  {t("CANCEL")}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  {isEditMode ? "Update Discount" : "Add Discount"}
+                  {isEditMode ? t("UPDATE") : t("ADD")}
                 </button>
               </div>
             </form>

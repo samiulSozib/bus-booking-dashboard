@@ -15,6 +15,7 @@ import { fetchCities } from "../../store/slices/citySlice";
 import { fetchStations } from "../../store/slices/stationSlice";
 import * as Yup from 'yup';
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 const validationSchema = Yup.object().shape({
     origin: Yup.object().shape({
@@ -45,6 +46,7 @@ export default function RouteList() {
     const { cities } = useSelector((state) => state.cities);
     const { stations } = useSelector((state) => state.stations);
     const { routes, selectedRoute,loading } = useSelector((state) => state.routes);
+    const {t}=useTranslation()
 
     // State for table filtering
     const [searchTag, setSearchTag] = useState("");
@@ -105,7 +107,7 @@ export default function RouteList() {
 
     // Fetch countries on component mount
     useEffect(() => {
-        dispatch(fetchCountries());
+        dispatch(fetchCountries({}));
     }, [dispatch]);
 
 // Fetch provinces for origin country
@@ -411,7 +413,7 @@ useEffect(() => {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-2 items-center">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        Route List
+                        {t("ROUTE_LIST")}
                     </h3>
                 </div>
 
@@ -419,7 +421,7 @@ useEffect(() => {
                     <input
                         type="text"
                         className="rounded-md"
-                        placeholder="Search route..."
+                        placeholder={t("SEARCH")}
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
@@ -427,7 +429,7 @@ useEffect(() => {
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
-                        Add Route
+                        {t("ADD_ROUTE")}
                     </button>
                 </div>
             </div>
@@ -443,19 +445,19 @@ useEffect(() => {
                         <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                             <TableRow>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Name
+                                {t("ROUTE_NAME")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Origin
+                                {t("ORIGIN")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Destination
+                                {t("DESTINATION")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Distance
+                                {t("DISTANCE")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Action
+                                {t("ACTION")}
                                 </TableCell>
                             </TableRow>
                         </TableHeader>
@@ -502,22 +504,22 @@ useEffect(() => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
                         <h2 className="text-lg font-semibold mb-4">
-                            {isEditMode ? "Edit Route" : "Add Route"}
+                            {isEditMode ? t("EDIT_ROUTE") : t("ADD_ROUTE")}
                         </h2>
                         <form onSubmit={handleSubmit}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Origin Section */}
                                 <div>
-                                    <h3 className="text-md font-semibold mb-2">Origin</h3>
+                                    <h3 className="text-md font-semibold mb-2">{t("ORIGIN")}</h3>
                                     {/* Origin Country Dropdown */}
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-700">
-                                            Origin Country *
+                                        {t("ORIGIN")} {t("COUNTRY")} *
                                         </label>
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                placeholder="Search country..."
+                                                placeholder={t("SEARCH_COUNTRY")}
                                                 value={searchTags.originCountry}
                                                 onChange={(e) => {
                                                     handleSearchTagChange("originCountry", e.target.value);
@@ -555,12 +557,12 @@ useEffect(() => {
                                     {origin.countryId && (
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Origin Province *
+                                            {t("ORIGIN")} {t("PROVINCE")} *
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search province..."
+                                                    placeholder={t("SEARCH_PROVINCE")}
                                                     value={searchTags.originProvince}
                                                     onChange={(e) => {
                                                         handleSearchTagChange("originProvince", e.target.value);
@@ -599,12 +601,12 @@ useEffect(() => {
                                     {origin.provinceId && (
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Origin City *
+                                            {t("ORIGIN")} {t("CITY")} *
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search city..."
+                                                    placeholder={t("SEARCH_CITY")}
                                                     value={searchTags.originCity}
                                                     onChange={(e) => {
                                                         handleSearchTagChange("originCity", e.target.value);
@@ -643,12 +645,12 @@ useEffect(() => {
                                     {origin.cityId && (
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Origin Station *
+                                            {t("ORIGIN")} {t("STATION")} *
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search station..."
+                                                    placeholder={t("SEARCH")}
                                                     value={searchTags.originStation}
                                                     onChange={(e) => {
                                                         handleSearchTagChange("originStation", e.target.value);
@@ -686,16 +688,16 @@ useEffect(() => {
 
                                 {/* Destination Section */}
                                 <div>
-                                    <h3 className="text-md font-semibold mb-2">Destination</h3>
+                                    <h3 className="text-md font-semibold mb-2">{t("DESTINATION")}</h3>
                                     {/* Destination Country Dropdown */}
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-700">
-                                            Destination Country *
+                                        {t("DESTINATION")} {t("COUNTRY")} *
                                         </label>
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                placeholder="Search country..."
+                                                placeholder={t("SEARCH_COUNTRY")}
                                                 value={searchTags.destinationCountry}
                                                 onChange={(e) => {
                                                     handleSearchTagChange("destinationCountry", e.target.value);
@@ -733,12 +735,12 @@ useEffect(() => {
                                     {destination.countryId && (
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Destination Province *
+                                            {t("DESTINATION")} {t("PROVINCE")} *
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search province..."
+                                                    placeholder={t("SEARCH_PROVINCE")}
                                                     value={searchTags.destinationProvince}
                                                     onChange={(e) => {
                                                         handleSearchTagChange("destinationProvince", e.target.value);
@@ -777,12 +779,12 @@ useEffect(() => {
                                     {destination.provinceId && (
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Destination City *
+                                            {t("DESTINATION")} {t("CITY")} *
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search city..."
+                                                    placeholder={t("SEARCH")}
                                                     value={searchTags.destinationCity}
                                                     onChange={(e) => {
                                                         handleSearchTagChange("destinationCity", e.target.value);
@@ -821,12 +823,12 @@ useEffect(() => {
                                     {destination.cityId && (
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Destination Station *
+                                            {t("DESTINATION")} {t("STATION")} *
                                             </label>
                                             <div className="relative">
                                                 <input
                                                     type="text"
-                                                    placeholder="Search station..."
+                                                    placeholder={t("SEARCH")}
                                                     value={searchTags.destinationStation}
                                                     onChange={(e) => {
                                                         handleSearchTagChange("destinationStation", e.target.value);
@@ -867,7 +869,7 @@ useEffect(() => {
                             <div className="mb-4 flex flex-row justify-between gap-3">
                                 <div className="flex-1">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Name *
+                                    {t("ROUTE_NAME")} *
                                     </label>
                                     <input
                                         type="text"
@@ -883,7 +885,7 @@ useEffect(() => {
                                 
                                 <div className="flex-1">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Distance (km) *
+                                    {t("DISTANCE")} (km) *
                                     </label>
                                     <input
                                         type="number"
@@ -906,13 +908,13 @@ useEffect(() => {
                                     onClick={resetModal}
                                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    Cancel
+                                    {t("CANCEL")}
                                 </button>
                                 <button
                                     type="submit"
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    {isEditMode ? "Update" : "Add"}
+                                    {isEditMode ? t("UPDATE") : t("ADD")}
                                 </button>
                             </div>
                         </form>

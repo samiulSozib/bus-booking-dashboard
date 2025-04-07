@@ -10,12 +10,13 @@ export default function Language() {
   const { t } = useTranslation();
 
   const languagesWithFlags = [
-    { name: "فارسی", language_code: "fa", flag: "https://flagcdn.com/w40/ir.png" }, // Persian (Iran)
+    { name: "پښتو", language_code: "ps", flag: "https://flagcdn.com/w40/af.png" }, // Pashto (Afghanistan)
     { name: "English", language_code: "en", flag: "https://flagcdn.com/w40/us.png" }, // English (USA)
     { name: "Bangladesh", language_code: "bn", flag: "https://flagcdn.com/w40/bd.png" }, // Bengali (Bangladesh)
     { name: "Arabic", language_code: "ar", flag: "https://flagcdn.com/w40/sa.png" }, // Arabic (Saudi Arabia)
     { name: "Turkey", language_code: "tr", flag: "https://flagcdn.com/w40/tr.png" }, // Turkish (Turkey)
-    { name: "پښتو", language_code: "ps", flag: "https://flagcdn.com/w40/af.png" }, // Pashto (Afghanistan)
+    { name: "فارسی", language_code: "fa", flag: "https://flagcdn.com/w40/ir.png" }, // Persian (Iran)
+
   ];
 
 

@@ -12,6 +12,7 @@ import {
 import { Delete, Edit, View, FunnelIcon } from "../../../icons"; // Add FunnelIcon
 import { addCountry, editCountry, fetchCountries, showCountry } from "../../../store/slices/countrySlice";
 import Pagination from "../../../components/pagination/pagination";
+import { useTranslation } from "react-i18next";
 
 // Validation schema
 const countrySchema = Yup.object().shape({
@@ -27,7 +28,7 @@ const countrySchema = Yup.object().shape({
 
 export default function CountryList() {
     const dispatch = useDispatch();
-    const { countries, selectedCountry, loading } = useSelector((state) => state.countries);
+    const { countries, selectedCountry, loading,pagination } = useSelector((state) => state.countries);
 
     const [searchTag, setSearchTag] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,11 +40,13 @@ export default function CountryList() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(10);
     const [isFilterOpen, setIsFilterOpen] = useState(false); // State for filter dropdown
-    const [filters, setFilters] = useState({ searchTag: "", code: "" }); // State for filters
+    // const [filters, setFilters] = useState({ searchTag: "", code: "" }); // State for filters
+    const [filters, setFilters] = useState({}); // State for filters
+    const {t}=useTranslation()
 
     useEffect(() => {
-        dispatch(fetchCountries());
-    }, [dispatch, filters, currentPage]);
+        dispatch(fetchCountries({searchTag:searchTag}));
+    }, [dispatch, searchTag, currentPage]);
 
     useEffect(() => {
         if (selectedCountry) {
@@ -139,13 +142,13 @@ export default function CountryList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md">
                         <h2 className="text-lg font-semibold mb-4">
-                            {isEditing ? "Edit Country" : "Add Country"}
+                            {isEditing ? t("EDIT_COUNTRY") : t("ADD_COUNTRY")}
                         </h2>
                         <form onSubmit={handleSubmit}>
                             {/* English Name (Compulsory) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    English Name (en) *
+                                {t("ENGLISH_NAME")} *
                                 </label>
                                 <input
                                     type="text"
@@ -161,7 +164,7 @@ export default function CountryList() {
                             {/* Pashto Name (Optional) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Pashto Name (ps)
+                                {t("PASHTO_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -174,7 +177,7 @@ export default function CountryList() {
                             {/* Farsi Name (Optional) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Farsi Name (fa)
+                                    {t("FARSI_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -187,7 +190,7 @@ export default function CountryList() {
                             {/* Country Code */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Country Code
+                                {t("COUNTRY_CODE")}
                                 </label>
                                 <input
                                     type="text"
@@ -214,13 +217,13 @@ export default function CountryList() {
                                     }}
                                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    Cancel
+                                    {t("CANCEL")}
                                 </button>
                                 <button
                                     type="submit"
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    {isEditing ? "Update" : "Add"}
+                                    {isEditing ? t("UPDATE") : t("ADD")}
                                 </button>
                             </div>
                         </form>
@@ -232,7 +235,7 @@ export default function CountryList() {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        Country List
+                        {t("COUNTRY_LIST")}
                     </h3>
                 </div>
                 <div className="flex items-center gap-3">
@@ -240,9 +243,9 @@ export default function CountryList() {
                     <input
                         type="text"
                         className="rounded-md"
-                        placeholder="Search"
+                        placeholder={t("SEARCH")}
                         value={filters.searchTag}
-                        onChange={(e) => setFilters({ ...filters, searchTag: e.target.value })}
+                        onChange={(e) => setSearchTag(e.target.value)}
                     />
 
                     {/* Filter Button and Dropdown */}
@@ -252,7 +255,7 @@ export default function CountryList() {
                             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                         >
                             <FunnelIcon className="h-5 w-5" />
-                            Filter
+                            {t("FILTER")}
                         </button>
 
                         {/* Filter Dropdown */}
@@ -313,7 +316,7 @@ export default function CountryList() {
                         }}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
-                        Add Country
+                        {t("ADD_COUNTRY")}
                     </button>
                 </div>
             </div>
@@ -330,13 +333,13 @@ export default function CountryList() {
                         <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                             <TableRow>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Name
+                                {t("COUNTRY_NAME")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Code
+                                {t("COUNTRY_CODE")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Action
+                                {t("ACTION")}
                                 </TableCell>
                             </TableRow>
                         </TableHeader>
@@ -374,8 +377,8 @@ export default function CountryList() {
 
             {/* Pagination */}
             <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page-pagination.current_page}
                 onPageChange={(page) => setCurrentPage(page)}
             />
         </div>

@@ -12,6 +12,7 @@ import {
 import { Delete, Edit, View } from "../../../icons";
 import { fetchCountries } from "../../../store/slices/countrySlice";
 import { addProvince, editProvince, fetchProvinces, showProvince } from "../../../store/slices/provinceSlice";
+import { useTranslation } from "react-i18next";
 
 // Yup validation schema
 const provinceSchema = Yup.object().shape({
@@ -44,13 +45,14 @@ export default function ProvinceList() {
     const [errors, setErrors] = useState({});
 
     const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+    const {t}=useTranslation()
 
     useEffect(() => {
         dispatch(fetchProvinces({ countryId: selectedCountryId, searchTag: searchTag }));
     }, [dispatch, selectedCountryId, searchTag]);
 
     useEffect(() => {
-        dispatch(fetchCountries(countrySearchTag));
+        dispatch(fetchCountries({searchTag:countrySearchTag}));
     }, [dispatch, countrySearchTag]);
 
     useEffect(() => {
@@ -58,6 +60,7 @@ export default function ProvinceList() {
             setProvinceName({ en: selectedProvince.name.en, ps: selectedProvince.name.ps, fa: selectedProvince.name.fa });
             setProvinceCode(selectedProvince.code);
             setSelectedCountryId(selectedProvince.countryId);
+            
         }
     }, [selectedProvince]);
 
@@ -147,13 +150,13 @@ export default function ProvinceList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md">
                         <h2 className="text-lg font-semibold mb-4">
-                            {isEditing ? "Edit Province" : "Add Province"}
+                            {isEditing ? t("EDIT_PROVINCE") : t("ADD_PROVINCE")}
                         </h2>
                         <form onSubmit={handleSubmit}>
                             {/* Province Name (Compulsory) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Province Name (en) *
+                                {t("ENGLISH_NAME")} *
                                 </label>
                                 <input
                                     type="text"
@@ -169,7 +172,7 @@ export default function ProvinceList() {
                             {/* Pashto Name (Optional) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Pashto Name (ps)
+                                {t("PASHTO_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -182,7 +185,7 @@ export default function ProvinceList() {
                             {/* Farsi Name (Optional) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Farsi Name (fa)
+                                {t("FARSI_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -195,7 +198,7 @@ export default function ProvinceList() {
                             {/* Province Code */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Province Code *
+                                {t("PROVINCE_CODE")} *
                                 </label>
                                 <input
                                     type="text"
@@ -211,12 +214,12 @@ export default function ProvinceList() {
                             {/* Country ID (Searchable Dropdown) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Country *
+                                {t("COUNTRY")} *
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        placeholder="Search country..."
+                                        placeholder={t("SEARCH_COUNTRY")}
                                         value={countrySearchTag}
                                         onChange={(e) => {
                                             setCountrySearchTag(e.target.value);
@@ -262,7 +265,7 @@ export default function ProvinceList() {
                                     }}
                                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    Cancel
+                                    {t("CANCEL")}
                                 </button>
                                 <button
                                     type="submit"
@@ -270,7 +273,7 @@ export default function ProvinceList() {
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
                                     
-                                    {isEditing ? "Update" : "Add"}
+                                    {isEditing ? t("UPDATE") : t("ADD")}
                                     
                                 </button>
                             </div>
@@ -283,7 +286,7 @@ export default function ProvinceList() {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-2 items-center">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        Province List
+                        {t("PROVINCE_LIST")}
                     </h3>
                 </div>
 
@@ -291,7 +294,7 @@ export default function ProvinceList() {
                     <input
                         type="text"
                         className="rounded-md"
-                        placeholder="Search"
+                        placeholder={t("SEARCH")}
                         prefix=""
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
@@ -302,7 +305,7 @@ export default function ProvinceList() {
                         }}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
-                        Add Province
+                        {t("ADD_PROVINCE")}
                     </button>
                 </div>
             </div>
@@ -313,7 +316,7 @@ export default function ProvinceList() {
                 <div className="relative">
                     <input
                         type="text"
-                        placeholder="Search country..."
+                        placeholder={t("SEARCH_COUNTRY")}
                         value={countrySearchTag}
                         onChange={(e) => {
                             setCountrySearchTag(e.target.value);
@@ -353,19 +356,19 @@ export default function ProvinceList() {
                                     isHeader
                                     className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                 >
-                                    Name
+                                    {t("PROVINCE_NAME")}
                                 </TableCell>
                                 <TableCell
                                     isHeader
                                     className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                 >
-                                    Code
+                                    {t("PROVINCE_CODE")}
                                 </TableCell>
                                 <TableCell
                                     isHeader
                                     className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                 >
-                                    Action
+                                    {t("ACTION")}
                                 </TableCell>
                             </TableRow>
                         </TableHeader>

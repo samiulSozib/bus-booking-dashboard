@@ -14,6 +14,7 @@ import { fetchProvinces } from "../../store/slices/provinceSlice";
 import { fetchStations, addStation, editStation, showStation } from "../../store/slices/stationSlice";
 import * as Yup from 'yup';
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 
 const stationSchema = Yup.object().shape({
@@ -53,7 +54,7 @@ export default function StationList() {
     const [countrySearchTag, setCountrySearchTag] = useState(""); // For country dropdown search
     const [provinceSearchTag, setProvinceSearchTag] = useState(""); // For province dropdown search
     const [errors, setErrors] = useState({});
-
+    const {t}=useTranslation()
 
     // State for Add/Edit Station Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,7 +80,7 @@ export default function StationList() {
 
     // Fetch countries on component mount
     useEffect(() => {
-        dispatch(fetchCountries());
+        dispatch(fetchCountries({searchTag:""}));
     }, [dispatch]);
 
     // Fetch provinces when a country is selected (for table filtering)
@@ -242,7 +243,7 @@ export default function StationList() {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-2 items-center">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        Station List
+                        {t("STATION_LIST")}
                     </h3>
                 </div>
 
@@ -250,7 +251,7 @@ export default function StationList() {
                     <input
                         type="text"
                         className="rounded-md"
-                        placeholder="Search station..."
+                        placeholder={t("SEARCH")}
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
@@ -258,7 +259,7 @@ export default function StationList() {
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
-                        Add Station
+                        {t("ADD_STATION")}
                     </button>
                 </div>
             </div>
@@ -343,13 +344,13 @@ export default function StationList() {
                     <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                         <TableRow>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Name
+                            {t("STATION_NAME")}
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Code
+                            {t("STATION_CODE")}
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Action
+                            {t("ACTION")}
                             </TableCell>
                         </TableRow>
                     </TableHeader>
@@ -391,13 +392,13 @@ export default function StationList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md">
                         <h2 className="text-lg font-semibold mb-4">
-                            {isEditMode ? "Edit Station" : "Add Station"}
+                            {isEditMode ? t("EDIT_STATION") : t("ADD_STATION")}
                         </h2>
                         <form onSubmit={handleSubmit}>
                             {/* Country Dropdown in Modal */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Country *
+                                {t("COUNTRY")} *
                                 </label>
                                 <div className="relative">
                                     <input
@@ -438,7 +439,7 @@ export default function StationList() {
                             {modalSelectedCountryId && (
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Province *
+                                    {t("PROVINCE")} *
                                     </label>
                                     <div className="relative">
                                         <input
@@ -480,7 +481,7 @@ export default function StationList() {
                             {modalSelectedProvinceId && (
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        City *
+                                    {t("CITY")} *
                                     </label>
                                     <div className="relative">
                                         <input
@@ -521,7 +522,7 @@ export default function StationList() {
                             {/* Station Name (English) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Station Name (en) *
+                                {t("ENGLISH_NAME")} *
                                 </label>
                                 <input
                                     type="text"
@@ -541,7 +542,7 @@ export default function StationList() {
                             {/* Station Name (Pashto) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Station Name (ps)
+                                {t("PASHTO_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -556,7 +557,7 @@ export default function StationList() {
                             {/* Station Name (Farsi) */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                Station Name (fa)
+                                {t("FARSI_NAME")}
                                 </label>
                                 <input
                                     type="text"
@@ -571,7 +572,7 @@ export default function StationList() {
                             {/* Station lat */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Station Lat *
+                                {t("STATION_LAT")} *
                                 </label>
                                 <input
                                     type="text"
@@ -587,7 +588,7 @@ export default function StationList() {
 
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                Station Long *
+                                {t("STATION_LONG")} *
                                 </label>
                                 <input
                                     type="text"
@@ -607,13 +608,13 @@ export default function StationList() {
                                     onClick={resetModal}
                                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    Cancel
+                                    {t("CANCEL")}
                                 </button>
                                 <button
                                     type="submit"
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    {isEditMode ? "Update" : "Add"}
+                                    {isEditMode ? t("UPDATE") : t("ADD")}
                                
 
                                 </button>

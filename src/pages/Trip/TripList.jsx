@@ -15,6 +15,7 @@ import { fetchUsers } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { formatForDisplay, formatForInput } from "../../utils/utils";
+import { useTranslation } from "react-i18next";
 
 // Yup validation schema
 const tripSchema = Yup.object().shape({
@@ -40,6 +41,7 @@ export default function TripList() {
     const { buses } = useSelector((state) => state.buses);
     const { routes } = useSelector((state) => state.routes);
     const { users } = useSelector((state) => state.users);
+    const {t}=useTranslation()
 
     // State for table filtering
     const [searchTag, setSearchTag] = useState("");
@@ -235,7 +237,7 @@ export default function TripList() {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row gap-2 items-center">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        Trip List
+                        {t("TRIP_LIST")}
                     </h3>
                 </div>
 
@@ -243,7 +245,7 @@ export default function TripList() {
                     <input
                         type="text"
                         className="rounded-md"
-                        placeholder="Search trip..."
+                        placeholder={t("SEARCH_ROUTE")} 
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
@@ -251,7 +253,7 @@ export default function TripList() {
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
-                        Add Trip
+                        {t("ADD_TRIP")}
                     </button>
                 </div>
             </div>
@@ -264,7 +266,7 @@ export default function TripList() {
                 <div className="relative">
                     <input
                         type="text"
-                        placeholder="Search route..."
+                        placeholder={t("SEARCH_BUS")}
                         value={routeSearchTag}
                         onChange={(e) => {
                             setRouteSearchTag(e.target.value);
@@ -296,7 +298,7 @@ export default function TripList() {
                 <div className="relative">
                     <input
                         type="text"
-                        placeholder="Search bus..."
+                        placeholder={t("SEARCH_BUS")}
                         value={busSearchTag}
                         onChange={(e) => {
                             setBusSearchTag(e.target.value);
@@ -336,31 +338,31 @@ export default function TripList() {
                         <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                             <TableRow>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Vendor
+                                {t("VENDOR")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Route
+                                {t("ROUTE")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Bus
+                                {t("BUS")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Total Seats
+                                {t("TOTAL_SEATS")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Ticket Price
+                                {t("TICKET_PRICE")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Departure Time
+                                {t("DEPARTURE_TIME")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Arrival Time
+                                {t("ARRIVAL_TIME")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Status
+                                {t("STATUS")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    Action
+                                {t("ACTION")}
                                 </TableCell>
                             </TableRow>
                         </TableHeader>
@@ -420,7 +422,7 @@ export default function TripList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[70vh] overflow-y-auto">
                         <h2 className="text-lg font-semibold mb-4">
-                            {isEditMode ? "Edit Trip" : "Add Trip"}
+                            {isEditMode ? t("EDIT_TRIP") :t("ADD_TRIP")}
                         </h2>
                         <form onSubmit={handleSubmit}>
                             
@@ -429,12 +431,12 @@ export default function TripList() {
                             {isAdmin && (
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Vendor *
+                                    {t("VENDOR")} *
                                     </label>
                                     <div className="relative">
                                         <input
                                             type="text"
-                                            placeholder="Search vendor..."
+                                            placeholder={t("SEARCH_VENDOR")}
                                             value={modalVendorSearchTag}
                                             onChange={(e) => {
                                                 setModalVendorSearchTag(e.target.value);
@@ -470,12 +472,12 @@ export default function TripList() {
                             {/* Route Dropdown in Modal */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Route *
+                                {t("ROUTES")} *
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        placeholder="Search route..."
+                                        placeholder={t("SEARCH_ROUTE")}
                                         value={modalRouteSearchTag}
                                         onChange={(e) => {
                                             setModalRouteSearchTag(e.target.value);
@@ -510,12 +512,12 @@ export default function TripList() {
                             {/* Bus Dropdown in Modal */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Bus *
+                                {t("BUS")} *
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        placeholder="Search bus..."
+                                        placeholder={t("SEARCH_BUS")}
                                         value={modalBusSearchTag}
                                         onChange={(e) => {
                                             
@@ -549,7 +551,7 @@ export default function TripList() {
                             {/* Total Seats */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Total Seats *
+                                {t("TOTAL_SEATS")} *
                                 </label>
                                 <input
                                     type="number"
@@ -565,7 +567,7 @@ export default function TripList() {
                             {/* Ticket Price */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Ticket Price *
+                                {t("TICKET_PRICE")} *
                                 </label>
                                 <input
                                     type="number"
@@ -581,7 +583,7 @@ export default function TripList() {
                             {/* Departure Time */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Departure Time *
+                                {t("DEPARTURE_TIME")} *
                                 </label>
                                 <input
                                     type="datetime-local"
@@ -597,7 +599,7 @@ export default function TripList() {
                             {/* Arrival Time */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Arrival Time *
+                                {t("ARRIVAL_TIME")} *
                                 </label>
                                 <input
                                     type="datetime-local"
@@ -613,7 +615,7 @@ export default function TripList() {
                             {/* Status */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
-                                    Status *
+                                {t("STATUS")} *
                                 </label>
                                 <select
                                     value={status}
@@ -635,13 +637,13 @@ export default function TripList() {
                                     onClick={resetModal}
                                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    Cancel
+                                    {t("CANCEL")}
                                 </button>
                                 <button
                                     type="submit"
                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
-                                    {isEditMode ? "Update" : "Add"}
+                                    {isEditMode ? t("UPDATE") : t("ADD")}
                                 </button>
                             </div>
                         </form>

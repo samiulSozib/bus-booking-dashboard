@@ -17,6 +17,7 @@ import {
 import { fetchUsers } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
+import { useTranslation } from "react-i18next";
 
 // Yup validation schema
 const transactionSchema = Yup.object().shape({
@@ -45,6 +46,7 @@ export default function WalletTransactionList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const {t}=useTranslation()
   
   // State for searchable dropdowns
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -244,13 +246,13 @@ export default function WalletTransactionList() {
       {/* Header and Search */}
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Wallet Transactions
+          {t("TRANSACTION_LIST")}
         </h3>
         <div className="flex items-center gap-3">
           <input
             type="text"
             className="rounded-md"
-            placeholder="Search transactions..."
+            placeholder={t("SEARCH")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -283,7 +285,7 @@ export default function WalletTransactionList() {
             onClick={() => setIsModalOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
-            Add Transaction
+            {t("ADD_TRANSACTION")}
           </button>
         </div>
       </div>
@@ -300,14 +302,14 @@ export default function WalletTransactionList() {
           <Table>
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">ID</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Amount</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Fee</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Total</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Type</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Status</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Details</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Actions</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ID")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("AMOUNT")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("FEE")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("TOTAL")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("TYPE")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("STATUS")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("DETAILS")}</TableCell>
+                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ACTION")}</TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -352,18 +354,18 @@ export default function WalletTransactionList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">
-              {isEditMode ? "Edit Transaction" : "Add New Transaction"}
+              {isEditMode ? t("EDIT_TRANSACTION") : t("ADD_TRANSACTION")}
             </h2>
             <form onSubmit={handleSubmit}>
               {/* User - Searchable Dropdown */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  User *
+                {t("USER")} *
                 </label>
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search user..."
+                    placeholder=""
                     value={modalUserSearchTag}
                     onChange={(e) => {
                       setModalUserSearchTag(e.target.value);
@@ -401,7 +403,7 @@ export default function WalletTransactionList() {
               {/* Type */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type *
+                {t("TYPE")} *
                 </label>
                 <select
                   value={formData.type}
@@ -420,7 +422,7 @@ export default function WalletTransactionList() {
               {/* Amount */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount *
+                {t("AMOUNT")} *
                 </label>
                 <input
                   type="number"
@@ -437,7 +439,7 @@ export default function WalletTransactionList() {
               {/* Fee */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fee *
+                {t("FEE")} *
                 </label>
                 <input
                   type="number"
@@ -454,7 +456,7 @@ export default function WalletTransactionList() {
               {/* Total (read-only) */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Total
+                {t("TOTAL")}
                 </label>
                 <input
                   type="number"
@@ -467,7 +469,7 @@ export default function WalletTransactionList() {
               {/* Status */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status *
+                {t("STATUS")} *
                 </label>
                 <select
                   value={formData.status}
@@ -488,11 +490,11 @@ export default function WalletTransactionList() {
               {/* Transaction Details */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Transaction Details
+                {t("TRANSACTION")} {t("DETAILS")}
                 </label>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Reason</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">{t("REASON")}</label>
                     <input
                       type="text"
                       value={formData.data?.reason || ''}
@@ -502,7 +504,7 @@ export default function WalletTransactionList() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-1">Description</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-1">{t("DESCRIPTION")}</label>
                     <textarea
                       value={formData.data?.description || ''}
                       onChange={(e) => handleDataFieldChange('description', e.target.value)}
@@ -526,13 +528,13 @@ export default function WalletTransactionList() {
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
                 >
-                  Cancel
+                  {t("CANCEL")}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
                 >
-                  {isEditMode ? "Update Transaction" : "Add Transaction"}
+                  {isEditMode ? t("UPDATE") : t("ADD")}
                 </button>
               </div>
             </form>

@@ -17,7 +17,6 @@ export const fetchProvinces = createAsyncThunk(
                     "Content-Type": "application/json",
                 },
             });
-            console.log(response)
             return response.data.body.items;
         } catch (error) {
             return rejectWithValue(error.message);

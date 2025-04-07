@@ -15,7 +15,6 @@ export const fetchCities = createAsyncThunk(
                 `${base_url}/admin/location/${provinceId}/cities/list?search=${searchTag}`,
                 { headers: { Authorization: `${token}` } }
             );
-            console.log(response)
             return response.data.body.items;
         } catch (error) {
             return rejectWithValue(error.message);

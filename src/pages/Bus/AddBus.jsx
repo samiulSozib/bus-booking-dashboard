@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addBus, editBus, fetchBusById, updateSeat } from '../../store/slices/busSlice';
+import { useTranslation } from 'react-i18next';
 
 // Yup validation schema for bus information
 const busInfoSchema = Yup.object().shape({
@@ -35,6 +36,7 @@ const AddBus = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { busId } = useParams(); // Get busId from URL if editing
+    const {t}=useTranslation()
 
     const [formData, setFormData] = useState({
         driver_id: '',
@@ -253,14 +255,14 @@ const AddBus = () => {
     return (
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
             <h2 className="text-xl font-semibold mb-4 dark:text-white/90">
-                {busId ? 'Edit Bus' : 'Add New Bus'}
+                {busId ? t("EDIT_BUS") : t("ADD_BUS")}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Grid Container */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* Driver ID */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Driver ID</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("DRIVER")}</label>
                         <input
                             type="number"
                             name="driver_id"
@@ -275,7 +277,7 @@ const AddBus = () => {
 
                     {/* Bus Name */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bus Name</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("BUS_NAME")}</label>
                         <input
                             type="text"
                             name="name"
@@ -290,7 +292,7 @@ const AddBus = () => {
 
                     {/* Bus Number */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bus Number</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("BUS_NUMBER")}</label>
                         <input
                             type="text"
                             name="bus_number"
@@ -305,7 +307,7 @@ const AddBus = () => {
 
                     {/* Facilities */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Facilities (comma-separated)</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("FACILITIES")} (comma-separated)</label>
                         <input
                             type="text"
                             name="facilities"
@@ -321,7 +323,7 @@ const AddBus = () => {
 
                     {/* Ticket Price */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Ticket Price</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("TICKET_PRICE")}</label>
                         <input
                             type="number"
                             name="ticket_price"
@@ -337,7 +339,7 @@ const AddBus = () => {
 
                     {/* Status */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("STATUS")}</label>
                         <select
                             name="status"
                             value={formData.status}
@@ -351,7 +353,7 @@ const AddBus = () => {
 
                     {/* Image Upload */}
                     <div className="md:col-span-2 lg:col-span-3">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bus Image</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("BUS_IMAGE")}</label>
                         <input
                             type="file"
                             name="image"
@@ -379,7 +381,7 @@ const AddBus = () => {
                                 onClick={() => setOpenDialog(true)}
                                 className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
                             >
-                                Configure Berth
+                                {t("CONFIGURE_BERTH")}
                             </button>
                         </div>
                     </div>
@@ -391,7 +393,7 @@ const AddBus = () => {
                         type="submit"
                         className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-600"
                     >
-                        {busId ? 'Update Bus' : 'Add Bus'}
+                        {busId ? t("EDIT_BUS") : t("ADD_BUS")}
                     </button>
                 </div>
             </form>
@@ -401,24 +403,24 @@ const AddBus = () => {
                 <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] flex flex-col dark:bg-gray-800 overflow-y-auto">
                         <h3 className="text-lg font-semibold mb-4 dark:text-white/90">
-                            Configure {formData.berth_type === 'lower' ? 'Lower' : 'Upper'} Berth
+                            {formData.berth_type === 'lower' ? t("CONFIGURE_LOWER_BERTH") : t("CONFIGURE_UPPER_BERTH") }
                         </h3>
                         <div className="flex flex-row gap-2">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Berth Type</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("BERTH_TYPE")}</label>
                                 <select
                                     name="berth_type"
                                     value={formData.berth_type}
                                     onChange={handleBerthChange}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                                 >
-                                    <option value="">Select Berth Type</option>
+                                    <option value="">{t("SELECT_BERTH_TYPE")}</option>
                                     <option value="lower">Lower Berth</option>
                                     <option value="upper">Upper Berth</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rows</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("ROWS")}</label>
                                 <input
                                     type="number"
                                     name="rows"
@@ -429,7 +431,7 @@ const AddBus = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Columns</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("COLUMNS")}</label>
                                 <input
                                     type="number"
                                     name="columns"
@@ -451,7 +453,7 @@ const AddBus = () => {
                                 type="submit"
                                 className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
                             >
-                                Save Changes
+                                {t("SAVE_CHANGE")}
                             </button>
                         )}
                             <button
@@ -459,7 +461,7 @@ const AddBus = () => {
                                 onClick={() => setOpenDialog(false)}
                                 className="inline-flex justify-center rounded-md border border-transparent bg-gray-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-600"
                             >
-                                Close
+                                {t("CLOSE")}
                             </button>
                         </div>
                     </div>
@@ -471,12 +473,12 @@ const AddBus = () => {
                 <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-sm dark:bg-gray-800">
                         <h3 className="text-lg font-semibold mb-4 dark:text-white/90">
-                            Edit Seat {selectedSeat.row}-{selectedSeat.column}
+                        {t("EDIT_SEAT")} {selectedSeat.row}-{selectedSeat.column}
                         </h3>
                         <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
                             {/* Seat Number (Read-Only) */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Seat Number</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("SEAT_NUMBER")}</label>
                                 <input
                                 onChange={(e) => {
                                     const seatNumber = e.target.value;
@@ -501,7 +503,7 @@ const AddBus = () => {
 
                             {/* Price Input */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Price</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("PRICE")}</label>
                                 <input
                                     type="number"
                                     value={selectedSeat.price || ''}
@@ -514,7 +516,7 @@ const AddBus = () => {
 
                             {/* Seat Type Dropdown */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Seat Type</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("SEAT_TYPE")}</label>
                                 <select
                                     value={selectedSeat.seat_type || ''}
                                     onChange={(e) =>
@@ -522,7 +524,7 @@ const AddBus = () => {
                                     }
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                                 >
-                                    <option value="">Select...</option>
+                                    <option value="">{t("SELECT_SEAT_TYPE")}</option>
                                     <option value="window">Window</option>
                                     <option value="aisle">Aisle</option>
                                     <option value="middle">Middle</option>
@@ -532,7 +534,7 @@ const AddBus = () => {
 
                             {/* Seat Class Dropdown */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Seat Class</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("SEAT_CLASS")}</label>
                                 <select
                                     value={selectedSeat.seat_class || ''}
                                     onChange={(e) =>
@@ -540,7 +542,7 @@ const AddBus = () => {
                                     }
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                                 >
-                                    <option value="">Select...</option>
+                                    <option value="">{t("SELECT_SEAT_CLASS")}</option>
                                     <option value="economic">Economic</option>
                                     <option value="business">Business</option>
                                     <option value="premium">Premium</option>
@@ -550,7 +552,7 @@ const AddBus = () => {
 
                             {/* Is Recliner? Radio Buttons */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Is Recliner?</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("IS_RECLINER?")}</label>
                                 <div className="mt-1 flex gap-4">
                                     <label className="inline-flex items-center">
                                         <input
@@ -563,7 +565,7 @@ const AddBus = () => {
                                             }
                                             className="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
                                         />
-                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">No</span>
+                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{t("NO")}</span>
                                     </label>
                                     <label className="inline-flex items-center">
                                         <input
@@ -576,14 +578,14 @@ const AddBus = () => {
                                             }
                                             className="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
                                         />
-                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{t("YES")}</span>
                                     </label>
                                 </div>
                             </div>
 
                             {/* Is Sleeper? Radio Buttons */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Is Sleeper?</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("IS_SLEEPER?")}</label>
                                 <div className="mt-1 flex gap-4">
                                     <label className="inline-flex items-center">
                                         <input
@@ -596,7 +598,7 @@ const AddBus = () => {
                                             }
                                             className="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
                                         />
-                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">No</span>
+                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{t("NO")}</span>
                                     </label>
                                     <label className="inline-flex items-center">
                                         <input
@@ -609,7 +611,7 @@ const AddBus = () => {
                                             }
                                             className="form-radio h-4 w-4 text-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
                                         />
-                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Yes</span>
+                                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">{t("YES")}</span>
                                     </label>
                                 </div>
                             </div>
@@ -620,14 +622,14 @@ const AddBus = () => {
                                 onClick={() => setSelectedSeat(null)}
                                 className="inline-flex justify-center rounded-md border border-transparent bg-gray-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-600"
                             >
-                                Cancel
+                                {t("CANCEL")}
                             </button>
                             <button
                                 type="button"
                                 onClick={() => handleSeatSave(selectedSeat)}
                                 className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-600"
                             >
-                                Save
+                                {t("SAVE")}
                             </button>
                         </div>
                     </div>

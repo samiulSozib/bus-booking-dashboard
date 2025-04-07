@@ -16,6 +16,7 @@ import {
     showUser,
 } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
+import { useTranslation } from "react-i18next";
 
 export default function UserList() {
     const dispatch = useDispatch();
@@ -26,6 +27,7 @@ export default function UserList() {
     const [isEditing, setIsEditing] = useState(false);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [formErrors, setFormErrors] = useState({});
+    const {t}=useTranslation()
 
 
     // State for user form fields
@@ -239,7 +241,7 @@ export default function UserList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] flex flex-col">
                         <h2 className="text-lg font-semibold mb-4">
-                            {isEditing ? "Edit User" : "Add User"}
+                            {isEditing ? t("EDIT_USER") : t("ADD_USER")}
                         </h2>
 
                         <div className="overflow-y-auto flex-1">
@@ -247,7 +249,7 @@ export default function UserList() {
                                 {/* First Name */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        First Name *
+                                    {t("FIRST_NAME")} *
                                     </label>
                                     <input
                                         type="text"
@@ -266,7 +268,7 @@ export default function UserList() {
                                 {/* Last Name */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Last Name *
+                                    {t("LAST_NAME")} *
                                     </label>
                                     <input
                                         type="text"
@@ -285,7 +287,7 @@ export default function UserList() {
                                 {/* Email */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Email
+                                    {t("EMAIL")}
                                     </label>
                                     <input
                                         type="email"
@@ -303,7 +305,7 @@ export default function UserList() {
                                 {/* Mobile */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Mobile
+                                    {t("MOBILE")}
                                     </label>
                                     <input
                                         type="text"
@@ -321,7 +323,7 @@ export default function UserList() {
                                 {/* Role */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Role *
+                                    {t("ROLE")} *
                                     </label>
                                     <select
                                         value={formData?formData.role:''}
@@ -331,7 +333,7 @@ export default function UserList() {
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                         
                                     >
-                                        <option value="">Select Role</option>
+                                        <option value="">{t("SELECT_ROLE")}</option>
                                         <option value="admin">Admin</option>
                                         <option value="customer">Customer</option>
                                         <option value="vendor">Vendor</option>
@@ -346,7 +348,7 @@ export default function UserList() {
                                 {/* Password */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Password *
+                                    {t("PASSWORD")} *
                                     </label>
                                     <input
                                         type="password"
@@ -365,7 +367,7 @@ export default function UserList() {
                                 {/* Status */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Status *
+                                    {t("STATUS")} *
                                     </label>
                                     <select
                                         value={formData?formData.status:''}
@@ -375,7 +377,7 @@ export default function UserList() {
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                         
                                     >
-                                        <option value="">Select Status</option>
+                                        <option value="">{t("SELECT_STATUS")}</option>
                                         <option value="active">Active</option>
                                         <option value="inactive">Inactive</option>
                                         <option value="pending">Pending</option>
@@ -391,7 +393,7 @@ export default function UserList() {
                                     <>
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Name
+                                            {t("NAME")}
                                             </label>
                                             <input
                                                 type="text"
@@ -408,7 +410,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Phone
+                                            {t("PHONE")}
                                             </label>
                                             <input
                                                 type="text"
@@ -429,7 +431,7 @@ export default function UserList() {
                                     <>
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Code
+                                            {t("CODE")}
                                             </label>
                                             <input
                                                 type="text"
@@ -446,7 +448,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Commission Amount
+                                            {t("COMMISSION_AMOUNT")}
                                             </label>
                                             <input
                                                 type="number"
@@ -466,7 +468,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Commission Type
+                                            {t("COMMISSION_TYPE")}
                                             </label>
                                             <select
                                                 value={formData?formData.comission_type:""}
@@ -478,7 +480,7 @@ export default function UserList() {
                                                 }
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             >
-                                                <option value="">Select Commission Type</option>
+                                                <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
                                                 <option value="fixed">Fixed</option>
                                                 <option value="percentage">Percentage</option>
                                             </select>
@@ -493,7 +495,7 @@ export default function UserList() {
                                     <>
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Registration Number
+                                            {t("REGISTRATION_NUMBER")}
                                             </label>
                                             <input
                                                 type="text"
@@ -513,7 +515,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                License Number
+                                            {t("LICENSE_NUMBER")}
                                             </label>
                                             <input
                                                 type="text"
@@ -533,7 +535,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Rating
+                                            {t("RATING")}
                                             </label>
                                             <input
                                                 type="number"
@@ -553,7 +555,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Admin Commission Amount
+                                            {t("ADMIN_COMMISSION_AMOUNT")}
                                             </label>
                                             <input
                                                 type="number"
@@ -573,7 +575,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Admin Commission Type
+                                            {t("ADMIN_COMMISSION_TYPE")}
                                             </label>
                                             <select
                                                 value={formData?formData.admin_comission_type:""}
@@ -585,7 +587,7 @@ export default function UserList() {
                                                 }
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             >
-                                                <option value="">Select Commission Type</option>
+                                                <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
                                                 <option value="fixed">Fixed</option>
                                                 <option value="percentage">Percentage</option>
                                             </select>
@@ -596,7 +598,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Agent Commission Amount
+                                            {t("AGENT_COMMISSION_AMOUNT")}
                                             </label>
                                             <input
                                                 type="number"
@@ -616,7 +618,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Agent Commission Type
+                                            {t("AGENT_COMMISSION_TYPE")}
                                             </label>
                                             <select
                                                 value={formData?formData.agent_comission_type:0}
@@ -628,7 +630,7 @@ export default function UserList() {
                                                 }
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             >
-                                                <option value="">Select Commission Type</option>
+                                                <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
                                                 <option value="fixed">Fixed</option>
                                                 <option value="percentage">Percentage</option>
                                             </select>
@@ -639,7 +641,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Logo
+                                            {t("LOGO")}
                                             </label>
                                             <input
                                                 type="file"
@@ -655,7 +657,7 @@ export default function UserList() {
 
                                         <div className="mb-4">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Description
+                                            {t("DESCRIPTION")}
                                             </label>
                                             <textarea
                                                 value={formData?formData.description:""}
@@ -677,7 +679,7 @@ export default function UserList() {
                                 {formData.role === "driver" && (
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-700">
-                                            Vendor ID
+                                        {t("VENDOR")}
                                         </label>
                                         <input
                                             type="number"
@@ -708,13 +710,13 @@ export default function UserList() {
                                             }}
                                             className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                         >
-                                            Cancel
+                                            {t("CANCEL")}
                                         </button>
                                         <button
                                             type="submit"
                                             className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                         >
-                                            {isEditing ? "Update" : "Add"}
+                                            {isEditing ? t("UPDATE") : t("ADD")}
                                         </button>
                                     </div>
                                 </div>
@@ -730,14 +732,14 @@ export default function UserList() {
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                        User List
+                        {t("USER_LIST")}
                     </h3>
                 </div>
                 <div className="flex items-center gap-3">
                 {/* Search Bar */}
                     <input
                         type="text"
-                        placeholder="Search by tag..."
+                        placeholder={t("SEARCH_USER")}
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                         className="rounded-md"
@@ -775,7 +777,7 @@ export default function UserList() {
                         }}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                         >
-                        Add User
+                        {t("ADD_USER")}
                     </button>
                 </div>
             </div>
@@ -790,13 +792,13 @@ export default function UserList() {
                 <Table>
                     <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                         <TableRow>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">First Name</TableCell>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Last Name</TableCell>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Email</TableCell>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Mobile</TableCell>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Role</TableCell>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Status</TableCell>
-                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Actions</TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("FIRST_NAME")}</TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("LAST_NAME")}</TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("EMAIL")}</TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("MOBILE")}</TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ROLE")}</TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("STATUS")}</TableCell>
+                            <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ACTION")}</TableCell>
                         </TableRow>
                     </TableHeader>
                     <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
