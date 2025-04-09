@@ -7,7 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, View } from "../../icons";
+import { Delete, Edit, SearchIcon, View } from "../../icons";
 import { addRoute, editRoute, fetchRoutes, showRoute } from "../../store/slices/routeSlice";
 import { fetchCountries } from "../../store/slices/countrySlice";
 import { fetchProvinces } from "../../store/slices/provinceSlice";
@@ -190,7 +190,6 @@ useEffect(() => {
             name:routeName,
             distance: parseFloat(distance), // Convert to number
         };
-        console.log(formData)
     
         try {
             // Validate form data
@@ -303,6 +302,7 @@ useEffect(() => {
 
     // Handle search tag change
     const handleSearchTagChange = (searchTagKey, value) => {
+        console.log(value)
         setSearchTags((prevSearchTags) => ({
             ...prevSearchTags,
             [searchTagKey]: value,
@@ -402,7 +402,7 @@ useEffect(() => {
         }
         setSearchTags((prevSearchTags) => ({
             ...prevSearchTags,
-            [`${type}Station`]: station.name,
+            [`${type}Station`]: station.name.en,
         }));
         toggleDropdown(`show${type.charAt(0).toUpperCase() + type.slice(1)}Station`, false);
     };
@@ -418,13 +418,18 @@ useEffect(() => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <input
-                        type="text"
-                        className="rounded-md"
-                        placeholder={t("SEARCH")}
-                        value={searchTag}
-                        onChange={(e) => setSearchTag(e.target.value)}
-                    />
+                    <div className="relative flex-1">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <SearchIcon/>
+                            </div>
+                        <input
+                            type="text"
+                            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder={t("SEARCH")}
+                            value={searchTag}
+                            onChange={(e) => setSearchTag(e.target.value)}
+                        />
+                    </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"

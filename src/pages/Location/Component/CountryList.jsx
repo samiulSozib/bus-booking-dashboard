@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../../components/ui/table";
-import { Delete, Edit, View, FunnelIcon } from "../../../icons"; // Add FunnelIcon
+import { Delete, Edit, View, FunnelIcon, SearchIcon } from "../../../icons"; // Add FunnelIcon
 import { addCountry, editCountry, fetchCountries, showCountry } from "../../../store/slices/countrySlice";
 import Pagination from "../../../components/pagination/pagination";
 import { useTranslation } from "react-i18next";
@@ -239,14 +239,19 @@ export default function CountryList() {
                     </h3>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* Search Input */}
-                    <input
-                        type="text"
-                        className="rounded-md"
-                        placeholder={t("SEARCH")}
-                        value={filters.searchTag}
-                        onChange={(e) => setSearchTag(e.target.value)}
-                    />
+                
+                    <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <SearchIcon/>
+                        </div>
+                        <input
+                            type="text"
+                            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder={t("SEARCH")}
+                            value={filters.searchTag}
+                            onChange={(e) => setSearchTag(e.target.value)}
+                        />
+                    </div>
 
                     {/* Filter Button and Dropdown */}
                     <div className="relative">

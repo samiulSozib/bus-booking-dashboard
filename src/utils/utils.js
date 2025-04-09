@@ -123,7 +123,7 @@ export function formatForInputDiscount(displayTime) {
   return `${date} ${time}:00`.replace(/:00:00$/, ':00');
 }
 
-export function user_type(){
+export function userType(){
   // return JSON.parse(localStorage.getItem("profile")||"{}");
   const profile = localStorage.getItem("profile");
   return profile ? JSON.parse(profile) : null;

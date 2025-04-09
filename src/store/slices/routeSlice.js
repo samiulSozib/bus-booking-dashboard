@@ -1,24 +1,24 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { base_url } from "../../utils/const";
+import { userType } from '../../utils/utils';
 
 // Helper function to get token
 const getAuthToken = () => {
     return localStorage.getItem("token") || ""; // Get the token or return an empty string if not found
 };
 
-export function user_type(){
-    // return JSON.parse(localStorage.getItem("profile")||"{}");
-    const profile = localStorage.getItem("profile");
-    return profile ? JSON.parse(profile) : null;
-  }
+// export function user_type(){
+//     // return JSON.parse(localStorage.getItem("profile")||"{}");
+//     const profile = localStorage.getItem("profile");
+//     return profile ? JSON.parse(profile) : null;
+//   }
 
 // Fetch Routes
 export const fetchRoutes = createAsyncThunk(
     'routes/fetchRoutes',
     async (searchTag, { rejectWithValue }) => {
-        const type=user_type()
-        console.log(type.role)
+        const type=userType()
         const token = getAuthToken();
         try {
             const response = await axios.get(`${base_url}/${type.role}/routes/list?search=${searchTag}`, {

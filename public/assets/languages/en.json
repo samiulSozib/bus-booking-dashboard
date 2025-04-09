@@ -6,6 +6,7 @@
   "CITY": "City",
   "ROUTES": "Routes",
   "STATIONS": "Stations",
+  "STATION":"Station",
   "DISCOUNTS": "Discounts",
   "TRIPS": "Trips",
   "USERS": "Users",
@@ -175,5 +176,6 @@
   "GOOD_JOB":"Good Job",
   "LOGOUT_SUCCESS":"Logout Success",
   "LOGIN_SUCCESS":"Login Success",
-  "CONTACT_US":"Contact Us"
+  "CONTACT_US":"Contact Us",
+  "LOGIN_FAIL":"Login Fail"
 }

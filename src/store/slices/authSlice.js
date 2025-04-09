@@ -42,7 +42,7 @@ export const signIn = createAsyncThunk("auth/signIn", async (signInInfo, { rejec
 
         return { token, profile: profile[0] };
     } catch (error) {
-        const errorMessage = error.response?.data?.errors || error.message;
+        const errorMessage = error.response?.data?.errors?.invalid || error.message;
         Swal.fire({ icon: "error", title: i18next.t("LOGIN_FAIL"), text: errorMessage });
         return rejectWithValue(errorMessage);
     }

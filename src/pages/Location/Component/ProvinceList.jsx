@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../../components/ui/table";
-import { Delete, Edit, View } from "../../../icons";
+import { Delete, Edit, Search, SearchIcon, View } from "../../../icons";
 import { fetchCountries } from "../../../store/slices/countrySlice";
 import { addProvince, editProvince, fetchProvinces, showProvince } from "../../../store/slices/provinceSlice";
 import { useTranslation } from "react-i18next";
@@ -291,13 +291,18 @@ export default function ProvinceList() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <input
-                        type="text"
-                        className="rounded-md"
-                        placeholder={t("SEARCH")}
-                        prefix=""
-                        onChange={(e) => setSearchTag(e.target.value)}
-                    />
+                    <div className="relative flex-1">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <SearchIcon/>
+                            </div>
+                        <input
+                            type="text"
+                            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder={t("SEARCH")}
+                            prefix=""
+                            onChange={(e) => setSearchTag(e.target.value)}
+                        />
+                    </div>
                     <button
                         onClick={() => {
                             setIsModalOpen(true);
@@ -314,6 +319,10 @@ export default function ProvinceList() {
 
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-end mt-1">
                 <div className="relative">
+                    <div className="relative flex-1">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <SearchIcon/>
+                            </div>
                     <input
                         type="text"
                         placeholder={t("SEARCH_COUNTRY")}
@@ -323,8 +332,9 @@ export default function ProvinceList() {
                             setShowCountryDropdown(true); // Show dropdown when typing
                         }}
                         onFocus={() => setShowCountryDropdown(true)} // Show dropdown when input is focused
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
+                        className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                    </div>
                     {showCountryDropdown && (
                         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                             {countries.map((country) => (

@@ -7,7 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, View } from "../../icons";
+import { Delete, Edit, SearchIcon, View } from "../../icons";
 import { addCity, editCity, fetchCities, showCity } from "../../store/slices/citySlice";
 import { fetchCountries } from "../../store/slices/countrySlice";
 import { fetchProvinces } from "../../store/slices/provinceSlice";
@@ -248,13 +248,18 @@ export default function StationList() {
                 </div>
 
                 <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <SearchIcon/>
+                        </div>
                     <input
                         type="text"
-                        className="rounded-md"
+                        className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         placeholder={t("SEARCH")}
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
+                </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -268,17 +273,22 @@ export default function StationList() {
             <div className="flex flex-row items-center justify-end gap-3 mb-4">
                 {/* Country Dropdown */}
                 <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search country..."
-                        value={countrySearchTag}
-                        onChange={(e) => {
-                            setCountrySearchTag(e.target.value);
-                            setShowCountryDropdown(true);
-                        }}
-                        onFocus={() => setShowCountryDropdown(true)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
+                    <div className="relative flex-1">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <SearchIcon/>
+                            </div>
+                        <input
+                            type="text"
+                            placeholder="Search country..."
+                            value={countrySearchTag}
+                            onChange={(e) => {
+                                setCountrySearchTag(e.target.value);
+                                setShowCountryDropdown(true);
+                            }}
+                            onFocus={() => setShowCountryDropdown(true)}
+                            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            />
+                    </div>
                     {showCountryDropdown && (
                         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                             {countries
@@ -301,17 +311,22 @@ export default function StationList() {
                 {/* Province Dropdown (only shown if a country is selected) */}
                 {selectedCountryId && (
                     <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search province..."
-                            value={provinceSearchTag}
-                            onChange={(e) => {
-                                setProvinceSearchTag(e.target.value);
-                                setShowProvinceDropdown(true);
-                            }}
-                            onFocus={() => setShowProvinceDropdown(true)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
+                            <div className="relative flex-1">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <SearchIcon/>
+                                </div>
+                            <input
+                                type="text"
+                                placeholder="Search province..."
+                                value={provinceSearchTag}
+                                onChange={(e) => {
+                                    setProvinceSearchTag(e.target.value);
+                                    setShowProvinceDropdown(true);
+                                }}
+                                onFocus={() => setShowProvinceDropdown(true)}
+                                className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                            </div>
                         {showProvinceDropdown && (
                             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                                 {provinces

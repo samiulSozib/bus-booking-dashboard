@@ -11,7 +11,7 @@ import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { useTranslation } from "react-i18next";
 import SidebarBottom from "./SidebarBottom";
-import { user_type } from "../utils/utils";
+import {userType } from "../utils/utils";
 import { parse } from "postcss";
 
 const AppSidebar = () => {
@@ -24,7 +24,7 @@ const AppSidebar = () => {
   const subMenuRefs = useRef({});
 
   // Get user role
-  const user = user_type()
+  const user = userType()
   const isAdmin = user?.role === "admin";
   const isVendor = user?.role === "vendor";
 
@@ -299,21 +299,21 @@ const AppSidebar = () => {
             <>
               <img
                 className="dark:hidden rounded-xl"
-                src="/images/img/tak_telecom.jpeg"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEEdmbtnM6XzTWvM6mwvLIlg-ludm_CuQ-UA&s"
                 alt="Logo"
                 width={60}
                 height={40}
               />
               <img
                 className="hidden dark:block rounded-xl"
-                src="/images/img/tak_telecom.jpeg"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEEdmbtnM6XzTWvM6mwvLIlg-ludm_CuQ-UA&sg"
                 alt="Logo"
                 width={60}
                 height={40}
               />
             </>
           ) : (
-            <img src="/images/logo/logo.svg" alt="Logo" width={32} height={32} />
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEEdmbtnM6XzTWvM6mwvLIlg-ludm_CuQ-UA&s" alt="Logo" width={32} height={32} />
           )}
         </Link>
       </div>

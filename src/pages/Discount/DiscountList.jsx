@@ -114,9 +114,11 @@ export default function DiscountList() {
     dispatch(fetchDiscounts());
     dispatch(fetchUsers({ role: "vendor" }));
     dispatch(fetchRoutes());
-    dispatch(fetchBuses());
+    dispatch(fetchBuses({}));
     dispatch(fetchTrips());
   }, [dispatch]);
+
+  
 
   // Handle scope change - reset related IDs when scope changes
   const handleScopeChange = (scope) => {

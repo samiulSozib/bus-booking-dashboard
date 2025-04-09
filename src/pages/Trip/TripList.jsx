@@ -341,7 +341,7 @@ export default function TripList() {
                                 {t("VENDOR")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                {t("ROUTE")}
+                                {t("ROUTES")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("BUS")}
@@ -374,16 +374,16 @@ export default function TripList() {
                                         <div className="flex items-center gap-3">
                                             <div>
                                                 <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                                                    {trip.vendor_id}
+                                                    {trip?.vendor.name}
                                                 </p>
                                             </div>
                                         </div>
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {trip.route_id}
+                                        {trip?.route.name}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {trip.bus_id}
+                                        {trip?.bus.name}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         {trip.total_seats}
