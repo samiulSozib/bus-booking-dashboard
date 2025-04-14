@@ -68,6 +68,10 @@
   "TICKET_PRICE":"Ticket Price",
   "DEPARTURE_TIME":"Departure Time",
   "ARRIVAL_TIME":"Arrival Time",
+  "BOOKING_DEADLINE":"Booking Deadline",
+  "ALLOW_PARTIAL_PAYMENT":"Allow Partial Payment",
+  "PARTIAL_PAYMENT_TYPE":"Partial Payment Type",
+  "MIN_PARTIAL_PAYMENT":"Min Partial Payment",
 
   "TRANSACTION_LIST":"Transaction List",
   "ADD_TRANSACTION":"Add Transaction",

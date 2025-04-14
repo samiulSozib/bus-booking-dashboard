@@ -12,7 +12,7 @@ export function user_type(){
 // Fetch Trips
 export const fetchTrips = createAsyncThunk(
     "trips/fetchTrips",
-    async (searchTag, { rejectWithValue }) => {
+    async ({searchTag=""}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
             const type=user_type()
@@ -56,6 +56,7 @@ export const addTrip = createAsyncThunk(
     "trips/addTrip",
     async (tripData, { rejectWithValue }) => {
         try {
+            console.log(tripData)
             const token = getAuthToken();
             const type=user_type()
             const formData = new FormData();
@@ -68,7 +69,11 @@ export const addTrip = createAsyncThunk(
             formData.append('ticket_price', tripData.ticket_price);
             formData.append('departure_time', tripData.departure_time);
             formData.append('arrival_time', tripData.arrival_time);
+            formData.append('booking_deadline',tripData.booking_deadline)
             formData.append('status', tripData.status);
+            formData.append('allow_partial_payment',true)
+            formData.append('min_partial_payment',parseFloat(tripData.min_partial_payment))
+            formData.append('partial_payment_type',tripData.partial_payment_type)
 
             const response = await axios.post(`${base_url}/${type.role}/trips`, formData, {
                 headers: {
@@ -102,7 +107,11 @@ export const editTrip = createAsyncThunk(
             formData.append('ticket_price', updatedData.ticket_price);
             formData.append('departure_time', updatedData.departure_time);
             formData.append('arrival_time', updatedData.arrival_time);
+            formData.append('booking_deadline',updatedData.booking_deadline)
             formData.append('status', updatedData.status);
+            formData.append('allow_partial_payment',updatedData.allow_partial_payment)
+            formData.append('min_partial_payment',updatedData.min_partial_payment)
+            formData.append('partial_payment_type',updatedData.partial_payment_type)
 
             const response = await axios.post(`${base_url}/${type.role}/trips/${tripId}/update`, formData, {
                 headers: {

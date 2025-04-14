@@ -14,7 +14,7 @@ import { fetchRoutes } from "../../store/slices/routeSlice";
 import { fetchUsers } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
-import { formatForDisplay, formatForInput } from "../../utils/utils";
+import { formatForDisplay, formatForInput, formatForInputDiscount, userType } from "../../utils/utils";
 import { useTranslation } from "react-i18next";
 
 // Yup validation schema
@@ -26,14 +26,15 @@ const tripSchema = Yup.object().shape({
     ticket_price: Yup.number().required("Ticket price is required"),
     departure_time: Yup.string().required("Departure time is required"),
     arrival_time: Yup.string().required("Arrival time is required"),
+    booking_deadline: Yup.string().required("Booking Deadline is required"),
     status: Yup.string()
         .oneOf(["active", "inactive"], "Invalid status")
         .required("Status is required"),
+    min_partial_payment: Yup.number().required("Min Partial Payment is required"),
+
 });
 
-const user_type=()=>{
-    return localStorage.getItem("profile")||"";
-}
+
 
 export default function TripList() {
     const dispatch = useDispatch();
@@ -66,7 +67,11 @@ export default function TripList() {
     const [ticketPrice, setTicketPrice] = useState("");
     const [departureTime, setDepartureTime] = useState("");
     const [arrivalTime, setArrivalTime] = useState("");
+    const [bookingDeadLine,setBookingDeadLine]=useState("")
     const [status, setStatus] = useState("active");
+    const [allowPartialPayment,setAllowPartialPayment]=useState(false)
+    const [partialPaymentType,setPartialPaymentType]=useState("total")
+    const [minPartialPayment,setMinPartialPayment]=useState("")
     const [currentTripId, setCurrentTripId] = useState(null);
     const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
     const [modalRouteSearchTag, setModalRouteSearchTag] = useState("");
@@ -75,16 +80,20 @@ export default function TripList() {
     const [showModalRouteDropdown, setShowModalRouteDropdown] = useState(false);
     const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
 
-    const isAdmin=user_type().role==="admin"
+    const isAdmin=userType().role==="admin"
 
 
     // Fetch buses, routes, and vendors on component mount
     useEffect(() => {
+        dispatch(fetchTrips({}))
+    }, [dispatch]);
+
+     // Fetch buses, routes, and vendors on component mount
+     useEffect(() => {
         dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
         dispatch(fetchBuses({ searchTag: modalBusSearchTag }));
-        dispatch(fetchRoutes());
-        dispatch(fetchTrips())
-    }, [dispatch, modalBusSearchTag, routeSearchTag]);
+        dispatch(fetchRoutes({searchTag:modalRouteSearchTag}));
+    }, [dispatch, modalBusSearchTag, modalRouteSearchTag,modalVendorSearchTag]);
 
     
     
@@ -99,7 +108,11 @@ export default function TripList() {
             setTicketPrice(selectedTrip.ticket_price);
             setDepartureTime(selectedTrip.departure_time);
             setArrivalTime(selectedTrip.arrival_time);
+            setBookingDeadLine(selectedTrip.booking_deadline)
             setStatus(selectedTrip.status);
+            setAllowPartialPayment(selectedTrip.allow_partial_payment)
+            setMinPartialPayment(selectedTrip.min_partial_payment)
+            setPartialPaymentType(selectedTrip.partial_payment_type)
         }
     }, [selectedTrip, users, routes, buses]);
 
@@ -141,6 +154,8 @@ export default function TripList() {
     // Handle bus selection in modal
     const handleModalBusSelect = (bus) => {
         setBusId(bus.id);
+        setTicketPrice(bus.ticket_price)
+        setTotalSeats(bus?.seats?.seats.length||0)
         setModalBusSearchTag(bus.name);
         setShowModalBusDropdown(false);
     };
@@ -157,14 +172,17 @@ export default function TripList() {
             ticket_price: ticketPrice,
             departure_time: departureTime,
             arrival_time: arrivalTime,
+            booking_deadline:bookingDeadLine,
             status,
-            
+            allow_partial_payment:allowPartialPayment,
+            min_partial_payment:minPartialPayment,
+            partial_payment_type:partialPaymentType
         };
 
         if(isAdmin){
             tripData.vendor_id=vendorId
         }
-        console.log(tripData)
+        //console.log(tripData)
         //return
 
         try {
@@ -362,6 +380,9 @@ export default function TripList() {
                                 {t("STATUS")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                {t("MIN_PARTIAL_PAYMENT")}
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("ACTION")}
                                 </TableCell>
                             </TableRow>
@@ -399,6 +420,9 @@ export default function TripList() {
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         {trip.status}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {trip.min_partial_payment}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         <div className="flex flex-row items-center justify-start gap-2">
@@ -588,7 +612,7 @@ export default function TripList() {
                                 <input
                                     type="datetime-local"
                                     value={formatForDisplay(departureTime)}
-                                    onChange={(e) => setDepartureTime(formatForDisplay(e.target.value))}
+                                    onChange={(e) => setDepartureTime(formatForInputDiscount(e.target.value))}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 {errors.departure_time && (
@@ -604,11 +628,27 @@ export default function TripList() {
                                 <input
                                     type="datetime-local"
                                     value={formatForDisplay(arrivalTime)}
-                                    onChange={(e) => setArrivalTime(formatForDisplay(e.target.value))}
+                                    onChange={(e) => setArrivalTime(formatForInputDiscount(e.target.value))}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 {errors.arrival_time && (
                                     <p className="text-red-500 text-sm mt-1">{errors.arrival_time}</p>
+                                )}
+                            </div>
+
+                            {/* booking deadline */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                {t("BOOKING_DEADLINE")} *
+                                </label>
+                                <input
+                                    type="datetime-local"
+                                    value={formatForDisplay(bookingDeadLine)}
+                                    onChange={(e) => setBookingDeadLine(formatForInputDiscount(e.target.value))}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                {errors.booking_deadline && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.booking_deadline}</p>
                                 )}
                             </div>
 
@@ -627,6 +667,57 @@ export default function TripList() {
                                 </select>
                                 {errors.status && (
                                     <p className="text-red-500 text-sm mt-1">{errors.status}</p>
+                                )}
+                            </div>
+
+                            {/* Allow partial payment */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                {t("ALLOW_PARTIAL_PAYMENT")} *
+                                </label>
+                                <select
+                                    value={allowPartialPayment}
+                                    onChange={(e) => {
+                                        const value = e.target.value === "true";
+                                        setAllowPartialPayment(value);
+                                    }}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </select>
+                                
+                            </div>
+
+                            {/*  partial payment type*/}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                {t("PARTIAL_PAYMENT_TYPE")} *
+                                </label>
+                                <select
+                                    value={partialPaymentType}
+                                    onChange={(e) => setPartialPaymentType(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="total">Total</option>
+                                    <option value="per_seat">Per Seat</option>
+                                </select>
+                                
+                            </div>
+
+                            {/* min partial payment */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                {t("MIN_PARTIAL_PAYMENT")} *
+                                </label>
+                                <input
+                                    type="number"
+                                    value={minPartialPayment}
+                                    onChange={(e) => setMinPartialPayment(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                {errors.min_partial_payment && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.min_partial_payment}</p>
                                 )}
                             </div>
 

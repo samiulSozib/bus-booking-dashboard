@@ -17,7 +17,7 @@ const getAuthToken = () => {
 // Fetch Routes
 export const fetchRoutes = createAsyncThunk(
     'routes/fetchRoutes',
-    async (searchTag, { rejectWithValue }) => {
+    async ({searchTag=""}, { rejectWithValue }) => {
         const type=userType()
         const token = getAuthToken();
         try {

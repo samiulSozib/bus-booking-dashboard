@@ -81,7 +81,7 @@ const discountSchema = Yup.object().shape({
 export default function DiscountList() {
   const dispatch = useDispatch();
   const { discounts, loading, error } = useSelector((state) => state.discounts);
-  const { users: vendors } = useSelector((state) => state.users);
+  const { users } = useSelector((state) => state.users);
   const { routes } = useSelector((state) => state.routes);
   const { buses } = useSelector((state) => state.buses);
   const { trips } = useSelector((state) => state.trips);
@@ -95,6 +95,16 @@ export default function DiscountList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentDiscountId, setCurrentDiscountId] = useState(null);
+
+  const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
+  const [modalRouteSearchTag, setModalRouteSearchTag] = useState("");
+  const [modalBusSearchTag, setModalBusSearchTag] = useState("");
+  const [modalTripSearchTag, setModalTripSearchTag]=useState("")
+  const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
+  const [showModalRouteDropdown, setShowModalRouteDropdown] = useState(false);
+  const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
+  const [showModalTripDropdown,setShowModalTripDropdown]=useState(false)
+
   const [formData, setFormData] = useState({
     scope: "global",
     vendor_id: null,
@@ -112,12 +122,18 @@ export default function DiscountList() {
   // Fetch initial data
   useEffect(() => {
     dispatch(fetchDiscounts());
-    dispatch(fetchUsers({ role: "vendor" }));
-    dispatch(fetchRoutes());
-    dispatch(fetchBuses({}));
-    dispatch(fetchTrips());
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
+    dispatch(fetchBuses({ searchTag: modalBusSearchTag }));
+    dispatch(fetchRoutes({searchTag:modalRouteSearchTag}));
+    dispatch(fetchTrips({searchTag:modalTripSearchTag}));
+  }, [dispatch,modalVendorSearchTag,modalBusSearchTag,modalRouteSearchTag,modalTripSearchTag]);
+
+  useEffect(()=>{
+    console.log(trips)
+  },[dispatch])
   
 
   // Handle scope change - reset related IDs when scope changes
@@ -130,6 +146,46 @@ export default function DiscountList() {
       bus_id: null,
       trip_id: null
     });
+  };
+
+      // Handle vendor selection in modal
+      const handleModalVendorSelect = (vendor) => {
+        setFormData({
+          ...formData,
+          vendor_id: vendor.id,
+        });
+        setModalVendorSearchTag(vendor.first_name);
+        setShowModalVendorDropdown(false);
+    };
+
+    // Handle route selection in modal
+    const handleModalRouteSelect = (route) => {
+      setFormData({
+        ...formData,
+        route_id: route.id,
+      });
+        setModalRouteSearchTag(route.name);
+        setShowModalRouteDropdown(false);
+    };
+
+    // Handle bus selection in modal
+    const handleModalBusSelect = (bus) => {
+        setFormData({
+          ...formData,
+          bus_id: bus.id,
+        });
+        setModalBusSearchTag(bus.name);
+        setShowModalBusDropdown(false);
+    };
+
+    // Handle trip selection in modal
+    const handleModalTripSelect = (trip) => {
+      setFormData({
+        ...formData,
+        trip_id: trip.id,
+      });
+      setModalTripSearchTag(trip?.route.name);
+      setShowModalTripDropdown(false);
   };
 
   // Open modal for editing
@@ -166,7 +222,7 @@ export default function DiscountList() {
         ...(formData.scope !== 'bus' && { bus_id: undefined }),
         ...(formData.scope !== 'trip' && { trip_id: undefined })
       };
-      console.log(payload)
+      // console.log(payload)
       //return
 
       if (isEditMode) {
@@ -403,18 +459,37 @@ export default function DiscountList() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("VENDOR")} *
                   </label>
-                  <select
-                    value={formData.vendor_id || ''}
-                    onChange={(e) => setFormData({...formData, vendor_id: Number(e.target.value)})}
-                    className="w-full rounded-md border-gray-300 shadow-sm"
-                  >
-                    <option value="">Select Vendor</option>
-                    {vendors.map(vendor => (
-                      <option key={vendor.vendor.id} value={vendor.vendor.id}>
-                        {vendor.first_name} {vendor.last_name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <input
+                        type="text"
+                        placeholder={t("SEARCH_VENDOR")}
+                        value={modalVendorSearchTag}
+                        onChange={(e) => {
+                            setModalVendorSearchTag(e.target.value);
+                            setShowModalVendorDropdown(true);
+                        }}
+                        onFocus={() => setShowModalVendorDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {showModalVendorDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {users
+                                .filter((user) => 
+                                    user.first_name.toLowerCase().includes(modalVendorSearchTag.toLowerCase())
+                                )
+                                .map((vendor) => (
+                                    <div
+                                        key={vendor.id}
+                                        onClick={() => handleModalVendorSelect(vendor)}
+                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                    >
+                                        {vendor.first_name}
+                                    </div>
+                                ))}
+                        </div>
+                    )}
+                  </div>
+                                    
                   {errors.vendor_id && (
                     <p className="text-red-500 text-sm mt-1">{errors.vendor_id}</p>
                   )}
@@ -426,18 +501,36 @@ export default function DiscountList() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("ROUTES")} *
                   </label>
-                  <select
-                    value={formData.route_id || ''}
-                    onChange={(e) => setFormData({...formData, route_id: Number(e.target.value)})}
-                    className="w-full rounded-md border-gray-300 shadow-sm"
-                  >
-                    <option value="">Select Route</option>
-                    {routes.map(route => (
-                      <option key={route.id} value={route.id}>
-                        {route.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <input
+                        type="text"
+                        placeholder={t("SEARCH_ROUTE")}
+                        value={modalRouteSearchTag}
+                        onChange={(e) => {
+                            setModalRouteSearchTag(e.target.value);
+                            setShowModalRouteDropdown(true);
+                        }}
+                        onFocus={() => setShowModalRouteDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {showModalRouteDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {routes
+                                .filter((route) =>
+                                    route.name.toLowerCase().includes(modalRouteSearchTag.toLowerCase())
+                                )
+                                .map((route) => (
+                                    <div
+                                        key={route.id}
+                                        onClick={() => handleModalRouteSelect(route)}
+                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                    >
+                                        {route.name}
+                                    </div>
+                                ))}
+                        </div>
+                    )}
+                </div>
                   {errors.route_id && (
                     <p className="text-red-500 text-sm mt-1">{errors.route_id}</p>
                   )}
@@ -449,18 +542,35 @@ export default function DiscountList() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("BUS")} *
                   </label>
-                  <select
-                    value={formData.bus_id || ''}
-                    onChange={(e) => setFormData({...formData, bus_id: Number(e.target.value)})}
-                    className="w-full rounded-md border-gray-300 shadow-sm"
-                  >
-                    <option value="">Select Bus</option>
-                    {buses.map(bus => (
-                      <option key={bus.id} value={bus.id}>
-                        {bus.name} ({bus.plate_number})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <input
+                        type="text"
+                        placeholder={t("SEARCH_BUS")}
+                        value={modalBusSearchTag}
+                        onChange={(e) => {
+                            
+                            setModalBusSearchTag(e.target.value);
+                            setShowModalBusDropdown(true);
+                        }}
+                        onFocus={() => setShowModalBusDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {showModalBusDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {buses
+                                
+                                .map((bus) => (
+                                    <div
+                                        key={bus.id}
+                                        onClick={() => handleModalBusSelect(bus)}
+                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                    >
+                                        {bus.name}
+                                    </div>
+                                ))}
+                        </div>
+                    )}
+                  </div>
                   {errors.bus_id && (
                     <p className="text-red-500 text-sm mt-1">{errors.bus_id}</p>
                   )}
@@ -472,18 +582,35 @@ export default function DiscountList() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("TRIPS")} *
                   </label>
-                  <select
-                    value={formData.trip_id || ''}
-                    onChange={(e) => setFormData({...formData, trip_id: Number(e.target.value)})}
-                    className="w-full rounded-md border-gray-300 shadow-sm"
-                  >
-                    <option value="">Select Trip</option>
-                    {trips.map(trip => (
-                      <option key={trip.id} value={trip.id}>
-                        Trip #{trip.id} - {trip.route?.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <input
+                        type="text"
+                        placeholder={t("SEARCH_TRIP")}
+                        value={modalTripSearchTag}
+                        onChange={(e) => {
+                            
+                            setModalTripSearchTag(e.target.value);
+                            setShowModalTripDropdown(true);
+                        }}
+                        onFocus={() => setShowModalTripDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {showModalTripDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {trips
+                                
+                                .map((trip) => (
+                                    <div
+                                        key={trip.id}
+                                        onClick={() => handleModalTripSelect(trip)}
+                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                    >
+                                       {trip?.route.name}--{trip?.bus.name}
+                                    </div>
+                                ))}
+                        </div>
+                    )}
+                  </div>
                   {errors.trip_id && (
                     <p className="text-red-500 text-sm mt-1">{errors.trip_id}</p>
                   )}

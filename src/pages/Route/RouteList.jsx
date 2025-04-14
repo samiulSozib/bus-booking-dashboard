@@ -102,7 +102,7 @@ export default function RouteList() {
 
     // Fetch routes 
     useEffect(() => {
-        dispatch(fetchRoutes(searchTag));
+        dispatch(fetchRoutes({searchTag}));
     }, [dispatch, searchTag]);
 
     // Fetch countries on component mount
