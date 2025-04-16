@@ -17,7 +17,7 @@ const ComponentCard = ({
       <div className="flex items-center justify-between px-6 py-5">
         <div>
           <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
-            {title}
+            {t(title)}
           </h3>
           {value && (
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
