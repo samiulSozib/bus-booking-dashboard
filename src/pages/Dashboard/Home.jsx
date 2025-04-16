@@ -47,7 +47,7 @@ export default function Home() {
   if (!data || typeof data !== 'object') {
     return (
       <>
-        <PageMeta title="Tak Telecom" description="" />
+        <PageMeta title="Bus Booking" description="" />
         <div>Loading data...</div>
       </>
     );
@@ -56,7 +56,7 @@ export default function Home() {
   return (
     <>
       <PageMeta
-        title="Tak Telecom"
+        title="Bus Booking"
         description=""
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">

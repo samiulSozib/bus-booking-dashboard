@@ -5,7 +5,7 @@ export default function BusRoute() {
   return (
     <>
       <PageMeta
-        title="Tak Telecom"
+        title="Bus Booking"
         description=""
       />
       <div className="">

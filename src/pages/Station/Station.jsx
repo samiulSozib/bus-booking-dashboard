@@ -5,7 +5,7 @@ export default function Station() {
   return (
     <>
       <PageMeta
-        title="Tak Telecom"
+        title="Bus Booking"
         description=""
       />
       <div className="">

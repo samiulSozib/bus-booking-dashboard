@@ -5,7 +5,7 @@ export default function User() {
   return (
     <>
       <PageMeta
-        title="Tak Telecom"
+        title="Bus Booking"
         description=""
       />
       <div className="">

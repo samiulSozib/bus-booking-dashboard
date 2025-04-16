@@ -6,7 +6,7 @@ const Driver = () => {
   return (
     <>
       <PageMeta
-        title="Tak Telecom"
+        title="Bus Booking"
         description=""
       />
       <div className="">

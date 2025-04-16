@@ -6,7 +6,7 @@ const WalletTransaction = () => {
   return (
     <>
       <PageMeta
-        title="Tak Telecom"
+        title="Bus Booking"
         description=""
       />
       <div className="">
