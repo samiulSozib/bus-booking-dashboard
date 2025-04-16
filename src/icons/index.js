@@ -76,9 +76,15 @@ import {ReactComponent as View} from './view-disable-svgrepo-com.svg?react'
 import {ReactComponent as FunnelIcon} from './funnel.svg?react'
 import {ReactComponent as SearchIcon} from './search-svgrepo-com.svg?react'
 
-
-
-
+import {ReactComponent as Direction} from './direction.svg?react'
+import {ReactComponent as Station} from './station.svg?react'
+import {ReactComponent as Discount} from './discount.svg?react'
+import {ReactComponent as Trip} from './trip.svg?react'
+import {ReactComponent as Wallet} from './wallet.svg?react'
+import {ReactComponent as Bus} from './bus.svg?react'
+import {ReactComponent as Location} from './location.svg?react'
+import {ReactComponent as Ticket} from "./ticket.svg?react"
+import {ReactComponent as Booking} from "./booking.svg?react"
 
 
 
@@ -86,6 +92,15 @@ import {ReactComponent as SearchIcon} from './search-svgrepo-com.svg?react'
 
 
 export {
+  Ticket,
+  Booking,
+  Direction,
+  Station,
+  Discount,
+  Trip,
+  Wallet,
+  Bus,
+  Location,
   ErrorHexaIcon,
   AlertHexaIcon,
   MoreDotIcon,

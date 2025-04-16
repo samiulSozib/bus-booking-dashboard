@@ -17,10 +17,11 @@ import {
 } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../components/pagination/pagination";
 
 export default function UserList() {
     const dispatch = useDispatch();
-    const { users, selectedUser,loading } = useSelector((state) => state.users);
+    const { users, selectedUser,loading,pagination } = useSelector((state) => state.users);
 
     const [searchTag, setSearchTag] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,6 +29,7 @@ export default function UserList() {
     const [currentUserId, setCurrentUserId] = useState(null);
     const [formErrors, setFormErrors] = useState({});
     const {t}=useTranslation()
+    const [currentPage, setCurrentPage] = useState(1);
 
 
     // State for user form fields
@@ -57,8 +59,8 @@ export default function UserList() {
     });
 
     useEffect(() => {
-        dispatch(fetchUsers(searchTag));
-    }, [dispatch, searchTag]);
+        dispatch(fetchUsers({searchTag,page:currentPage}));
+    }, [dispatch, searchTag,currentPage]);
 
     useEffect(() => {
         if (selectedUser) {
@@ -147,7 +149,6 @@ export default function UserList() {
             setCurrentUserId(null);
             setFormErrors({}); // Clear any previous errors
         } catch (err) {
-            console.log(err)
             const errors = {};
             if (err.inner) {
                 // Yup validation errors
@@ -157,7 +158,14 @@ export default function UserList() {
                 setFormErrors(errors);
     
                 
-            } else {
+            }else if(err.type==='api'){
+                const newErrors = {};
+                Object.entries(err.errors).forEach(([field, messages]) => {
+                    newErrors[field] = Array.isArray(messages) ? messages.join(' ') : messages;
+                });
+                setFormErrors(newErrors);
+            } 
+            else {
                 // API or other errors
                 Swal.fire({
                     icon: 'error',
@@ -836,6 +844,12 @@ export default function UserList() {
                 </Table>
             )}
             </div>
+            {/* Pagination */}
+            <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
         </div>
     );
 }                               

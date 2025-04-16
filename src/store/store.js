@@ -11,6 +11,7 @@ import busReducer from "./slices/busSlice"
 import driverReducer from "./slices/driverSlice.js"
 import discountReducer from "./slices/discountSlice.js"
 import walletTransactionReducer from "./slices/walletTransactionSlice.js"
+import statisticsReducer from "./slices/statisticsSlice.js"
 
 const store = configureStore({
     reducer: {
@@ -25,7 +26,8 @@ const store = configureStore({
         buses:busReducer,
         drivers:driverReducer,
         discounts:discountReducer,
-        walletTransactions:walletTransactionReducer
+        walletTransactions:walletTransactionReducer,
+        statistics:statisticsReducer
     },
 });
 

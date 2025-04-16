@@ -6,6 +6,13 @@ import {
   Dashboard,
   User_Group,
   UserIcon,
+  Location,
+  Direction,
+  Station,
+  Discount,
+  Trip,
+  Wallet,
+  Bus,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -37,7 +44,7 @@ const AppSidebar = () => {
       roles: ["admin", "vendor"]
     },
     {
-      icon: <User_Group />,
+      icon: <Location />,
       name: "LOCATION",
       roles: ["admin"],
       subItems: [
@@ -47,25 +54,25 @@ const AppSidebar = () => {
       ],
     },
     {
-      icon: <User_Group />,
+      icon: <Direction />,
       name: "ROUTES",
       path: "/routes",
       roles: ["admin"]
     },
     {
-      icon: <User_Group />,
+      icon: <Station />,
       name: "STATIONS",
       path: "/stations",
       roles: ["admin"]
     },
     {
-      icon: <User_Group />,
+      icon: <Discount />,
       name: "DISCOUNTS",
       path: "/discounts",
       roles: ["admin"]
     },
     {
-      icon: <User_Group />,
+      icon: <Trip />,
       name: "TRIPS",
       path: "/trips",
       roles: ["admin", "vendor"]
@@ -77,13 +84,13 @@ const AppSidebar = () => {
       roles: ["admin"]
     },
     {
-      icon: <User_Group />,
+      icon: <Wallet />,
       name: "WALLET_TRANSACTION",
       path: "/wallet-transactions",
       roles: ["admin"]
     },
     {
-      icon: <UserIcon />,
+      icon: <Bus />,
       name: "BUS",
       path: "/buses",
       roles: ["admin", "vendor"]

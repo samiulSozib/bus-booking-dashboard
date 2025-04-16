@@ -7,13 +7,16 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Users
 export const fetchUsers = createAsyncThunk(
     "users/fetch",
-    async ({searchTag = "",role=""}, { rejectWithValue }) => {
+    async ({searchTag = "",role="",page=1}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/users?search=${searchTag}&role=${role}`, {
+            const response = await axios.get(`${base_url}/admin/users?search=${searchTag}&role=${role}&page=${page}`, {
                 headers: { Authorization: `${token}` },
             });
-            return response.data.body.items;
+            return {
+                items:response.data.body.items,
+                pagination: response.data.body.data
+            };
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -108,7 +111,14 @@ export const addUser = createAsyncThunk(
             console.log(response);
             return response.data.body.item;
         } catch (error) {
-            console.error("Error adding user:", error);
+            console.log(error)
+            if (error.response?.data?.errors) {
+                // Handle validation errors from API
+                return rejectWithValue({
+                  type: 'api',
+                  errors: error.response.data.errors
+                });
+              }
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -160,7 +170,11 @@ export const deleteUser = createAsyncThunk(
 // Create Slice
 const userSlice = createSlice({
     name: "users",
-    initialState: { loading: false, users: [], selectedUser: null, error: null },
+    initialState: { loading: false, users: [], selectedUser: null, error: null,pagination: {
+        current_page: 1,
+        last_page: 1,
+        total: 0
+    } },
     reducers: {},
     extraReducers: (builder) => {
         builder
@@ -170,7 +184,8 @@ const userSlice = createSlice({
             })
             .addCase(fetchUsers.fulfilled, (state, action) => {
                 state.loading = false;
-                state.users = action.payload;
+                state.users = action.payload.items;
+                state.pagination=action.payload.pagination
             })
             .addCase(fetchUsers.rejected, (state, action) => {
                 state.loading = false;

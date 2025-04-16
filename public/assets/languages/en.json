@@ -181,5 +181,28 @@
   "LOGOUT_SUCCESS":"Logout Success",
   "LOGIN_SUCCESS":"Login Success",
   "CONTACT_US":"Contact Us",
-  "LOGIN_FAIL":"Login Fail"
+  "LOGIN_FAIL":"Login Fail",
+
+  
+    "customers_count": "Customers Count",
+    "agents_count": "Agents Count",
+    "vendors_count": "Vendors Count",
+    "bus_count": "Bus Count",
+    "trip_count": "Trip Count",
+    "active_trip_count": "Active Trip Count",
+    "all_booking_count": "All Booking Count",
+    "pending_booking_count": "Pending Booking Count",
+    "paid_booking_count": "Paid Booking Count",
+    "partial_paid_booking_count": "Partial Paid Booking Count",
+    "cancelled_booking_count": "Cancelled Booking Count",
+    "all_ticket_count": "All Ticket Count",
+    "booked_ticket_count": "Booked Ticket Count",
+    "used_ticket_count": "Used Ticket Count",
+    "cancelled_ticket_count": "Cancelled Ticket Count",
+    "total_balance": "Total Balance",
+    "customers_total_balance": "Customers Total Balance",
+    "agents_total_balance": "Agents Total Balance",
+    "vendors_total_balance": "Vendors Total Balance"
+  
+
 }
