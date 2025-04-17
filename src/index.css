@@ -21,16 +21,11 @@
     @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
   }
   .menu-item-icon {
-    @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
+    @apply text-black;
   }
-  .menu-item-icon-active {
-    @apply text-brand-500 dark:text-brand-400;
-  }
+
   .menu-item-icon-size svg {
     @apply size-8 !important;
-  }
-  .menu-item-icon-inactive {
-    @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
   }
 
   .menu-item-arrow {

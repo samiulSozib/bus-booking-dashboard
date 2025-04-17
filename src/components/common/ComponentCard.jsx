@@ -26,7 +26,7 @@ const ComponentCard = ({
           )}
         </div>
         <div className="ml-4 flex-shrink-0">
-          <Icon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+          <Icon className="h-8 w-8 text-black" />
         </div>
       </div>
     </div>

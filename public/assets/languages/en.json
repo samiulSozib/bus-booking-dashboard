@@ -139,9 +139,6 @@
   "COMMISSION_TYPE": "Commission Type",  
   "SELECT_COMMISSION_TYPE": "Select Commission Type" ,
 
-
-
-
   "YES":"Yes",
   "NO":"No",
   "ID":"Id",
@@ -183,7 +180,6 @@
   "CONTACT_US":"Contact Us",
   "LOGIN_FAIL":"Login Fail",
 
-  
     "customers_count": "Customers Count",
     "agents_count": "Agents Count",
     "vendors_count": "Vendors Count",
@@ -203,6 +199,4 @@
     "customers_total_balance": "Customers Total Balance",
     "agents_total_balance": "Agents Total Balance",
     "vendors_total_balance": "Vendors Total Balance"
-  
-
 }
