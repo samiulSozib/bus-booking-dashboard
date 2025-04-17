@@ -18,6 +18,7 @@ export const addBus = createAsyncThunk(
     try {
       
       const token = getAuthToken();
+      const type=user_type()
       const formData = new FormData();
       
       Object.keys(busData).forEach((key) => {
@@ -37,7 +38,7 @@ export const addBus = createAsyncThunk(
         console.log(key,value)
       })
 
-      const response = await axios.post(`${base_url}/vendor/buses`, formData, {
+      const response = await axios.post(`${base_url}/${type.role}/buses`, formData, {
         headers: {
           Authorization: `${token}`,
           'Content-Type': 'multipart/form-data',
@@ -60,6 +61,7 @@ export const editBus = createAsyncThunk(
       console.log("Bus Data:", busData);
 
       const token = getAuthToken();
+      const type=user_type()
       const formData = new FormData();
 
       // Append basic fields
@@ -91,7 +93,7 @@ export const editBus = createAsyncThunk(
       }
 
       // API Request
-      const response = await axios.post(`${base_url}/vendor/buses/update`, formData, {
+      const response = await axios.post(`${base_url}/${type.role}/buses/update`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `${token}`,
@@ -128,6 +130,7 @@ export const updateSeat = createAsyncThunk(
   async ({ busId, busData }, { rejectWithValue }) => {
     try {
       const token=getAuthToken()
+      const type=user_type()
       const formData=new FormData()
       console.log(busData)
       formData.append("bus_id",busId)
@@ -136,7 +139,7 @@ export const updateSeat = createAsyncThunk(
       formData.append("seats",JSON.stringify(busData.seats))
       formData.append("berth_type",busData.berth_type)
 
-      const response = await axios.post(`${base_url}/vendor/buses/seat`, formData,{
+      const response = await axios.post(`${base_url}/${type.role}/buses/seat`, formData,{
         headers:{
           'Content-Type': 'multipart/form-data',
           Authorization: `${token}`,
@@ -173,7 +176,8 @@ export const fetchBusById = createAsyncThunk(
   async (busId, { rejectWithValue }) => {
     try {
       const token=getAuthToken()
-      const response = await axios.get(`${base_url}/vendor/buses/${busId}/show`,{
+      const type=user_type()
+      const response = await axios.get(`${base_url}/${type.role}/buses/${busId}/show`,{
         headers:{
           Authorization: `${token}`
         }

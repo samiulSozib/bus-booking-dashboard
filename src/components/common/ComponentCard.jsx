@@ -11,7 +11,7 @@ const ComponentCard = ({
   const {t}=useTranslation()
   return (
     <div
-      className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}
+      className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className} sm:h-[120px] h-[90px]`}
     >
       {/* Card Header with icon */}
       <div className="flex items-center justify-between px-6 py-5">

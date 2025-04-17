@@ -28,6 +28,7 @@ import Driver from "./pages/Driver/Driver";
 import Trip from "./pages/Trip/Trip";
 import Discount from "./pages/Discount/Discount";
 import WalletTransaction from "./pages/WalletTransaction/WalletTransaction";
+import Booking from "./pages/Booking/Booking";
 
 export default function App() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
             <Route index path="/trips" element={<ProtectedRoute><Trip/></ProtectedRoute>}/>
             <Route index path="/discounts" element={<ProtectedRoute><Discount/></ProtectedRoute>}/>
             <Route index path="/wallet-transactions" element={<ProtectedRoute><WalletTransaction/></ProtectedRoute>}/>
+            <Route index path="/bookings" element={<ProtectedRoute><Booking/></ProtectedRoute>}/>
 
 
 

@@ -284,7 +284,7 @@ export default function TripList() {
                 <div className="relative">
                     <input
                         type="text"
-                        placeholder={t("SEARCH_BUS")}
+                        placeholder={t("SEARCH_ROUTE")}
                         value={routeSearchTag}
                         onChange={(e) => {
                             setRouteSearchTag(e.target.value);

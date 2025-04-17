@@ -198,5 +198,7 @@
     "total_balance": "Total Balance",
     "customers_total_balance": "Customers Total Balance",
     "agents_total_balance": "Agents Total Balance",
-    "vendors_total_balance": "Vendors Total Balance"
+    "vendors_total_balance": "Vendors Total Balance",
+
+    "BOOKING":"Booking"
 }

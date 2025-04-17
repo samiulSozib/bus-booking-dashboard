@@ -12,8 +12,10 @@ import {
   Trip,
   User_Group,
 } from "../../icons";
+import { userType } from "../../utils/utils";
 
 export default function Home() {
+  const role=userType()
   const dispatch = useDispatch();
   const { data } = useSelector((state) => state.statistics);
 
@@ -59,7 +61,7 @@ export default function Home() {
         title="Bus Booking"
         description=""
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
       {Object.entries(data).map(([key, value]) => {
         const Icon = iconMap[key] 
         

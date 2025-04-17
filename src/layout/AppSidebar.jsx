@@ -34,6 +34,8 @@ const AppSidebar = () => {
   const user = userType()
   const isAdmin = user?.role === "admin";
   const isVendor = user?.role === "vendor";
+  const isAgent = user?.role === "agent";
+
 
   // Memoized navigation items configuration
   const navItems = useMemo(() => [
@@ -41,7 +43,7 @@ const AppSidebar = () => {
       icon: <Dashboard />,
       name: "DASHBOARD",
       path: "/",
-      roles: ["admin", "vendor"]
+      roles: ["admin", "vendor","agent"]
     },
     {
       icon: <Location />,
@@ -99,7 +101,14 @@ const AppSidebar = () => {
       icon: <User_Group />,
       name: "DRIVERS",
       path: "/drivers",
-      roles: ["admin", "vendor"]
+      roles: ["vendor"]
+    },
+    
+    {
+      icon: <User_Group />,
+      name: "BOOKING",
+      path: "/bookings",
+      roles: ["agent"]
     }
   ], []);
 
@@ -116,11 +125,12 @@ const AppSidebar = () => {
   const filterItemsByRole = useCallback((items) => {
     return items.filter(item => {
       if (!item.roles) return false;
+      // Admin sees everything (except items without roles)
       if (isAdmin) return true;
-      if (isVendor) return item.roles.includes("vendor");
-      return false;
+      // Others only see items that include their role
+      return item.roles.includes(user?.role);
     });
-  }, [isAdmin, isVendor]);
+  }, [isAdmin, user?.role]);
 
   const filteredNavItems = useMemo(() => filterItemsByRole(navItems), [filterItemsByRole, navItems]);
   const filteredOthersItems = useMemo(() => filterItemsByRole(othersItems), [filterItemsByRole, othersItems]);
