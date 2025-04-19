@@ -12,6 +12,7 @@ import driverReducer from "./slices/driverSlice.js"
 import discountReducer from "./slices/discountSlice.js"
 import walletTransactionReducer from "./slices/walletTransactionSlice.js"
 import statisticsReducer from "./slices/statisticsSlice.js"
+import tripCancellationPolicyReducer from "./slices/tripCancellationPolicy"
 
 const store = configureStore({
     reducer: {
@@ -27,7 +28,8 @@ const store = configureStore({
         drivers:driverReducer,
         discounts:discountReducer,
         walletTransactions:walletTransactionReducer,
-        statistics:statisticsReducer
+        statistics:statisticsReducer,
+        tripCancellationPolicy:tripCancellationPolicyReducer
     },
 });
 

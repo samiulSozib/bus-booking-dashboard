@@ -200,5 +200,15 @@
     "agents_total_balance": "Agents Total Balance",
     "vendors_total_balance": "Vendors Total Balance",
 
-    "BOOKING":"Booking"
+    "BOOKING":"Booking",
+    "TRIP_CANCELLATION_POLICY":"Trip Cancellation Policy",
+    "PENALTY_STEPS":"Penalty Steps",
+    "HOURS_BEFORE_TRIP":"Hours Before Trip",
+    "PENALTY_PERCENTAGE":"Penalty Percentage",
+    "REMOVE":"Remove",
+    "ADD_PENALTY_STEP":"Add Penalty Step",
+    "CREATE_POLICY":"Create Policy",
+    "NO_CANCELLATION_POLICY_SET":"No Cancellation Policy Set",
+    "SELECT_VENDOR_TO_VIEW_POLICY":"Select Vendor To View Policy",
+    "POLICY_FOR_VENDOR":"Policy for Vendor"
 }

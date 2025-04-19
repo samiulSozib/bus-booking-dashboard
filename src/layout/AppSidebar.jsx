@@ -109,6 +109,12 @@ const AppSidebar = () => {
       name: "BOOKING",
       path: "/bookings",
       roles: ["agent"]
+    },
+    {
+      icon: <User_Group />,
+      name: "TRIP_CANCELLATION_POLICY",
+      path: "/trip-cancellation-policy",
+      roles: ["admin"]
     }
   ], []);
 
