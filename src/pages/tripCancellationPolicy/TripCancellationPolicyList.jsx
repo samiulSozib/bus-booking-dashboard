@@ -25,7 +25,6 @@ const policySchema = Yup.object().shape({
             Yup.object().shape({
                 hours: Yup.number()
                     .required("Hours is required")
-                    .positive("Hours must be positive")
                     .integer("Hours must be an integer"),
                 percentage: Yup.number()
                     .required("Percentage is required")
@@ -166,7 +165,10 @@ export default function TripCancellationPolicyList() {
 
     const updatePenaltyStep = (index, field, value) => {
         const newSteps = [...penaltySteps];
-        newSteps[index][field] = value;
+        newSteps[index] = {
+            ...newSteps[index],
+            [field]: value
+        };
         setPenaltySteps(newSteps);
     };
 
@@ -251,7 +253,7 @@ export default function TripCancellationPolicyList() {
                                             </label>
                                             <input
                                                 type="number"
-                                                value={step.hours}
+                                                value={step.hours||""}
                                                 onChange={(e) => updatePenaltyStep(index, 'hours', parseInt(e.target.value) || 0)}
                                                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />
@@ -265,7 +267,7 @@ export default function TripCancellationPolicyList() {
                                             </label>
                                             <input
                                                 type="number"
-                                                value={step.percentage}
+                                                value={step.percentage||""}
                                                 onChange={(e) => updatePenaltyStep(index, 'percentage', parseFloat(e.target.value) || 0)}
                                                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />

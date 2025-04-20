@@ -13,13 +13,14 @@ import {
   Trip,
   Wallet,
   Bus,
+  Settings,
+  Ticket,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { useTranslation } from "react-i18next";
 import SidebarBottom from "./SidebarBottom";
-import {userType } from "../utils/utils";
-import { parse } from "postcss";
+import { userType } from "../utils/utils";
 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
@@ -31,11 +32,10 @@ const AppSidebar = () => {
   const subMenuRefs = useRef({});
 
   // Get user role
-  const user = userType()
+  const user = userType();
   const isAdmin = user?.role === "admin";
   const isVendor = user?.role === "vendor";
   const isAgent = user?.role === "agent";
-
 
   // Memoized navigation items configuration
   const navItems = useMemo(() => [
@@ -43,7 +43,7 @@ const AppSidebar = () => {
       icon: <Dashboard />,
       name: "DASHBOARD",
       path: "/",
-      roles: ["admin", "vendor","agent"]
+      roles: ["admin", "vendor", "agent"]
     },
     {
       icon: <Location />,
@@ -87,9 +87,21 @@ const AppSidebar = () => {
     },
     {
       icon: <Wallet />,
-      name: "WALLET_TRANSACTION",
-      path: "/wallet-transactions",
-      roles: ["admin"]
+      name: "WALLET",
+      roles: ["admin", "vendor"],
+      getSubItems: (role) => {
+        const items = [];
+        if (role === "admin") {
+          items.push(
+            { name: "WALLET", path: "/admin-wallet" },
+            { name: "WALLET_TRANSACTION", path: "/wallet-transactions" }
+          );
+        }
+        if (role === "vendor") {
+          items.push({ name: "WALLET", path: "/vendor-wallet" });
+        }
+        return items;
+      }
     },
     {
       icon: <Bus />,
@@ -103,15 +115,14 @@ const AppSidebar = () => {
       path: "/drivers",
       roles: ["vendor"]
     },
-    
     {
-      icon: <User_Group />,
+      icon: <Ticket />,
       name: "BOOKING",
       path: "/bookings",
       roles: ["agent"]
     },
     {
-      icon: <User_Group />,
+      icon: <Settings />,
       name: "TRIP_CANCELLATION_POLICY",
       path: "/trip-cancellation-policy",
       roles: ["admin"]
@@ -131,10 +142,28 @@ const AppSidebar = () => {
   const filterItemsByRole = useCallback((items) => {
     return items.filter(item => {
       if (!item.roles) return false;
-      // Admin sees everything (except items without roles)
       if (isAdmin) return true;
-      // Others only see items that include their role
       return item.roles.includes(user?.role);
+    }).map(item => {
+      // Handle dynamic sub-items
+      if (item.getSubItems) {
+        return {
+          ...item,
+          subItems: item.getSubItems(user?.role)
+        };
+      }
+      // Filter regular sub-items
+      if (item.subItems) {
+        return {
+          ...item,
+          subItems: item.subItems.filter(subItem => {
+            if (!subItem.roles) return true;
+            if (isAdmin) return true;
+            return subItem.roles.includes(user?.role);
+          })
+        };
+      }
+      return item;
     });
   }, [isAdmin, user?.role]);
 
@@ -169,13 +198,13 @@ const AppSidebar = () => {
       });
     };
 
-    checkSubItems(navItems, "main");
-    checkSubItems(othersItems, "others");
+    checkSubItems(filteredNavItems, "main");
+    checkSubItems(filteredOthersItems, "others");
 
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
-  }, [location.pathname, isActive, navItems, othersItems]);
+  }, [location.pathname, isActive, filteredNavItems, filteredOthersItems]);
 
   // Calculate submenu height when opened
   useEffect(() => {
@@ -205,7 +234,7 @@ const AppSidebar = () => {
     <ul className="flex flex-col gap-1">
       {items.map((nav, index) => (
         <li key={`${menuType}-${index}-${nav.name}`}>
-          {nav.subItems ? (
+          {nav.subItems && nav.subItems.length > 0 ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}
               className={`menu-item group ${
@@ -266,7 +295,7 @@ const AppSidebar = () => {
               </Link>
             )
           )}
-          {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
+          {nav.subItems && nav.subItems.length > 0 && (isExpanded || isHovered || isMobileOpen) && (
             <div
               ref={(el) => {
                 subMenuRefs.current[`${menuType}-${index}`] = el;
@@ -329,7 +358,7 @@ const AppSidebar = () => {
               />
               <img
                 className="hidden dark:block rounded-xl"
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEEdmbtnM6XzTWvM6mwvLIlg-ludm_CuQ-UA&sg"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEEdmbtnM6XzTWvM6mwvLIlg-ludm_CuQ-UA&s"
                 alt="Logo"
                 width={60}
                 height={40}

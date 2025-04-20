@@ -13,6 +13,8 @@ import discountReducer from "./slices/discountSlice.js"
 import walletTransactionReducer from "./slices/walletTransactionSlice.js"
 import statisticsReducer from "./slices/statisticsSlice.js"
 import tripCancellationPolicyReducer from "./slices/tripCancellationPolicy"
+import adminWalletReducer from "./slices/adminWalletSlice.js"
+import vendorWalletReducer from "./slices/vendorWalletSlice.js"
 
 const store = configureStore({
     reducer: {
@@ -29,7 +31,9 @@ const store = configureStore({
         discounts:discountReducer,
         walletTransactions:walletTransactionReducer,
         statistics:statisticsReducer,
-        tripCancellationPolicy:tripCancellationPolicyReducer
+        tripCancellationPolicy:tripCancellationPolicyReducer,
+        adminWallet:adminWalletReducer,
+        vendorWallet:vendorWalletReducer
     },
 });
 

@@ -13,6 +13,7 @@
   "USER":"User",
   "WALLET_TRANSACTION": "Wallet Transaction",
   "WALLET": "Wallet",
+  "WALLET_LIST":"Wallet List",
   "BUS": "Bus",
   "DRIVERS": "Drivers",
   "GENERAL": "General",
@@ -139,6 +140,13 @@
   "COMMISSION_TYPE": "Commission Type",  
   "SELECT_COMMISSION_TYPE": "Select Commission Type" ,
 
+  "BALANCE":"Balance",
+  "USER_TYPE":"User Type",
+  "CURRENCY":"Currency",
+  "UPDATED_DATE":"Updated Date",
+
+
+
   "YES":"Yes",
   "NO":"No",
   "ID":"Id",
@@ -210,5 +218,6 @@
     "CREATE_POLICY":"Create Policy",
     "NO_CANCELLATION_POLICY_SET":"No Cancellation Policy Set",
     "SELECT_VENDOR_TO_VIEW_POLICY":"Select Vendor To View Policy",
-    "POLICY_FOR_VENDOR":"Policy for Vendor"
+    "POLICY_FOR_VENDOR":"Policy for Vendor",
+    "EDIT_POLICY":"Edit Policy"
 }

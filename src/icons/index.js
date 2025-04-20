@@ -85,6 +85,7 @@ import {ReactComponent as Bus} from './bus.svg?react'
 import {ReactComponent as Location} from './location.svg?react'
 import {ReactComponent as Ticket} from "./ticket.svg?react"
 import {ReactComponent as Booking} from "./booking.svg?react"
+import {ReactComponent as Settings} from "./settings.svg?react"
 
 
 
@@ -92,6 +93,7 @@ import {ReactComponent as Booking} from "./booking.svg?react"
 
 
 export {
+  Settings,
   Ticket,
   Booking,
   Direction,
