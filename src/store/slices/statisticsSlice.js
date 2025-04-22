@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
@@ -10,7 +11,8 @@ export const fetchDashboardData = createAsyncThunk(
     async ({},{ rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/statistics`, {
+            const type=userType()
+            const response = await axios.get(`${base_url}/${type.role}/statistics`, {
                 headers: { Authorization: `${token}` },
             });
             console.log(response.data.body.item)

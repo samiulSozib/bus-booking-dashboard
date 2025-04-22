@@ -33,14 +33,7 @@ const policySchema = Yup.object().shape({
             })
         )
         .required("At least one penalty step is required")
-        .test(
-            "unique-hours",
-            "Hours values must be unique",
-            function (steps) {
-                const hours = steps.map(step => step.hours);
-                return new Set(hours).size === hours.length;
-            }
-        ),
+        
 });
 
 export default function TripCancellationPolicyList() {
@@ -81,7 +74,12 @@ export default function TripCancellationPolicyList() {
     // Set initial form values when policy is loaded
     useEffect(() => {
         if (policy) {
-            setPenaltySteps(policy.penalty_steps || [{ hours: 0, percentage: 0 }]);
+            // Ensure the first step has hours: 0 when loading existing policy
+            const steps = policy.penalty_steps || [{ hours: 0, percentage: 0 }];
+            // if (steps.length > 0 && steps[0].hours !== 0) {
+            //     steps.unshift({ hours: 0, percentage: 0 });
+            // }
+            setPenaltySteps(steps);
             setModalVendorId(policy.vendor_id);
         }
     }, [policy]);
@@ -108,6 +106,8 @@ export default function TripCancellationPolicyList() {
             vendor_id: modalVendorId,
             penalty_steps: penaltySteps,
         };
+        console.log(policyData)
+
 
         try {
             await policySchema.validate(policyData, { abortEarly: false });
@@ -152,11 +152,11 @@ export default function TripCancellationPolicyList() {
     };
 
     const addPenaltyStep = () => {
-        setPenaltySteps([...penaltySteps, { hours: 0, percentage: 0 }]);
+        setPenaltySteps([...penaltySteps, { hours: 24, percentage: 0 }]);
     };
 
     const removePenaltyStep = (index) => {
-        if (penaltySteps.length > 1) {
+        if (penaltySteps.length > 1 ) {
             const newSteps = [...penaltySteps];
             newSteps.splice(index, 1);
             setPenaltySteps(newSteps);
@@ -165,10 +165,18 @@ export default function TripCancellationPolicyList() {
 
     const updatePenaltyStep = (index, field, value) => {
         const newSteps = [...penaltySteps];
-        newSteps[index] = {
-            ...newSteps[index],
-            [field]: value
-        };
+        if (index === 0 && field === 'hours') {
+            // Keep hours as 0 for the first step
+            newSteps[index] = {
+                ...newSteps[index],
+                percentage: field === 'percentage' ? value : newSteps[index].percentage
+            };
+        } else {
+            newSteps[index] = {
+                ...newSteps[index],
+                [field]: value
+            };
+        }
         setPenaltySteps(newSteps);
     };
 
@@ -186,12 +194,13 @@ export default function TripCancellationPolicyList() {
         setShowModalVendorDropdown(false);
     };
 
-    // Sort steps by hours in descending order for display
+    // Sort steps by hours in descending order for display (except the first 0 hours step)
     const sortedSteps = policy?.penalty_steps 
-        ? [...policy.penalty_steps].sort((a, b) => b.hours - a.hours) 
+        ? [...policy.penalty_steps]
+              .filter(step => step.hours !== 0) // Exclude the 0 hours step from sorting
+              .sort((a, b) => b.hours - a.hours)
+              .concat(policy.penalty_steps.filter(step => step.hours === 0)) // Add 0 hours step at the end
         : [];
-
-  
 
     return (
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
@@ -246,6 +255,7 @@ export default function TripCancellationPolicyList() {
                                 </label>
                                 
                                 {penaltySteps.map((step, index) => (
+                                    
                                     <div key={index} className="flex gap-2 mb-3 items-end">
                                         <div className="flex-1">
                                             <label className="block text-xs text-gray-500 mb-1">
@@ -253,9 +263,10 @@ export default function TripCancellationPolicyList() {
                                             </label>
                                             <input
                                                 type="number"
-                                                value={step.hours||""}
+                                                value={step.hours}
                                                 onChange={(e) => updatePenaltyStep(index, 'hours', parseInt(e.target.value) || 0)}
                                                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                disabled={step.hours === 0}
                                             />
                                             {errors.penalty_steps?.[index]?.hours && (
                                                 <p className="text-red-500 text-xs mt-1">{errors.penalty_steps[index].hours}</p>
@@ -267,7 +278,7 @@ export default function TripCancellationPolicyList() {
                                             </label>
                                             <input
                                                 type="number"
-                                                value={step.percentage||""}
+                                                value={step.percentage || ""}
                                                 onChange={(e) => updatePenaltyStep(index, 'percentage', parseFloat(e.target.value) || 0)}
                                                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />
@@ -275,14 +286,15 @@ export default function TripCancellationPolicyList() {
                                                 <p className="text-red-500 text-xs mt-1">{errors.penalty_steps[index].percentage}</p>
                                             )}
                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => removePenaltyStep(index)}
-                                            className="px-2 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200"
-                                            disabled={penaltySteps.length <= 1}
-                                        >
-                                            <Delete className="h-4 w-4" />
-                                        </button>
+                                        {step.hours !== 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removePenaltyStep(index)}
+                                                className="px-2 py-1 bg-red-100 text-red-600 rounded-md text-sm hover:bg-red-200"
+                                            >
+                                                <Delete className="h-4 w-4" />
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                                 
@@ -378,8 +390,6 @@ export default function TripCancellationPolicyList() {
                 </div>
             </div>
 
-            
-
             {/* Policy Display */}
             <div className="max-w-full overflow-x-auto">
                 {loading ? (
@@ -407,8 +417,9 @@ export default function TripCancellationPolicyList() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                {sortedSteps.map((step, index) => (
-                                    <TableRow key={index}>
+                                {/* Show the 0 hours step first */}
+                                {policy.penalty_steps?.filter(step => step.hours === 0).map((step, index) => (
+                                    <TableRow key={`zero-${index}`}>
                                         <TableCell className="py-3">
                                             {step.hours} {t("HOURS")}
                                         </TableCell>
@@ -416,6 +427,19 @@ export default function TripCancellationPolicyList() {
                                             {step.percentage}%
                                         </TableCell>
                                     </TableRow>
+                                ))}
+                                {/* Show other steps sorted by hours */}
+                                {sortedSteps
+                                    .filter(step => step.hours !== 0)
+                                    .map((step, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell className="py-3">
+                                                {step.hours} {t("HOURS")}
+                                            </TableCell>
+                                            <TableCell className="py-3">
+                                                {step.percentage}%
+                                            </TableCell>
+                                        </TableRow>
                                 ))}
                             </TableBody>
                         </Table>

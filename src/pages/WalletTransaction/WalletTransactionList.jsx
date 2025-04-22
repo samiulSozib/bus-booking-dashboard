@@ -97,7 +97,7 @@ export default function WalletTransactionList() {
     if (formData.type === 'credit') {
       setFormData(prev => ({
         ...prev,
-        total: (amount - fee).toFixed(2)
+        total: (amount + fee).toFixed(2)
       }));
     } else {
       setFormData(prev => ({
