@@ -5,17 +5,20 @@ import { fetchBusById, fetchBuses } from '../../store/slices/busSlice';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../components/ui/table';
 import { Edit, View } from '../../icons';
 import { useTranslation } from 'react-i18next';
+import Pagination from "../../components/pagination/pagination";
 
 const BusList = () => {
     const [searchTag, setSearchTag] = useState("");
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { buses, loading } = useSelector((state) => state.buses);
+    const { buses, loading,pagination } = useSelector((state) => state.buses);
     const {t}=useTranslation()
+    const [currentPage, setCurrentPage] = useState(1);
+
 
     useEffect(() => {
-        dispatch(fetchBuses(searchTag));
-    }, [dispatch, searchTag]);
+        dispatch(fetchBuses({searchTag,page:currentPage}));
+    }, [dispatch,currentPage, searchTag]);
 
     const handleEdit = (busId) => {
         navigate(`/add-bus/${busId}`); // Navigate to edit page with busId
@@ -115,6 +118,11 @@ const BusList = () => {
                     </Table>
                 )}
             </div>
+            <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
         </div>
     );
 };

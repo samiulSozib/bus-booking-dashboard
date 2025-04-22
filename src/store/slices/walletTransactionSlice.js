@@ -7,17 +7,18 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Async thunks
 export const fetchWalletTransactions = createAsyncThunk(
   'walletTransactions/fetchWalletTransactions',
-  async (params = {}, { rejectWithValue }) => {
+  async ({page=1}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/admin/wallet-transactions`, {
-        params,
+      const response = await axios.get(`${base_url}/admin/wallet-transactions?page=${page}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      return response.data.body.items;
+      console.log(response)
+      return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
+      console.log(error)
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -131,6 +132,11 @@ const walletTransactionSlice = createSlice({
     loading: false,
     transactions: [],
     error: null,
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      total: 0
+  }
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -142,7 +148,8 @@ const walletTransactionSlice = createSlice({
       })
       .addCase(fetchWalletTransactions.fulfilled, (state, action) => {
         state.loading = false;
-        state.transactions = action.payload;
+        state.transactions = action.payload.items;
+        state.pagination=action.payload.pagination
       })
       .addCase(fetchWalletTransactions.rejected, (state, action) => {
         state.loading = false;
@@ -157,6 +164,7 @@ const walletTransactionSlice = createSlice({
       .addCase(createWalletTransaction.fulfilled, (state, action) => {
         state.loading = false;
         state.transactions.unshift(action.payload);
+        state.pagination.total += 1;
       })
       .addCase(createWalletTransaction.rejected, (state, action) => {
         state.loading = false;

@@ -7,16 +7,16 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Drivers
 export const fetchDrivers = createAsyncThunk(
     "drivers/fetchDrivers",
-    async (searchTag, { rejectWithValue }) => {
+    async ({searchTag,page=1}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/vendor/drivers?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/vendor/drivers?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-            return response.data.body.items;
+            return {items:response.data.body.items,pagination:response.data.body.data};
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -123,6 +123,11 @@ const driversSlice = createSlice({
         drivers: [],
         selectedDriver: null,
         error: null,
+        pagination: {
+            current_page: 1,
+            last_page: 1,
+            total: 0
+        }
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -133,7 +138,8 @@ const driversSlice = createSlice({
             })
             .addCase(fetchDrivers.fulfilled, (state, action) => {
                 state.loading = false;
-                state.drivers = action.payload;
+                state.drivers = action.payload.items;
+                state.pagination=action.payload.pagination
             })
             .addCase(fetchDrivers.rejected, (state, action) => {
                 state.loading = false;
@@ -144,6 +150,7 @@ const driversSlice = createSlice({
             })
             .addCase(addDriver.fulfilled, (state, action) => {
                 state.drivers.push(action.payload);
+                state.pagination.total += 1;
             })
             .addCase(editDriver.fulfilled, (state, action) => {
                 state.drivers = state.drivers.map((driver) =>

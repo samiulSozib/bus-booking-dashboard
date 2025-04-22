@@ -7,17 +7,17 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Provinces
 export const fetchProvinces = createAsyncThunk(
     "provinces/fetchProvinces",
-    async ({ countryId, searchTag="" }, { rejectWithValue }) => {
+    async ({ countryId, searchTag="",page=1 }, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
             if (!countryId) return rejectWithValue("Invalid country id");
-            const response = await axios.get(`${base_url}/admin/location/${countryId}/provinces?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/admin/location/${countryId}/provinces?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     "Content-Type": "application/json",
                 },
             });
-            return response.data.body.items;
+            return {items:response.data.body.items,pagination:response.data.body.data};
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -121,6 +121,11 @@ const provinceSlice = createSlice({
         provinces: [],
         selectedProvince: null,
         error: null,
+        pagination: {
+            current_page: 1,
+            last_page: 1,
+            total: 0
+        }
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -131,7 +136,8 @@ const provinceSlice = createSlice({
             })
             .addCase(fetchProvinces.fulfilled, (state, action) => {
                 state.loading = false;
-                state.provinces = action.payload;
+                state.provinces = action.payload.items;
+                state.pagination = action.payload.pagination;
             })
             .addCase(fetchProvinces.rejected, (state, action) => {
                 state.loading = false;
@@ -142,6 +148,7 @@ const provinceSlice = createSlice({
             })
             .addCase(addProvince.fulfilled, (state, action) => {
                 state.provinces.push(action.payload);
+                state.pagination.total += 1;
             })
             .addCase(editProvince.fulfilled, (state, action) => {
                 state.provinces = state.provinces.map((province) =>

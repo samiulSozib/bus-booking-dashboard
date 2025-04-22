@@ -12,18 +12,18 @@ export function user_type(){
 // Fetch Trips
 export const fetchTrips = createAsyncThunk(
     "trips/fetchTrips",
-    async ({searchTag=""}, { rejectWithValue }) => {
+    async ({searchTag="",page=1}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
             const type=user_type()
 
-            const response = await axios.get(`${base_url}/${type.role}/trips?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/${type.role}/trips?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-            return response.data.body.items;
+            return {items:response.data.body.items,pagination:response.data.body.data};
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -151,6 +151,11 @@ const tripsSlice = createSlice({
         trips: [],
         selectedTrip: null,
         error: null,
+        pagination: {
+            current_page: 1,
+            last_page: 1,
+            total: 0
+        }
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -161,7 +166,8 @@ const tripsSlice = createSlice({
             })
             .addCase(fetchTrips.fulfilled, (state, action) => {
                 state.loading = false;
-                state.trips = action.payload;
+                state.trips = action.payload.items;
+                state.pagination=action.payload.pagination
             })
             .addCase(fetchTrips.rejected, (state, action) => {
                 state.loading = false;
@@ -172,6 +178,7 @@ const tripsSlice = createSlice({
             })
             .addCase(addTrip.fulfilled, (state, action) => {
                 state.trips.push(action.payload);
+                state.pagination.total += 1;
             })
             .addCase(editTrip.fulfilled, (state, action) => {
                 state.trips = state.trips.map((trip) =>

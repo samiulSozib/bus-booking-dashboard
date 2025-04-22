@@ -157,13 +157,13 @@ export const updateSeat = createAsyncThunk(
 // Fetch all buses
 export const fetchBuses = createAsyncThunk(
   'bus/fetchBuses',
-  async ({searchTag=""}, { rejectWithValue }) => {
+  async ({searchTag="",page=1}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const type=user_type()
-      const response = await axios.get(`${base_url}/${type.role}/buses?search=${searchTag}`,{headers:{Authorization: `${token}`}});
+      const response = await axios.get(`${base_url}/${type.role}/buses?search=${searchTag}&page=${page}`,{headers:{Authorization: `${token}`}});
       console.log(searchTag)
-      return response.data.body.items;
+      return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
       return rejectWithValue(error?.response?.statusText);
     }
@@ -197,6 +197,11 @@ const initialState = {
   bus: null, // Currently selected bus for editing/viewing
   loading: false, // Loading state
   error: null, // Error state
+  pagination: {
+    current_page: 1,
+    last_page: 1,
+    total: 0
+}
 };
 
 // Bus Slice
@@ -219,6 +224,7 @@ const busSlice = createSlice({
       .addCase(addBus.fulfilled, (state, action) => {
         state.loading = false;
         state.buses.push(action.payload); // Add the new bus to the list
+        state.pagination.total += 1;
       })
       .addCase(addBus.rejected, (state, action) => {
         state.loading = false;
@@ -294,7 +300,8 @@ const busSlice = createSlice({
       })
       .addCase(fetchBuses.fulfilled, (state, action) => {
         state.loading = false;
-        state.buses = action.payload; // Set the list of buses
+        state.buses = action.payload.items; // Set the list of buses
+        state.pagination=action.payload.pagination
       })
       .addCase(fetchBuses.rejected, (state, action) => {
         state.loading = false;

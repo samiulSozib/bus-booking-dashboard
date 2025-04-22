@@ -16,6 +16,8 @@ import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { formatForDisplay, formatForInput, formatForInputDiscount, userType } from "../../utils/utils";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../components/pagination/pagination";
+
 
 // Yup validation schema
 const tripSchema = Yup.object().shape({
@@ -38,11 +40,12 @@ const tripSchema = Yup.object().shape({
 
 export default function TripList() {
     const dispatch = useDispatch();
-    const { trips, selectedTrip, loading } = useSelector((state) => state.trips);
+    const { trips, selectedTrip, loading,pagination } = useSelector((state) => state.trips);
     const { buses } = useSelector((state) => state.buses);
     const { routes } = useSelector((state) => state.routes);
     const { users } = useSelector((state) => state.users);
     const {t}=useTranslation()
+    const [currentPage, setCurrentPage] = useState(1);
 
     // State for table filtering
     const [searchTag, setSearchTag] = useState("");
@@ -85,8 +88,8 @@ export default function TripList() {
 
     // Fetch buses, routes, and vendors on component mount
     useEffect(() => {
-        dispatch(fetchTrips({}))
-    }, [dispatch]);
+        dispatch(fetchTrips({page:currentPage}))
+    }, [dispatch,currentPage]);
 
      // Fetch buses, routes, and vendors on component mount
      useEffect(() => {
@@ -440,6 +443,12 @@ export default function TripList() {
                     </Table>
                 )}
             </div>
+
+            <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
 
             {/* Add/Edit Trip Modal */}
             {isModalOpen && (

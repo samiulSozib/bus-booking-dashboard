@@ -7,10 +7,10 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Countries
 export const fetchCountries = createAsyncThunk(
     "countries/fetchCountries",
-    async ({searchTag=""}, { rejectWithValue }) => {
+    async ({searchTag="",page=1}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/location/countries?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/admin/location/countries?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',

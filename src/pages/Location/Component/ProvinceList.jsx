@@ -13,6 +13,7 @@ import { Delete, Edit, Search, SearchIcon, View } from "../../../icons";
 import { fetchCountries } from "../../../store/slices/countrySlice";
 import { addProvince, editProvince, fetchProvinces, showProvince } from "../../../store/slices/provinceSlice";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../../components/pagination/pagination";
 
 // Yup validation schema
 const provinceSchema = Yup.object().shape({
@@ -30,7 +31,7 @@ const provinceSchema = Yup.object().shape({
 export default function ProvinceList() {
     const dispatch = useDispatch();
     const { countries } = useSelector((state) => state.countries);
-    const { provinces, selectedProvince, loading } = useSelector((state) => state.provinces);
+    const { provinces, selectedProvince, loading,pagination } = useSelector((state) => state.provinces);
 
     const [searchTag, setSearchTag] = useState("");
     const [countrySearchTag, setCountrySearchTag] = useState("");
@@ -46,10 +47,12 @@ export default function ProvinceList() {
 
     const [showCountryDropdown, setShowCountryDropdown] = useState(false);
     const {t}=useTranslation()
+    const [currentPage, setCurrentPage] = useState(1);
+
 
     useEffect(() => {
-        dispatch(fetchProvinces({ countryId: selectedCountryId, searchTag: searchTag }));
-    }, [dispatch, selectedCountryId, searchTag]);
+        dispatch(fetchProvinces({ countryId: selectedCountryId, searchTag: searchTag,page:currentPage }));
+    }, [dispatch,currentPage, selectedCountryId, searchTag]);
 
     useEffect(() => {
         dispatch(fetchCountries({searchTag:countrySearchTag}));
@@ -415,6 +418,12 @@ export default function ProvinceList() {
                     </Table>
                 )}
             </div>
+             {/* Pagination */}
+            <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
         </div>
     );
 }

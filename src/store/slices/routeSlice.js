@@ -17,17 +17,17 @@ const getAuthToken = () => {
 // Fetch Routes
 export const fetchRoutes = createAsyncThunk(
     'routes/fetchRoutes',
-    async ({searchTag=""}, { rejectWithValue }) => {
+    async ({searchTag="",page=1}, { rejectWithValue }) => {
         const type=userType()
         const token = getAuthToken();
         try {
-            const response = await axios.get(`${base_url}/${type.role}/routes/list?search=${searchTag}`, {
+            const response = await axios.get(`${base_url}/${type.role}/routes/list?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-            return response.data.body.items;
+            return {items:response.data.body.items,pagination:response.data.body.data};
         } catch (error) {
             console.log(error)
             return rejectWithValue(error.message);
@@ -146,6 +146,11 @@ const routesSlice = createSlice({
         routes: [],
         selectedRoute: null,
         error: null,
+        pagination: {
+            current_page: 1,
+            last_page: 1,
+            total: 0
+        }
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -156,7 +161,8 @@ const routesSlice = createSlice({
         });
         builder.addCase(fetchRoutes.fulfilled, (state, action) => {
             state.loading = false;
-            state.routes = action.payload;
+            state.routes = action.payload.items;
+            state.pagination=action.payload.pagination
             state.error = null;
         });
         builder.addCase(fetchRoutes.rejected, (state, action) => {
@@ -188,6 +194,7 @@ const routesSlice = createSlice({
             state.loading = false;
             state.routes.push(action.payload);
             state.error = null;
+            state.pagination.total += 1;
         });
         builder.addCase(addRoute.rejected, (state, action) => {
             state.loading = false;

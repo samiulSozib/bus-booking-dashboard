@@ -7,15 +7,15 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Async Thunks
 export const fetchDiscounts = createAsyncThunk(
   "discounts/fetchDiscounts",
-  async (searchParams = "", { rejectWithValue }) => {
+  async ({searchParams = "",page=1}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/admin/discounts?${searchParams}`, {
+      const response = await axios.get(`${base_url}/admin/discounts?${searchParams}&page=${page}`, {
         headers: {
           Authorization: `${token}`,
         },
       });
-      return response.data.body.items;
+      return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -133,6 +133,11 @@ const discountSlice = createSlice({
     loading: false,
     discounts: [],
     error: null,
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      total: 0
+  }
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -144,7 +149,8 @@ const discountSlice = createSlice({
       })
       .addCase(fetchDiscounts.fulfilled, (state, action) => {
         state.loading = false;
-        state.discounts = action.payload;
+        state.discounts = action.payload.items;
+        state.pagination=action.payload.pagination;
       })
       .addCase(fetchDiscounts.rejected, (state, action) => {
         state.loading = false;
@@ -159,6 +165,7 @@ const discountSlice = createSlice({
       .addCase(createDiscount.fulfilled, (state, action) => {
         state.loading = false;
         state.discounts.push(action.payload);
+        state.pagination.total += 1;
       })
       .addCase(createDiscount.rejected, (state, action) => {
         state.loading = false;

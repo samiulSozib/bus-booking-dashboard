@@ -67,6 +67,7 @@ export default function SignInForm() {
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {t("ENTER_YOUR_EMAIL_AND_PASSWORD_TO_SIGN_IN")}
             </p>
+            
           </div>
           <form onSubmit={formik.handleSubmit}>
             <div className="space-y-6">
@@ -80,8 +81,8 @@ export default function SignInForm() {
                 >
                   <option value="admin">Admin</option>
                   <option value="vendor">Vendor</option>
-                  <option value="bus_driver">Bus Driver</option>
-                  <option value="agent">Agent</option>
+                  {/* <option value="bus_driver">Bus Driver</option>
+                  <option value="agent">Agent</option> */}
                 </select>
               </div>
 

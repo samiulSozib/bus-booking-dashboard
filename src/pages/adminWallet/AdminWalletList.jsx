@@ -30,7 +30,7 @@ export default function AdminWalletList() {
     const {t}=useTranslation()
 
     useEffect(() => {
-        dispatch(fetchWallets({}));
+        dispatch(fetchWallets({page:currentPage}));
     }, [dispatch, currentPage]);
 
     

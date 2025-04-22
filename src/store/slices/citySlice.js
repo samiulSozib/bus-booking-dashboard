@@ -7,16 +7,18 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Cities
 export const fetchCities = createAsyncThunk(
     "cities/fetch",
-    async ({ provinceId, searchTag="" }, { rejectWithValue }) => {
+    async ({ provinceId, searchTag="",page=1 }, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
             if (!provinceId) return rejectWithValue("Invalid provinceId");
             const response = await axios.get(
-                `${base_url}/admin/location/${provinceId}/cities/list?search=${searchTag}`,
+                `${base_url}/admin/location/${provinceId}/cities/list?search=${searchTag}&page=${page}`,
                 { headers: { Authorization: `${token}` } }
             );
-            return response.data.body.items;
+            console.log(response)
+            return {items:response.data.body.items,pagination:response.data.body.data};
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error.message);
         }
     }
@@ -105,12 +107,22 @@ export const deleteCity = createAsyncThunk(
 // Create Slice
 const citySlice = createSlice({
     name: "cities",
-    initialState: { loading: false, cities: [], selectedCity: null, error: null },
+    initialState: { 
+        loading: false, 
+        cities: [], 
+        selectedCity: null, 
+        error: null, 
+        pagination: {
+            current_page: 1,
+            last_page: 1,
+            total: 0
+        }
+    },
     reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(fetchCities.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(fetchCities.fulfilled, (state, action) => { state.loading = false; state.cities = action.payload; })
+            .addCase(fetchCities.fulfilled, (state, action) => { state.loading = false; state.cities = action.payload.items;state.pagination=action.payload.pagination })
             .addCase(fetchCities.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
             
             .addCase(showCity.pending, (state) => { state.loading = true; state.error = null; })
@@ -118,7 +130,7 @@ const citySlice = createSlice({
             .addCase(showCity.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
 
             .addCase(addCity.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(addCity.fulfilled, (state, action) => { state.loading = false; state.cities.push(action.payload); })
+            .addCase(addCity.fulfilled, (state, action) => { state.loading = false; state.cities.push(action.payload);state.pagination.total += 1; })
             .addCase(addCity.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
 
             .addCase(editCity.pending, (state) => { state.loading = true; state.error = null; })

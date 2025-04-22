@@ -45,7 +45,7 @@ export default function CountryList() {
     const {t}=useTranslation()
 
     useEffect(() => {
-        dispatch(fetchCountries({searchTag:searchTag}));
+        dispatch(fetchCountries({searchTag:searchTag,page:currentPage}));
     }, [dispatch, searchTag, currentPage]);
 
     useEffect(() => {
@@ -383,7 +383,7 @@ export default function CountryList() {
             {/* Pagination */}
             <Pagination
                 currentPage={pagination.current_page}
-                totalPages={pagination.last_page-pagination.current_page}
+                totalPages={pagination.last_page}
                 onPageChange={(page) => setCurrentPage(page)}
             />
         </div>

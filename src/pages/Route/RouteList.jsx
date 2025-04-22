@@ -16,6 +16,7 @@ import { fetchStations } from "../../store/slices/stationSlice";
 import * as Yup from 'yup';
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../components/pagination/pagination";
 
 const validationSchema = Yup.object().shape({
     origin: Yup.object().shape({
@@ -45,8 +46,10 @@ export default function RouteList() {
     const { provinces } = useSelector((state) => state.provinces);
     const { cities } = useSelector((state) => state.cities);
     const { stations } = useSelector((state) => state.stations);
-    const { routes, selectedRoute,loading } = useSelector((state) => state.routes);
+    const { routes, selectedRoute,loading,pagination } = useSelector((state) => state.routes);
     const {t}=useTranslation()
+    const [currentPage, setCurrentPage] = useState(1);
+
 
     // State for table filtering
     const [searchTag, setSearchTag] = useState("");
@@ -102,8 +105,8 @@ export default function RouteList() {
 
     // Fetch routes 
     useEffect(() => {
-        dispatch(fetchRoutes({searchTag}));
-    }, [dispatch, searchTag]);
+        dispatch(fetchRoutes({searchTag,page:currentPage}));
+    }, [dispatch,currentPage, searchTag]);
 
     // Fetch countries on component mount
     useEffect(() => {
@@ -503,6 +506,11 @@ useEffect(() => {
                     </Table>
                 )}
             </div>
+            <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
 
             {/* Add/Edit Route Modal */}
             {isModalOpen && (

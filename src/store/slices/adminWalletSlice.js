@@ -10,7 +10,7 @@ export const fetchWallets = createAsyncThunk(
   async ({ userId = "", page = 1, perPage = 10 } = {}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/admin/wallets`, {
+      const response = await axios.get(`${base_url}/admin/wallets?page=${page}`, {
         params: {
           "user-id": userId,
           page,

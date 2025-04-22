@@ -9,17 +9,17 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Async thunks for station actions
 export const fetchStations = createAsyncThunk(
   'stations/fetchStations',
-  async ({cityId,searchTag=""}) => {
+  async ({cityId,searchTag="",page=1}) => {
     console.log(cityId)
     const token = getAuthToken();
-    const response = await axios.get(`${base_url}/admin/stations?city-id=${cityId}&search=${searchTag}`, {
+    const response = await axios.get(`${base_url}/admin/stations?city-id=${cityId}&search=${searchTag}&page=${page}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
     console.log(response)
-    return response.data.body.items;
+    return {items:response.data.body.items,pagination:response.data.body.data};
   }
 );
 
@@ -122,6 +122,11 @@ const stationSlice = createSlice({
     stations: [],
     selectedStation: null,
     error: null,
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      total: 0
+  }
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -133,7 +138,8 @@ const stationSlice = createSlice({
       })
       .addCase(fetchStations.fulfilled, (state, action) => {
         state.loading = false;
-        state.stations = action.payload;
+        state.stations = action.payload.items;
+        state.pagination=action.payload.pagination
         state.error = null;
       })
       .addCase(fetchStations.rejected, (state, action) => {
@@ -165,6 +171,7 @@ const stationSlice = createSlice({
         state.loading = false;
         state.stations.push(action.payload);
         state.error = null;
+        state.pagination.total += 1;
       })
       .addCase(addStation.rejected, (state, action) => {
         state.loading = false;

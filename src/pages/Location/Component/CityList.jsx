@@ -35,7 +35,7 @@ export default function CityList() {
     const dispatch = useDispatch();
     const { countries } = useSelector((state) => state.countries);
     const { provinces } = useSelector((state) => state.provinces);
-    const { cities,selectedCity,loading } = useSelector((state) => state.cities);
+    const { cities,selectedCity,loading,pagination } = useSelector((state) => state.cities);
 
     // State for table filtering
     const [searchTag, setSearchTag] = useState("");
@@ -47,8 +47,8 @@ export default function CityList() {
     const [provinceSearchTag, setProvinceSearchTag] = useState(""); // For province dropdown search
     const [errors, setErrors] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(10);
     const {t}=useTranslation()
+    
 
 
     // State for Add/Edit City Modal
@@ -89,9 +89,9 @@ export default function CityList() {
     // Fetch cities when a province is selected (for table filtering)
     useEffect(() => {
         if (selectedProvinceId) {
-            dispatch(fetchCities({provinceId:selectedProvinceId, searchTag}));
+            dispatch(fetchCities({provinceId:selectedProvinceId, searchTag,page:currentPage}));
         }
-    }, [dispatch, selectedProvinceId, searchTag]);
+    }, [dispatch,currentPage, selectedProvinceId, searchTag]);
 
     //
     useEffect(()=>{
@@ -380,8 +380,8 @@ export default function CityList() {
             </div>
 
             <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
                 onPageChange={(page) => setCurrentPage(page)}
             />
 

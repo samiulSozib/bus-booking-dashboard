@@ -12,6 +12,7 @@ import { addDriver, editDriver, fetchDrivers, showDriver } from "../../store/sli
 import { Edit } from "../../icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../components/pagination/pagination";
 
 // Validation schema
 const driverSchema = Yup.object().shape({
@@ -25,7 +26,7 @@ const driverSchema = Yup.object().shape({
 
 export default function DriverList() {
     const dispatch = useDispatch();
-    const { drivers, selectedDriver, loading } = useSelector((state) => state.drivers);
+    const { drivers, selectedDriver, loading,pagination } = useSelector((state) => state.drivers);
 
     const [searchTag, setSearchTag] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,10 +40,11 @@ export default function DriverList() {
     const [status, setStatus] = useState("pending");
     const [errors, setErrors] = useState({});
     const {t}=useTranslation()
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        dispatch(fetchDrivers(searchTag));
-    }, [dispatch, searchTag]);
+        dispatch(fetchDrivers({searchTag,page:currentPage}));
+    }, [dispatch,currentPage, searchTag]);
 
     useEffect(() => {
         if (selectedDriver) {
@@ -369,6 +371,11 @@ export default function DriverList() {
                     </Table>
                 )}
             </div>
+            <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
         </div>
     );
 }

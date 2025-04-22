@@ -22,6 +22,8 @@ import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { formatForDisplayDiscount, formatForInput, formatForInputDiscount } from "../../utils/utils";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../components/pagination/pagination";
+
 
 // Yup validation schema
 // Corrected Yup validation schema
@@ -80,12 +82,13 @@ const discountSchema = Yup.object().shape({
 
 export default function DiscountList() {
   const dispatch = useDispatch();
-  const { discounts, loading, error } = useSelector((state) => state.discounts);
+  const { discounts, loading, error,pagination } = useSelector((state) => state.discounts);
   const { users } = useSelector((state) => state.users);
   const { routes } = useSelector((state) => state.routes);
   const { buses } = useSelector((state) => state.buses);
   const { trips } = useSelector((state) => state.trips);
   const {t}=useTranslation()
+  const [currentPage, setCurrentPage] = useState(1);
 
   // State for table filtering
   const [searchTag, setSearchTag] = useState("");
@@ -121,8 +124,8 @@ export default function DiscountList() {
 
   // Fetch initial data
   useEffect(() => {
-    dispatch(fetchDiscounts());
-  }, [dispatch]);
+    dispatch(fetchDiscounts({page:currentPage}));
+  }, [dispatch,currentPage]);
 
   useEffect(() => {
     dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
@@ -423,6 +426,12 @@ export default function DiscountList() {
           </Table>
         )}
       </div>
+
+      <Pagination
+          currentPage={pagination.current_page}
+          totalPages={pagination.last_page}
+          onPageChange={(page) => setCurrentPage(page)}
+      />
 
       {/* Add/Edit Discount Modal */}
       {isModalOpen && (

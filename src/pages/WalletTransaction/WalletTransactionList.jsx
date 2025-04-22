@@ -18,6 +18,7 @@ import { fetchUsers } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
+import Pagination from "../../components/pagination/pagination";
 
 // Yup validation schema
 const transactionSchema = Yup.object().shape({
@@ -39,7 +40,7 @@ const transactionSchema = Yup.object().shape({
 
 export default function WalletTransactionList() {
   const dispatch = useDispatch();
-  const { transactions, loading, error } = useSelector((state) => state.walletTransactions);
+  const { transactions, loading, error,pagination } = useSelector((state) => state.walletTransactions);
   const { users, loading: usersLoading } = useSelector((state) => state.users);
 
   // State for table filtering
@@ -47,6 +48,7 @@ export default function WalletTransactionList() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const {t}=useTranslation()
+  const [currentPage, setCurrentPage] = useState(1);
   
   // State for searchable dropdowns
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -76,9 +78,9 @@ export default function WalletTransactionList() {
 
   // Fetch initial data
   useEffect(() => {
-    dispatch(fetchWalletTransactions());
+    dispatch(fetchWalletTransactions({page:currentPage}));
     dispatch(fetchUsers({ searchTag: "" }));
-  }, [dispatch]);
+  }, [dispatch,currentPage]);
 
   // Fetch users when search term changes
   useEffect(() => {
@@ -184,7 +186,7 @@ export default function WalletTransactionList() {
       
       setIsModalOpen(false);
       resetForm();
-      dispatch(fetchWalletTransactions());
+      // dispatch(fetchWalletTransactions());
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const newErrors = {};
@@ -348,6 +350,12 @@ export default function WalletTransactionList() {
           </Table>
         )}
       </div>
+
+      <Pagination
+                currentPage={pagination.current_page}
+                totalPages={pagination.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+            />
 
       {/* Add/Edit Transaction Modal */}
       {isModalOpen && (
