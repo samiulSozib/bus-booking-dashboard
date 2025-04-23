@@ -105,8 +105,11 @@ export default function TripList() {
     useEffect(() => {
         if (selectedTrip) {
             setVendorId(selectedTrip.vendor.id);
+            setModalVendorSearchTag(selectedTrip.vendor.name)
             setRouteId(selectedTrip.route.id);
+            setModalRouteSearchTag(selectedTrip.route.name)
             setBusId(selectedTrip.bus.id);
+            setModalBusSearchTag(selectedTrip.bus.name)
             setTotalSeats(selectedTrip.total_seats);
             setTicketPrice(selectedTrip.ticket_price);
             setDepartureTime(selectedTrip.departure_time);
@@ -355,7 +358,7 @@ export default function TripList() {
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
                     </div>
                 ) : (
-                    <Table>
+                    <Table className="min-w-[120%]">
                         <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                             <TableRow>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">

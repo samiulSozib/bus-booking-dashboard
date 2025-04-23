@@ -64,7 +64,7 @@ export default function UserList() {
 
     useEffect(() => {
         if (selectedUser) {
-            setFormData({
+            const baseData = {
                 first_name: selectedUser.first_name || "",
                 last_name: selectedUser.last_name || "",
                 email: selectedUser.email || "",
@@ -72,25 +72,46 @@ export default function UserList() {
                 role: selectedUser.role || "",
                 password: selectedUser.password || "",
                 status: selectedUser.status || "",
-                name: selectedUser.name || "",
-                phone: selectedUser.phone || "",
-                code: selectedUser.code || "",
-                comission_amount: selectedUser.comission_amount || 0,
-                comission_type: selectedUser.comission_type || "",
-                registration_number: selectedUser.registration_number || "",
-                license_number: selectedUser.license_number || "",
-                rating: selectedUser.rating || 0,
-                admin_comission_amount: selectedUser.admin_comission_amount || 0,
-                admin_comission_type: selectedUser.admin_comission_type || "",
-                agent_comission_amount: selectedUser.agent_comission_amount || 0,
-                agent_comission_type: selectedUser.agent_comission_type || "",
-                logo: selectedUser.logo || '',
-                description: selectedUser.description || "",
-                vendor_id: selectedUser.vendor_id || 0,
+            };
+    
+            // Role-specific fields
+            const roleSpecificData = {
+                // Agent-specific fields
+                ...(selectedUser.role === 'agent' && {
+                    name: selectedUser.agent?.name || "",
+                    phone: selectedUser.agent?.phone || "",
+                    code: selectedUser.agent?.code || "",
+                    comission_amount: selectedUser.agent?.comission_amount || 0,
+                    comission_type: selectedUser.agent?.comission_type || "",
+                }),
+                
+                // Vendor-specific fields
+                ...(selectedUser.role === 'vendor' && {
+                    name: selectedUser.vendor?.name || "",
+                    phone: selectedUser.vendor?.phone || "",
+                    registration_number: selectedUser.vendor?.registration_number || "",
+                    license_number: selectedUser.vendor?.license_number || "",
+                    rating: selectedUser.vendor?.rating || 0,
+                    admin_comission_amount: selectedUser.vendor?.admin_comission_amount || 0,
+                    admin_comission_type: selectedUser.vendor?.admin_comission_type || "",
+                    agent_comission_amount: selectedUser.vendor?.agent_comission_amount || 0,
+                    agent_comission_type: selectedUser.vendor?.agent_comission_type || "",
+                    logo: selectedUser.vendor?.logo || '',
+                    description: selectedUser.vendor?.description || "",
+                }),
+                
+                // Driver-specific field
+                ...(selectedUser.role === 'driver' && {
+                    vendor_id: selectedUser.driver?.vendor_id || 0,
+                })
+            };
+    
+            setFormData({
+                ...baseData,
+                ...roleSpecificData
             });
         }
     }, [selectedUser]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
     

@@ -159,15 +159,31 @@ useEffect(() => {
     useEffect(() => {
         if (selectedRoute) {
             setRouteName(selectedRoute.name);
+            setDropdowns({originCountry:true})
+            setSearchTags(
+                {
+                    originCountry:selectedRoute?.origin_city?.country?.name||"",
+                    originProvince:selectedRoute?.origin_city?.province.name||"",
+                    originCity:selectedRoute?.origin_city?.name||"",
+                    originStation:selectedRoute?.origin_station?.name||"",
+
+                    destinationCountry:selectedRoute?.destination_city?.country?.name||"",
+                    destinationProvince:selectedRoute?.destination_city?.province.name||"",
+                    destinationCity:selectedRoute?.destination_city?.name||"",
+                    destinationStation:selectedRoute?.destination_station?.name||""
+                }
+            )
             setOrigin({
-                
+                countryId:selectedRoute.origin_city.country.id,
+                provinceId:selectedRoute.origin_city.province.id,
                 cityId: selectedRoute.origin_city.id,
-                stationId: selectedRoute.origin_station_id,
+                stationId: selectedRoute.origin_station.id,
             });
             setDestination({
-                
+                countryId:selectedRoute.destination_city.country.id,
+                provinceId:selectedRoute.destination_city.province.id,
                 cityId: selectedRoute.destination_city.id,
-                stationId: selectedRoute.destination_station_id,
+                stationId: selectedRoute.destination_station.id,
             });
             setDistance(selectedRoute.distance);
         }
@@ -489,7 +505,7 @@ useEffect(() => {
                                         {route.destination_city.name}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {route.distance} km
+                                        {route.distance} Km
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         <div className="flex flex-row items-center justify-start gap-2">
@@ -514,424 +530,424 @@ useEffect(() => {
 
             {/* Add/Edit Route Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
-                        <h2 className="text-lg font-semibold mb-4">
-                            {isEditMode ? t("EDIT_ROUTE") : t("ADD_ROUTE")}
-                        </h2>
-                        <form onSubmit={handleSubmit}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Origin Section */}
-                                <div>
-                                    <h3 className="text-md font-semibold mb-2">{t("ORIGIN")}</h3>
-                                    {/* Origin Country Dropdown */}
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ">
+                <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
+                    <h2 className="text-lg font-semibold mb-4">
+                        {isEditMode ? t("EDIT_ROUTE") : t("ADD_ROUTE")}
+                    </h2>
+                    <form onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Origin Section */}
+                            <div>
+                                <h3 className="text-md font-semibold mb-2">{t("ORIGIN")}</h3>
+                                {/* Origin Country Dropdown */}
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                    {t("ORIGIN")} {t("COUNTRY")} *
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder={t("SEARCH_COUNTRY")}
+                                            value={searchTags.originCountry}
+                                            onChange={(e) => {
+                                                handleSearchTagChange("originCountry", e.target.value);
+                                                toggleDropdown("showOriginCountry", true);
+                                            }}
+                                            onFocus={() => toggleDropdown("showOriginCountry", true)}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                        {dropdowns.showOriginCountry && (
+                                            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                {countries
+                                                    .filter((country) =>
+                                                        country.name
+                                                            .toLowerCase()
+                                                            .includes(searchTags.originCountry.toLowerCase())
+                                                    )
+                                                    .map((country) => (
+                                                        <div
+                                                            key={country.id}
+                                                            onClick={() => handleCountrySelect(country, "origin")}
+                                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                        >
+                                                            {country.name}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {formErrors?.origin?.countryId && (
+                                        <p className="text-red-500 text-sm mt-1">{formErrors.origin.countryId}</p>
+                                    )}
+                                </div>
+
+                                {/* Origin Province Dropdown */}
+                                {origin.countryId && (
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-700">
-                                        {t("ORIGIN")} {t("COUNTRY")} *
+                                        {t("ORIGIN")} {t("PROVINCE")} *
                                         </label>
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                placeholder={t("SEARCH_COUNTRY")}
-                                                value={searchTags.originCountry}
+                                                placeholder={t("SEARCH_PROVINCE")}
+                                                value={searchTags.originProvince}
                                                 onChange={(e) => {
-                                                    handleSearchTagChange("originCountry", e.target.value);
-                                                    toggleDropdown("showOriginCountry", true);
+                                                    handleSearchTagChange("originProvince", e.target.value);
+                                                    toggleDropdown("showOriginProvince", true);
                                                 }}
-                                                onFocus={() => toggleDropdown("showOriginCountry", true)}
+                                                onFocus={() => toggleDropdown("showOriginProvince", true)}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />
-                                            {dropdowns.showOriginCountry && (
+                                            {dropdowns.showOriginProvince && (
                                                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                    {countries
-                                                        .filter((country) =>
-                                                            country.name
+                                                    {provinces
+                                                        .filter((province) =>
+                                                            province.name
                                                                 .toLowerCase()
-                                                                .includes(searchTags.originCountry.toLowerCase())
+                                                                .includes(searchTags.originProvince.toLowerCase())
                                                         )
-                                                        .map((country) => (
+                                                        .map((province) => (
                                                             <div
-                                                                key={country.id}
-                                                                onClick={() => handleCountrySelect(country, "origin")}
+                                                                key={province.id}
+                                                                onClick={() => handleProvinceSelect(province, "origin")}
                                                                 className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                                             >
-                                                                {country.name}
+                                                                {province.name}
                                                             </div>
                                                         ))}
                                                 </div>
                                             )}
                                         </div>
-                                        {formErrors?.origin?.countryId && (
-                                            <p className="text-red-500 text-sm mt-1">{formErrors.origin.countryId}</p>
+                                        {formErrors?.origin?.provinceId && (
+                                            <p className="text-red-500 text-sm mt-1">{formErrors.origin.provinceId}</p>
                                         )}
                                     </div>
+                                )}
 
-                                    {/* Origin Province Dropdown */}
-                                    {origin.countryId && (
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700">
-                                            {t("ORIGIN")} {t("PROVINCE")} *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("SEARCH_PROVINCE")}
-                                                    value={searchTags.originProvince}
-                                                    onChange={(e) => {
-                                                        handleSearchTagChange("originProvince", e.target.value);
-                                                        toggleDropdown("showOriginProvince", true);
-                                                    }}
-                                                    onFocus={() => toggleDropdown("showOriginProvince", true)}
-                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                />
-                                                {dropdowns.showOriginProvince && (
-                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                        {provinces
-                                                            .filter((province) =>
-                                                                province.name
-                                                                    .toLowerCase()
-                                                                    .includes(searchTags.originProvince.toLowerCase())
-                                                            )
-                                                            .map((province) => (
-                                                                <div
-                                                                    key={province.id}
-                                                                    onClick={() => handleProvinceSelect(province, "origin")}
-                                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                                >
-                                                                    {province.name}
-                                                                </div>
-                                                            ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {formErrors?.origin?.provinceId && (
-                                                <p className="text-red-500 text-sm mt-1">{formErrors.origin.provinceId}</p>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Origin City Dropdown */}
-                                    {origin.provinceId && (
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700">
-                                            {t("ORIGIN")} {t("CITY")} *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("SEARCH_CITY")}
-                                                    value={searchTags.originCity}
-                                                    onChange={(e) => {
-                                                        handleSearchTagChange("originCity", e.target.value);
-                                                        toggleDropdown("showOriginCity", true);
-                                                    }}
-                                                    onFocus={() => toggleDropdown("showOriginCity", true)}
-                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                />
-                                                {dropdowns.showOriginCity && (
-                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                        {cities
-                                                            .filter((city) =>
-                                                                city.name
-                                                                    .toLowerCase()
-                                                                    .includes(searchTags.originCity.toLowerCase())
-                                                            )
-                                                            .map((city) => (
-                                                                <div
-                                                                    key={city.id}
-                                                                    onClick={() => handleCitySelect(city, "origin")}
-                                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                                >
-                                                                    {city.name}
-                                                                </div>
-                                                            ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {formErrors?.origin?.cityId && (
-                                                <p className="text-red-500 text-sm mt-1">{formErrors.origin.cityId}</p>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Origin Station Dropdown */}
-                                    {origin.cityId && (
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700">
-                                            {t("ORIGIN")} {t("STATION")} *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("SEARCH")}
-                                                    value={searchTags.originStation}
-                                                    onChange={(e) => {
-                                                        handleSearchTagChange("originStation", e.target.value);
-                                                        toggleDropdown("showOriginStation", true);
-                                                    }}
-                                                    onFocus={() => toggleDropdown("showOriginStation", true)}
-                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                />
-                                                {dropdowns.showOriginStation && (
-                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                        {stations
-                                                            .filter((station) =>
-                                                                station.name.en
-                                                                    .toLowerCase()
-                                                                    .includes(searchTags.originStation.toLowerCase())
-                                                            )
-                                                            .map((station) => (
-                                                                <div
-                                                                    key={station.id}
-                                                                    onClick={() => handleStationSelect(station, "origin")}
-                                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                                >
-                                                                    {station.name.en}
-                                                                </div>
-                                                            ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {formErrors?.origin?.stationId && (
-                                                <p className="text-red-500 text-sm mt-1">{formErrors.origin.stationId}</p>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Destination Section */}
-                                <div>
-                                    <h3 className="text-md font-semibold mb-2">{t("DESTINATION")}</h3>
-                                    {/* Destination Country Dropdown */}
+                                {/* Origin City Dropdown */}
+                                {origin.provinceId && (
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-700">
-                                        {t("DESTINATION")} {t("COUNTRY")} *
+                                        {t("ORIGIN")} {t("CITY")} *
                                         </label>
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                placeholder={t("SEARCH_COUNTRY")}
-                                                value={searchTags.destinationCountry}
+                                                placeholder={t("SEARCH_CITY")}
+                                                value={searchTags.originCity}
                                                 onChange={(e) => {
-                                                    handleSearchTagChange("destinationCountry", e.target.value);
-                                                    toggleDropdown("showDestinationCountry", true);
+                                                    handleSearchTagChange("originCity", e.target.value);
+                                                    toggleDropdown("showOriginCity", true);
                                                 }}
-                                                onFocus={() => toggleDropdown("showDestinationCountry", true)}
+                                                onFocus={() => toggleDropdown("showOriginCity", true)}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />
-                                            {dropdowns.showDestinationCountry && (
+                                            {dropdowns.showOriginCity && (
                                                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                    {countries
-                                                        .filter((country) =>
-                                                            country.name
+                                                    {cities
+                                                        .filter((city) =>
+                                                            city.name
                                                                 .toLowerCase()
-                                                                .includes(searchTags.destinationCountry.toLowerCase())
+                                                                .includes(searchTags.originCity.toLowerCase())
                                                         )
-                                                        .map((country) => (
+                                                        .map((city) => (
                                                             <div
-                                                                key={country.id}
-                                                                onClick={() => handleCountrySelect(country, "destination")}
+                                                                key={city.id}
+                                                                onClick={() => handleCitySelect(city, "origin")}
                                                                 className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                                             >
-                                                                {country.name}
+                                                                {city.name}
                                                             </div>
                                                         ))}
                                                 </div>
                                             )}
                                         </div>
-                                        {formErrors?.destination?.countryId && (
-                                            <p className="text-red-500 text-sm mt-1">{formErrors.destination.countryId}</p>
+                                        {formErrors?.origin?.cityId && (
+                                            <p className="text-red-500 text-sm mt-1">{formErrors.origin.cityId}</p>
                                         )}
                                     </div>
+                                )}
 
-                                    {/* Destination Province Dropdown */}
-                                    {destination.countryId && (
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700">
-                                            {t("DESTINATION")} {t("PROVINCE")} *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("SEARCH_PROVINCE")}
-                                                    value={searchTags.destinationProvince}
-                                                    onChange={(e) => {
-                                                        handleSearchTagChange("destinationProvince", e.target.value);
-                                                        toggleDropdown("showDestinationProvince", true);
-                                                    }}
-                                                    onFocus={() => toggleDropdown("showDestinationProvince", true)}
-                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                />
-                                                {dropdowns.showDestinationProvince && (
-                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                        {provinces
-                                                            .filter((province) =>
-                                                                province.name
-                                                                    .toLowerCase()
-                                                                    .includes(searchTags.destinationProvince.toLowerCase())
-                                                            )
-                                                            .map((province) => (
-                                                                <div
-                                                                    key={province.id}
-                                                                    onClick={() => handleProvinceSelect(province, "destination")}
-                                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                                >
-                                                                    {province.name}
-                                                                </div>
-                                                            ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {formErrors?.destination?.provinceId && (
-                                                <p className="text-red-500 text-sm mt-1">{formErrors.destination.provinceId}</p>
+                                {/* Origin Station Dropdown */}
+                                {origin.cityId && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                        {t("ORIGIN")} {t("STATION")} *
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder={t("SEARCH")}
+                                                value={searchTags.originStation}
+                                                onChange={(e) => {
+                                                    handleSearchTagChange("originStation", e.target.value);
+                                                    toggleDropdown("showOriginStation", true);
+                                                }}
+                                                onFocus={() => toggleDropdown("showOriginStation", true)}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                            />
+                                            {dropdowns.showOriginStation && (
+                                                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {stations
+                                                        .filter((station) =>
+                                                            station.name.en
+                                                                .toLowerCase()
+                                                                .includes(searchTags.originStation.toLowerCase())
+                                                        )
+                                                        .map((station) => (
+                                                            <div
+                                                                key={station.id}
+                                                                onClick={() => handleStationSelect(station, "origin")}
+                                                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                            >
+                                                                {station.name.en}
+                                                            </div>
+                                                        ))}
+                                                </div>
                                             )}
                                         </div>
-                                    )}
-
-                                    {/* Destination City Dropdown */}
-                                    {destination.provinceId && (
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700">
-                                            {t("DESTINATION")} {t("CITY")} *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("SEARCH")}
-                                                    value={searchTags.destinationCity}
-                                                    onChange={(e) => {
-                                                        handleSearchTagChange("destinationCity", e.target.value);
-                                                        toggleDropdown("showDestinationCity", true);
-                                                    }}
-                                                    onFocus={() => toggleDropdown("showDestinationCity", true)}
-                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                />
-                                                {dropdowns.showDestinationCity && (
-                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                        {cities
-                                                            .filter((city) =>
-                                                                city.name
-                                                                    .toLowerCase()
-                                                                    .includes(searchTags.destinationCity.toLowerCase())
-                                                            )
-                                                            .map((city) => (
-                                                                <div
-                                                                    key={city.id}
-                                                                    onClick={() => handleCitySelect(city, "destination")}
-                                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                                >
-                                                                    {city.name}
-                                                                </div>
-                                                            ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {formErrors?.destination?.cityId && (
-                                                <p className="text-red-500 text-sm mt-1">{formErrors.destination.cityId}</p>
-                                            )}
-                                        </div>
-                                    )}
-
-                                    {/* Destination Station Dropdown */}
-                                    {destination.cityId && (
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-medium text-gray-700">
-                                            {t("DESTINATION")} {t("STATION")} *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("SEARCH")}
-                                                    value={searchTags.destinationStation}
-                                                    onChange={(e) => {
-                                                        handleSearchTagChange("destinationStation", e.target.value);
-                                                        toggleDropdown("showDestinationStation", true);
-                                                    }}
-                                                    onFocus={() => toggleDropdown("showDestinationStation", true)}
-                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                                />
-                                                {dropdowns.showDestinationStation && (
-                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                        {stations
-                                                            .filter((station) =>
-                                                                station.name.en
-                                                                    .toLowerCase()
-                                                                    .includes(searchTags.destinationStation.toLowerCase())
-                                                            )
-                                                            .map((station) => (
-                                                                <div
-                                                                    key={station.id}
-                                                                    onClick={() => handleStationSelect(station, "destination")}
-                                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                                >
-                                                                    {station.name.en}
-                                                                </div>
-                                                            ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {formErrors?.destination?.stationId && (
-                                                <p className="text-red-500 text-sm mt-1">{formErrors.destination.stationId}</p>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
+                                        {formErrors?.origin?.stationId && (
+                                            <p className="text-red-500 text-sm mt-1">{formErrors.origin.stationId}</p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Distance */}
-                            <div className="mb-4 flex flex-row justify-between gap-3">
-                                <div className="flex-1">
+                            {/* Destination Section */}
+                            <div>
+                                <h3 className="text-md font-semibold mb-2">{t("DESTINATION")}</h3>
+                                {/* Destination Country Dropdown */}
+                                <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700">
-                                    {t("ROUTE_NAME")} *
+                                    {t("DESTINATION")} {t("COUNTRY")} *
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={routeName}
-                                        onChange={(e) => setRouteName(e.target.value)}
-                                        className="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        
-                                    />
-                                    {formErrors?.name && (
-                                        <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder={t("SEARCH_COUNTRY")}
+                                            value={searchTags.destinationCountry}
+                                            onChange={(e) => {
+                                                handleSearchTagChange("destinationCountry", e.target.value);
+                                                toggleDropdown("showDestinationCountry", true);
+                                            }}
+                                            onFocus={() => toggleDropdown("showDestinationCountry", true)}
+                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                        {dropdowns.showDestinationCountry && (
+                                            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                {countries
+                                                    .filter((country) =>
+                                                        country.name
+                                                            .toLowerCase()
+                                                            .includes(searchTags.destinationCountry.toLowerCase())
+                                                    )
+                                                    .map((country) => (
+                                                        <div
+                                                            key={country.id}
+                                                            onClick={() => handleCountrySelect(country, "destination")}
+                                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                        >
+                                                            {country.name}
+                                                        </div>
+                                                    ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    {formErrors?.destination?.countryId && (
+                                        <p className="text-red-500 text-sm mt-1">{formErrors.destination.countryId}</p>
                                     )}
                                 </div>
-                                
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                    {t("DISTANCE")} (km) *
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={distance}
-                                        onChange={(e) => setDistance(e.target.value)}
-                                        className="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        
-                                    />
-                                    {formErrors?.distance && (
-                                        <p className="text-red-500 text-sm mt-1">{formErrors.distance}</p>
-                                    )}
-                                </div>
-                                
-                            </div>
 
-                            {/* Buttons */}
-                            <div className="flex justify-end gap-2">
-                                <button
-                                    type="button"
-                                    onClick={resetModal}
-                                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                >
-                                    {t("CANCEL")}
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                >
-                                    {isEditMode ? t("UPDATE") : t("ADD")}
-                                </button>
+                                {/* Destination Province Dropdown */}
+                                {destination.countryId && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                        {t("DESTINATION")} {t("PROVINCE")} *
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder={t("SEARCH_PROVINCE")}
+                                                value={searchTags.destinationProvince}
+                                                onChange={(e) => {
+                                                    handleSearchTagChange("destinationProvince", e.target.value);
+                                                    toggleDropdown("showDestinationProvince", true);
+                                                }}
+                                                onFocus={() => toggleDropdown("showDestinationProvince", true)}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                            />
+                                            {dropdowns.showDestinationProvince && (
+                                                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {provinces
+                                                        .filter((province) =>
+                                                            province.name
+                                                                .toLowerCase()
+                                                                .includes(searchTags.destinationProvince.toLowerCase())
+                                                        )
+                                                        .map((province) => (
+                                                            <div
+                                                                key={province.id}
+                                                                onClick={() => handleProvinceSelect(province, "destination")}
+                                                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                            >
+                                                                {province.name}
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {formErrors?.destination?.provinceId && (
+                                            <p className="text-red-500 text-sm mt-1">{formErrors.destination.provinceId}</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Destination City Dropdown */}
+                                {destination.provinceId && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                        {t("DESTINATION")} {t("CITY")} *
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder={t("SEARCH")}
+                                                value={searchTags.destinationCity}
+                                                onChange={(e) => {
+                                                    handleSearchTagChange("destinationCity", e.target.value);
+                                                    toggleDropdown("showDestinationCity", true);
+                                                }}
+                                                onFocus={() => toggleDropdown("showDestinationCity", true)}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                            />
+                                            {dropdowns.showDestinationCity && (
+                                                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {cities
+                                                        .filter((city) =>
+                                                            city.name
+                                                                .toLowerCase()
+                                                                .includes(searchTags.destinationCity.toLowerCase())
+                                                        )
+                                                        .map((city) => (
+                                                            <div
+                                                                key={city.id}
+                                                                onClick={() => handleCitySelect(city, "destination")}
+                                                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                            >
+                                                                {city.name}
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {formErrors?.destination?.cityId && (
+                                            <p className="text-red-500 text-sm mt-1">{formErrors.destination.cityId}</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Destination Station Dropdown */}
+                                {destination.cityId && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                        {t("DESTINATION")} {t("STATION")} *
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder={t("SEARCH")}
+                                                value={searchTags.destinationStation}
+                                                onChange={(e) => {
+                                                    handleSearchTagChange("destinationStation", e.target.value);
+                                                    toggleDropdown("showDestinationStation", true);
+                                                }}
+                                                onFocus={() => toggleDropdown("showDestinationStation", true)}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                            />
+                                            {dropdowns.showDestinationStation && (
+                                                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {stations
+                                                        .filter((station) =>
+                                                            station.name.en
+                                                                .toLowerCase()
+                                                                .includes(searchTags.destinationStation.toLowerCase())
+                                                        )
+                                                        .map((station) => (
+                                                            <div
+                                                                key={station.id}
+                                                                onClick={() => handleStationSelect(station, "destination")}
+                                                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                            >
+                                                                {station.name.en}
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {formErrors?.destination?.stationId && (
+                                            <p className="text-red-500 text-sm mt-1">{formErrors.destination.stationId}</p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
-                        </form>
-                    </div>
+                        </div>
+
+                        {/* Distance */}
+                        <div className="mb-4 flex flex-row justify-between gap-3">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700">
+                                {t("ROUTE_NAME")} *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={routeName}
+                                    onChange={(e) => setRouteName(e.target.value)}
+                                    className="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    
+                                />
+                                {formErrors?.name && (
+                                    <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+                                )}
+                            </div>
+                            
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700">
+                                {t("DISTANCE")} (km) *
+                                </label>
+                                <input
+                                    type="number"
+                                    value={distance}
+                                    onChange={(e) => setDistance(e.target.value)}
+                                    className="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    
+                                />
+                                {formErrors?.distance && (
+                                    <p className="text-red-500 text-sm mt-1">{formErrors.distance}</p>
+                                )}
+                            </div>
+                            
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={resetModal}
+                                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            >
+                                {t("CANCEL")}
+                            </button>
+                            <button
+                                type="submit"
+                                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            >
+                                {isEditMode ? t("UPDATE") : t("ADD")}
+                            </button>
+                        </div>
+                    </form>
+                </div>
                 </div>
             )}
         </div>

@@ -152,8 +152,8 @@ export default function WalletTransactionList() {
       }
     });
 
-    if (user) {
-      setModalUserSearchTag(`${user.first_name} ${user.last_name}`);
+    if (transaction) {
+      setModalUserSearchTag(`${transaction?.user?.first_name} ${transaction?.user?.last_name}`);
     }
     setCurrentTransactionId(transaction.id);
     setIsEditMode(true);

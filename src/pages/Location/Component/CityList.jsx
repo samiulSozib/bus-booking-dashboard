@@ -98,6 +98,10 @@ export default function CityList() {
         if(selectedCity){
             setCityName({ en: selectedCity.name.en, ps: selectedCity.name.ps, fa: selectedCity.name.fa });
             setCityCode(selectedCity.code);
+            setModalSelectedCountryId(selectedCity.country.id)
+            setModalCountrySearchTag(selectedCity.country.name)
+            setModalSelectedProvinceId(selectedCity.province.id)
+            setModalProvinceSearchTag(selectedCity.province.name)
         }
     },[dispatch,selectedCity])
 

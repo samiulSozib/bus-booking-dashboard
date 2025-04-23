@@ -21,7 +21,7 @@ export const fetchRoutes = createAsyncThunk(
         const type=userType()
         const token = getAuthToken();
         try {
-            const response = await axios.get(`${base_url}/${type.role}/routes/list?search=${searchTag}&page=${page}`, {
+            const response = await axios.get(`${base_url}/${type.role}/routes?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
@@ -29,7 +29,6 @@ export const fetchRoutes = createAsyncThunk(
             });
             return {items:response.data.body.items,pagination:response.data.body.data};
         } catch (error) {
-            console.log(error)
             return rejectWithValue(error.message);
         }
     }
@@ -47,7 +46,6 @@ export const showRoute = createAsyncThunk(
                     'Content-Type': 'application/json',
                 },
             });
-            console.log(response)
             return response.data.body.item;
         } catch (error) {
             return rejectWithValue(error?.response?.statusText);

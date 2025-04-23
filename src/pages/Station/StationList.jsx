@@ -109,10 +109,16 @@ export default function StationList() {
     // Set station details when a station is selected for editing
     useEffect(() => {
         if (selectedStation) {
-            setStationName({ en: selectedStation.name.en, ps: selectedStation.name.ps, fa: selectedStation.name.fa });
+            setStationName({ en: selectedStation?.name?.en??selectedStation.name, ps: selectedStation.name.ps, fa: selectedStation.name.fa });
+            setModalSelectedCountryId(selectedStation.city.country.id)
+            setModalCountrySearchTag(selectedStation.city.country.name)
+            setModalSelectedProvinceId(selectedStation.city.province.id)
+            setModalProvinceSearchTag(selectedStation.city.province.name)
+            setModalSelectedCityId(selectedStation.city.id);
+            setModalCitySearchTag(selectedStation.city.name)
             setStationLat(selectedStation.latitude);
             setStationLong(selectedStation.longitude)
-            setModalSelectedCityId(selectedStation.city.id);
+            
         }
     }, [selectedStation]);
 
@@ -364,7 +370,7 @@ export default function StationList() {
                             {t("STATION_NAME")}
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                            {t("STATION_CODE")}
+                            {t("CITY_NAME")}
                             </TableCell>
                             <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                             {t("ACTION")}
@@ -379,7 +385,7 @@ export default function StationList() {
                                     <div className="flex items-center gap-3">
                                         <div>
                                             <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                                                {station.name.en}
+                                            {station?.name?.en ?? station.name}
                                             </p>
                                         </div>
                                     </div>
@@ -413,10 +419,11 @@ export default function StationList() {
             {/* Add/Edit Station Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] flex flex-col">
                         <h2 className="text-lg font-semibold mb-4">
                             {isEditMode ? t("EDIT_STATION") : t("ADD_STATION")}
                         </h2>
+                        <div className="overflow-y-auto flex-1">
                         <form onSubmit={handleSubmit}>
                             {/* Country Dropdown in Modal */}
                             <div className="mb-4">
@@ -643,6 +650,7 @@ export default function StationList() {
                                 </button>
                             </div>
                         </form>
+                        </div>
                     </div>
                 </div>
             )}

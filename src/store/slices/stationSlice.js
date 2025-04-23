@@ -10,7 +10,6 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 export const fetchStations = createAsyncThunk(
   'stations/fetchStations',
   async ({cityId,searchTag="",page=1}) => {
-    console.log(cityId)
     const token = getAuthToken();
     const response = await axios.get(`${base_url}/admin/stations?city-id=${cityId}&search=${searchTag}&page=${page}`, {
       headers: {
@@ -18,7 +17,7 @@ export const fetchStations = createAsyncThunk(
         'Content-Type': 'application/json',
       },
     });
-    console.log(response)
+    console.log(response.data.body.items)
     return {items:response.data.body.items,pagination:response.data.body.data};
   }
 );

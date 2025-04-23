@@ -78,7 +78,9 @@ const AddBus = () => {
                 name: bus.name,
                 bus_number: bus.bus_number,
                 image: bus.image,
-                facilities: bus.facilities,
+                facilities: Array.isArray(bus.facilities) 
+                ? bus.facilities.join(', ') 
+                : bus.facilities || '',
                 ticket_price: bus.ticket_price,
                 status: bus.status,
                 berth_type: bus?.seats?.berth_type,

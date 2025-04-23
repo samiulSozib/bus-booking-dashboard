@@ -112,7 +112,7 @@ export const editTrip = createAsyncThunk(
             formData.append('allow_partial_payment',updatedData.allow_partial_payment)
             formData.append('min_partial_payment',updatedData.min_partial_payment)
             formData.append('partial_payment_type',updatedData.partial_payment_type)
-
+            console.log(updatedData)
             const response = await axios.post(`${base_url}/${type.role}/trips/${tripId}/update`, formData, {
                 headers: {
                     Authorization: `${token}`,
@@ -121,6 +121,7 @@ export const editTrip = createAsyncThunk(
             });
             return response.data.body.item;
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }

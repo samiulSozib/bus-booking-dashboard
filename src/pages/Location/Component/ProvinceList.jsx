@@ -62,8 +62,8 @@ export default function ProvinceList() {
         if (selectedProvince) {
             setProvinceName({ en: selectedProvince.name.en, ps: selectedProvince.name.ps, fa: selectedProvince.name.fa });
             setProvinceCode(selectedProvince.code);
-            setSelectedCountryId(selectedProvince.countryId);
-            
+            setSelectedCountryId(selectedProvince.country.id);
+            setCountrySearchTag(selectedProvince.country.name)
         }
     }, [selectedProvince]);
 
