@@ -17,22 +17,37 @@ const getAuthToken = () => {
 // Fetch Routes
 export const fetchRoutes = createAsyncThunk(
     'routes/fetchRoutes',
-    async ({searchTag="",page=1}, { rejectWithValue }) => {
-        const type=userType()
-        const token = getAuthToken();
-        try {
-            const response = await axios.get(`${base_url}/${type.role}/routes?search=${searchTag}&page=${page}`, {
-                headers: {
-                    Authorization: `${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-            return {items:response.data.body.items,pagination:response.data.body.data};
-        } catch (error) {
-            return rejectWithValue(error.message);
-        }
+    async ({ searchTag = "", page = 1, filters = {} }, { rejectWithValue }) => {
+      const type = userType();
+      const token = getAuthToken();
+  
+      // Convert filters to query string
+      const filterQuery = Object.entries(filters)
+        .filter(([_, value]) => value !== null && value !== undefined && value !== "")
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+        
+        console.log(filterQuery)
+      // Build full URL
+      const url = `${base_url}/${type.role}/routes?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`;
+  
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        return {
+          items: response.data.body.items,
+          pagination: response.data.body.data,
+        };
+      } catch (error) {
+        return rejectWithValue(error.message);
+      }
     }
-);
+  );
+  
 
 // Show Route
 export const showRoute = createAsyncThunk(

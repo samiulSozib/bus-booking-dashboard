@@ -16,18 +16,19 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../../components/pagination/pagination";
 
 // Yup validation schema
-const provinceSchema = Yup.object().shape({
-    provinceName: Yup.object().shape({
-        en: Yup.string().required('English name is required'),
+const getProvinceSchema = (t) =>
+    Yup.object().shape({
+      provinceName: Yup.object().shape({
+        en: Yup.string().required(t('province.englishNameRequired')),
         ps: Yup.string().optional(),
         fa: Yup.string().optional(),
-    }),
-    provinceCode: Yup.string()
-        .required('Province code is required')
-        .matches(/^[A-Z]{2,3}$/, 'Province code must be 2-3 uppercase letters'),
-    countryId: Yup.string().required('Country is required'),
-});
-
+      }),
+      provinceCode: Yup.string()
+        .required(t('province.codeRequired'))
+        .matches(/^[A-Z]{2,3}$/, t('province.codeInvalid')),
+      countryId: Yup.string().required(t('province.countryRequired')),
+    });
+  
 export default function ProvinceList() {
     const dispatch = useDispatch();
     const { countries } = useSelector((state) => state.countries);
@@ -78,7 +79,7 @@ export default function ProvinceList() {
 
         try {
             // Validate form data using Yup
-            await provinceSchema.validate(provinceData, { abortEarly: false });
+            await getProvinceSchema(t).validate(provinceData, { abortEarly: false });
 
             if (isEditing) {
                 // Edit province

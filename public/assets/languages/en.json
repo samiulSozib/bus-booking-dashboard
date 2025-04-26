@@ -178,6 +178,7 @@
   "SEARCH_TRIP":"Search Trip",
   "SEARCH_VENDOR":"Search Vendor",
   "SEARCH_DRIVER":"Search Driver",
+  "SEARCH_STATION":"Search Station",
   "SEARCH_USER":"Search User",
   "DO_YOU_WANT_TO_LOGOUT":"Do You Want to Logout?",
   "LOG_OUT":"Logout",
@@ -219,5 +220,145 @@
     "NO_CANCELLATION_POLICY_SET":"No Cancellation Policy Set",
     "SELECT_VENDOR_TO_VIEW_POLICY":"Select Vendor To View Policy",
     "POLICY_FOR_VENDOR":"Policy for Vendor",
-    "EDIT_POLICY":"Edit Policy"
+    "EDIT_POLICY":"Edit Policy",
+    "APPLY_FILTERS":"Apply Filters",
+    "RESET":"Reset",
+
+    "bus": {
+      "driverRequired": "Driver must be selected",
+      "vendorRequired": "Vendor must be selected",
+      "nameRequired": "Bus Name is required",
+      "nameMin": "Bus Name must be at least 2 characters",
+      "nameMax": "Bus Name cannot exceed 50 characters",
+      "numberRequired": "Bus Number is required",
+      "numberInvalid": "Bus Number can only contain letters and numbers",
+      "facilitiesRequired": "Facilities are required",
+      "facilitiesInvalid": "Facilities can only contain letters and commas",
+      "priceType": "Ticket Price must be a number",
+      "priceRequired": "Ticket Price is required",
+      "pricePositive": "Ticket Price must be a positive number"
+  },
+  "user": {
+    "firstNameRequired": "First Name is required",
+    "lastNameRequired": "Last Name is required",
+    "invalidEmail": "Invalid email",
+    "emailRequired": "Email is required",
+    "mobileInvalid": "Mobile must be 10 digits",
+    "roleRequired": "Role is required",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 6 characters",
+    "statusRequired": "Status is required",
+
+    "nameRequired": "Name is required",
+    "phoneRequired": "Phone is required",
+    "codeRequired": "Code is required",
+    "commissionAmountRequired": "Commission Amount is required",
+    "commissionTypeRequired": "Commission Type is required",
+    "registrationNumberRequired": "Registration Number is required",
+    "licenseNumberRequired": "License Number is required",
+    "ratingRequired": "Rating is required",
+    "adminCommissionAmountRequired": "Admin Commission Amount is required",
+    "adminCommissionTypeRequired": "Admin Commission Type is required",
+    "agentCommissionAmountRequired": "Agent Commission Amount is required",
+    "agentCommissionTypeRequired": "Agent Commission Type is required",
+    "logoRequired": "Logo is required",
+    "descriptionRequired": "Description is required",
+    "vendorIdRequired": "Vendor ID is required"
+  },
+  "discount": {
+    "scopeRequired": "Scope is required",
+    "positiveAmount": "Discount amount must be positive",
+    "amountRequired": "Discount amount is required",
+    "typeRequired": "Type is required",
+    "startDateRequired": "Start date is required",
+    "endDateRequired": "End date is required",
+    "statusRequired": "Status is required",
+    "invalidScopeConfig": "Invalid scope configuration",
+    "vendorRequired": "Vendor is required for vendor scope",
+    "routeRequired": "Route is required for route scope",
+    "busRequired": "Bus is required for bus scope",
+    "tripRequired": "Trip is required for trip scope"
+  },
+  "country": {
+    "englishNameRequired": "English name is required",
+    "codeRequired": "Country code is required",
+    "codeInvalid": "Country code must be exactly 3 uppercase letters"
+  },
+  "province": {
+    "englishNameRequired": "English name is required",
+    "codeRequired": "Province code is required",
+    "codeInvalid": "Province code must be 2-3 uppercase letters",
+    "countryRequired": "Country is required"
+  },
+  "city": {
+    "englishNameRequired": "English name is required",
+    "codeRequired": "City code is required",
+    "codeInvalid": "City code must be 2-3 uppercase letters",
+    "countryRequired": "Country is required",
+    "provinceRequired": "Province is required"
+  },
+  "route":{
+    "origin": {
+      "countryRequired": "Origin Country is required",
+      "provinceRequired": "Origin Province is required",
+      "cityRequired": "Origin City is required",
+      "stationRequired": "Origin Station is required"
+    },
+    "destination": {
+      "countryRequired": "Destination Country is required",
+      "provinceRequired": "Destination Province is required",
+      "cityRequired": "Destination City is required",
+      "stationRequired": "Destination Station is required"
+    },
+    "name": {
+      "typeError": "Name must be a string",
+      "required": "Name is required"
+    },
+    "distance": {
+      "typeError": "Distance must be a number",
+      "required": "Distance is required",
+      "min": "Distance must be greater than or equal to 0"
+    }
+  },
+  "station": {
+    "stationNameRequiredEn": "Station Name (English) is required",
+    "latitudeTypeError": "Latitude must be a number",
+    "latitudeRequired": "Latitude is required",
+    "latitudeMin": "Latitude must be greater than or equal to -90",
+    "latitudeMax": "Latitude must be less than or equal to 90",
+    "longitudeTypeError": "Longitude must be a number",
+    "longitudeRequired": "Longitude is required",
+    "longitudeMin": "Longitude must be greater than or equal to -180",
+    "longitudeMax": "Longitude must be less than or equal to 180",
+    "countryRequired": "Country is required",
+    "provinceRequired": "Province is required",
+    "cityRequired": "City is required"
+  },
+  "trip": {
+    "vendorRequired": "Vendor is required",
+    "routeRequired": "Route is required",
+    "busRequired": "Bus is required",
+    "totalSeatsRequired": "Total seats are required",
+    "ticketPriceRequired": "Ticket price is required",
+    "departureTimeRequired": "Departure time is required",
+    "arrivalTimeRequired": "Arrival time is required",
+    "bookingDeadlineRequired": "Booking Deadline is required",
+    "invalidStatus": "Invalid status",
+    "statusRequired": "Status is required",
+    "minPartialPaymentRequired": "Min Partial Payment is required"
+  },
+  "transaction": {
+    "userRequired": "User is required",
+    "amountRequired": "Amount is required",
+    "amountPositive": "Amount must be positive",
+    "feeRequired": "Fee is required",
+    "feeMin": "Fee must be greater than or equal to 0",
+    "totalRequired": "Total is required",
+    "totalPositive": "Total must be positive",
+    "statusRequired": "Status is required",
+    "invalidStatus": "Invalid status",
+    "typeRequired": "Type is required",
+    "invalidType": "Invalid transaction type"
+  }
+  
 }

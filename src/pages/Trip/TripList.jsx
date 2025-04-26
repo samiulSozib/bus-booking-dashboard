@@ -7,7 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, View } from "../../icons";
+import { Delete, Edit, FunnelIcon, View } from "../../icons";
 import { addTrip, editTrip, fetchTrips, showTrip } from "../../store/slices/tripSlice";
 import { fetchBuses } from "../../store/slices/busSlice";
 import { fetchRoutes } from "../../store/slices/routeSlice";
@@ -17,24 +17,29 @@ import * as Yup from "yup";
 import { formatForDisplay, formatForInput, formatForInputDiscount, userType } from "../../utils/utils";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import DiscountFilter from "../Discount/DiscountFilter";
 
 
 // Yup validation schema
-const tripSchema = Yup.object().shape({
-    vendor_id: Yup.number().required("Vendor is required"),
-    route_id: Yup.number().required("Route is required"),
-    bus_id: Yup.number().required("Bus is required"),
-    total_seats: Yup.number().required("Total seats is required"),
-    ticket_price: Yup.number().required("Ticket price is required"),
-    departure_time: Yup.string().required("Departure time is required"),
-    arrival_time: Yup.string().required("Arrival time is required"),
-    booking_deadline: Yup.string().required("Booking Deadline is required"),
-    status: Yup.string()
-        .oneOf(["active", "inactive"], "Invalid status")
-        .required("Status is required"),
-    min_partial_payment: Yup.number().required("Min Partial Payment is required"),
-
-});
+const getTripSchema = (t) =>
+    Yup.object().shape({
+      vendor_id: Yup.number().required(t('trip.vendorRequired')),
+      route_id: Yup.number().required(t('trip.routeRequired')),
+      bus_id: Yup.number().required(t('trip.busRequired')),
+      total_seats: Yup.number().required(t('trip.totalSeatsRequired')),
+      ticket_price: Yup.number().required(t('trip.ticketPriceRequired')),
+      departure_time: Yup.string().required(t('trip.departureTimeRequired')),
+      arrival_time: Yup.string().required(t('trip.arrivalTimeRequired')),
+      booking_deadline: Yup.string().required(t('trip.bookingDeadlineRequired')),
+      status: Yup.string()
+        .oneOf(
+          ['active', 'inactive'],
+          t('trip.invalidStatus')
+        )
+        .required(t('trip.statusRequired')),
+      min_partial_payment: Yup.number().required(t('trip.minPartialPaymentRequired')),
+    });
+  
 
 
 
@@ -46,6 +51,10 @@ export default function TripList() {
     const { users } = useSelector((state) => state.users);
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
+
+
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [activeFilters, setActiveFilters] = useState({});
 
     // State for table filtering
     const [searchTag, setSearchTag] = useState("");
@@ -86,10 +95,17 @@ export default function TripList() {
     const isAdmin=userType().role==="admin"
 
 
+
+    const handleApplyFilters = (filters) => {
+        setActiveFilters(filters);
+        setCurrentPage(1); 
+    };
+
+
     // Fetch buses, routes, and vendors on component mount
     useEffect(() => {
-        dispatch(fetchTrips({page:currentPage}))
-    }, [dispatch,currentPage]);
+        dispatch(fetchTrips({page:currentPage,filters:activeFilters,searchTag}))
+    }, [dispatch,currentPage,activeFilters,searchTag]);
 
      // Fetch buses, routes, and vendors on component mount
      useEffect(() => {
@@ -192,7 +208,7 @@ export default function TripList() {
         //return
 
         try {
-            await tripSchema.validate(tripData, { abortEarly: false });
+            await getTripSchema(t).validate(tripData, { abortEarly: false });
 
             if (isEditMode) {
                 await dispatch(
@@ -284,71 +300,13 @@ export default function TripList() {
 
             {/* Table Filtering Section */}
             <div className="flex flex-row items-center justify-end gap-3 mb-4">
-                
-
-                {/* Route Dropdown */}
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder={t("SEARCH_ROUTE")}
-                        value={routeSearchTag}
-                        onChange={(e) => {
-                            setRouteSearchTag(e.target.value);
-                            setShowRouteDropdown(true);
-                        }}
-                        onFocus={() => setShowRouteDropdown(true)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                    {showRouteDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {routes
-                                .filter((route) =>
-                                    route.label.toLowerCase().includes(routeSearchTag.toLowerCase())
-                                )
-                                .map((route) => (
-                                    <div
-                                        key={route.value}
-                                        onClick={() => handleRouteSelect(route)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                    >
-                                        {route.label}
-                                    </div>
-                                ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Bus Dropdown */}
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder={t("SEARCH_BUS")}
-                        value={busSearchTag}
-                        onChange={(e) => {
-                            setBusSearchTag(e.target.value);
-                            setShowBusDropdown(true);
-                        }}
-                        onFocus={() => setShowBusDropdown(true)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                    {showBusDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {buses
-                                .filter((bus) =>
-                                    bus.label.toLowerCase().includes(busSearchTag.toLowerCase())
-                                )
-                                .map((bus) => (
-                                    <div
-                                        key={bus.value}
-                                        onClick={() => handleBusSelect(bus)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                    >
-                                        {bus.label}
-                                    </div>
-                                ))}
-                        </div>
-                    )}
-                </div>
+                <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                >
+                    <FunnelIcon className="w-5 h-5" />
+                    {t("FILTER")}
+                </button>
             </div>
 
             {/* Trip Table */}
@@ -753,6 +711,14 @@ export default function TripList() {
                     </div>
                 </div>
             )}
+
+
+<DiscountFilter
+      isOpen={isFilterOpen}
+      onClose={() => setIsFilterOpen(false)}
+      onApplyFilters={handleApplyFilters}
+  />
+
         </div>
     );
 }

@@ -7,7 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, SearchIcon, View } from "../../icons";
+import { Delete, Edit, FunnelIcon, SearchIcon, View } from "../../icons";
 import { addRoute, editRoute, fetchRoutes, showRoute } from "../../store/slices/routeSlice";
 import { fetchCountries } from "../../store/slices/countrySlice";
 import { fetchProvinces } from "../../store/slices/provinceSlice";
@@ -17,28 +17,31 @@ import * as Yup from 'yup';
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import RouteFilter from "./RouteFilter";
 
-const validationSchema = Yup.object().shape({
-    origin: Yup.object().shape({
-        countryId: Yup.string().required('Origin Country is required'),
-        provinceId: Yup.string().required('Origin Province is required'),
-        cityId: Yup.string().required('Origin City is required'),
-        stationId: Yup.string().required('Origin Station is required'),
-    }),
-    destination: Yup.object().shape({
-        countryId: Yup.string().required('Destination Country is required'),
-        provinceId: Yup.string().required('Destination Province is required'),
-        cityId: Yup.string().required('Destination City is required'),
-        stationId: Yup.string().required('Destination Station is required'),
-    }),
-    name:Yup.string()
-    .typeError('Name must be a string')
-    .required('Name is required'),
-    distance: Yup.number()
-        .typeError('Distance must be a number')
-        .required('Distance is required')
-        .min(0, 'Distance must be greater than or equal to 0'),
-});
+const getValidationSchema = (t) =>
+    Yup.object().shape({
+      origin: Yup.object().shape({
+        countryId: Yup.string().required(t('route.origin.countryRequired')),
+        provinceId: Yup.string().required(t('route.origin.provinceRequired')),
+        cityId: Yup.string().required(t('route.origin.cityRequired')),
+        stationId: Yup.string().required(t('route.origin.stationRequired')),
+      }),
+      destination: Yup.object().shape({
+        countryId: Yup.string().required(t('route.destination.countryRequired')),
+        provinceId: Yup.string().required(t('route.destination.provinceRequired')),
+        cityId: Yup.string().required(t('route.destination.cityRequired')),
+        stationId: Yup.string().required(t('route.destination.stationRequired')),
+      }),
+      name: Yup.string()
+        .typeError(t('route.name.typeError'))
+        .required(t('route.name.required')),
+      distance: Yup.number()
+        .typeError(t('route.distance.typeError'))
+        .required(t('route.distance.required'))
+        .min(0, t('route.distance.min')),
+    });
+  
 
 export default function RouteList() {
     const dispatch = useDispatch();
@@ -49,6 +52,10 @@ export default function RouteList() {
     const { routes, selectedRoute,loading,pagination } = useSelector((state) => state.routes);
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
+
+
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [activeFilters, setActiveFilters] = useState({});
 
 
     // State for table filtering
@@ -103,10 +110,15 @@ export default function RouteList() {
     const [routeName, setRouteName] = useState("");
     const [distance, setDistance] = useState(0);
 
+    const handleApplyFilters = (filters) => {
+        setActiveFilters(filters);
+        setCurrentPage(1); 
+    };
+
     // Fetch routes 
     useEffect(() => {
-        dispatch(fetchRoutes({searchTag,page:currentPage}));
-    }, [dispatch,currentPage, searchTag]);
+        dispatch(fetchRoutes({searchTag,page:currentPage,filters:activeFilters}));
+    }, [dispatch,currentPage, searchTag,activeFilters]);
 
     // Fetch countries on component mount
     useEffect(() => {
@@ -212,7 +224,7 @@ useEffect(() => {
     
         try {
             // Validate form data
-            await validationSchema.validate(formData, { abortEarly: false });
+            await getValidationSchema(t).validate(formData, { abortEarly: false });
     
             if (isEditMode) {
                 await dispatch(editRoute({ id: currentRouteId, formData })).unwrap();
@@ -449,6 +461,13 @@ useEffect(() => {
                             onChange={(e) => setSearchTag(e.target.value)}
                         />
                     </div>
+                    <button
+                        onClick={() => setIsFilterOpen(true)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                    >
+                        <FunnelIcon className="w-5 h-5" />
+                        {t("FILTER")}
+                    </button>
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -950,6 +969,17 @@ useEffect(() => {
                 </div>
                 </div>
             )}
+            
+            <RouteFilter
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                onApplyFilters={handleApplyFilters}
+            />
+            
         </div>
+
+        
+
+        
     );
 }

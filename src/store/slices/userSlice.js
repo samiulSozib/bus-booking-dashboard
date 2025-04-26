@@ -15,7 +15,8 @@ export const fetchUsers = createAsyncThunk(
             });
             return {
                 items:response.data.body.items,
-                pagination: response.data.body.data
+                pagination: response.data.body.data,
+                role
             };
         } catch (error) {
             return rejectWithValue(error.message);
@@ -170,7 +171,7 @@ export const deleteUser = createAsyncThunk(
 // Create Slice
 const userSlice = createSlice({
     name: "users",
-    initialState: { loading: false, users: [], selectedUser: null, error: null,pagination: {
+    initialState: { loading: false, users: [],vendorList:[],driverList:[], selectedUser: null, error: null,pagination: {
         current_page: 1,
         last_page: 1,
         total: 0
@@ -184,8 +185,17 @@ const userSlice = createSlice({
             })
             .addCase(fetchUsers.fulfilled, (state, action) => {
                 state.loading = false;
-                state.users = action.payload.items;
-                state.pagination=action.payload.pagination
+                const { items, pagination, role } = action.payload;
+
+                if (role === "vendor") {
+                    state.vendorList = items;
+                } else if (role === "driver") {
+                    state.driverList = items;
+                } else {
+                    state.users = items; // for all users
+                }
+
+                state.pagination = pagination;
             })
             .addCase(fetchUsers.rejected, (state, action) => {
                 state.loading = false;

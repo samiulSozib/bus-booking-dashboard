@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchBusById, fetchBuses } from '../../store/slices/busSlice';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../components/ui/table';
-import { Edit, View } from '../../icons';
+import { Edit, SearchIcon, View } from '../../icons';
 import { useTranslation } from 'react-i18next';
 import Pagination from "../../components/pagination/pagination";
 
@@ -35,13 +35,18 @@ const BusList = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <SearchIcon/>
+                        </div>
                     <input
                         type="text"
-                        className="rounded-md"
-                        placeholder={t("SEARCH_BUS")}
+                        className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder={t("SEARCH")}
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
+                </div>
                     <button
                         onClick={() => navigate('/add-bus')}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"

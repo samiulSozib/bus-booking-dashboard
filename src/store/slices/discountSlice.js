@@ -7,10 +7,16 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Async Thunks
 export const fetchDiscounts = createAsyncThunk(
   "discounts/fetchDiscounts",
-  async ({searchParams = "",page=1}, { rejectWithValue }) => {
+  async ({searchTag = "",page=1,filters={}}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/admin/discounts?${searchParams}&page=${page}`, {
+
+      const filterQuery = Object.entries(filters)
+      .filter(([_, value]) => value !== null && value !== undefined && value !== "")
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+      
+      const response = await axios.get(`${base_url}/admin/discounts?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
         headers: {
           Authorization: `${token}`,
         },

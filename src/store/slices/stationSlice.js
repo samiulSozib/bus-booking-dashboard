@@ -9,9 +9,16 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Async thunks for station actions
 export const fetchStations = createAsyncThunk(
   'stations/fetchStations',
-  async ({cityId,searchTag="",page=1}) => {
+  async ({cityId,searchTag="",page=1,filters={}}) => {
     const token = getAuthToken();
-    const response = await axios.get(`${base_url}/admin/stations?city-id=${cityId}&search=${searchTag}&page=${page}`, {
+
+    const filterQuery = Object.entries(filters)
+    .filter(([_, value]) => value !== null && value !== undefined && value !== "")
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&');
+
+
+    const response = await axios.get(`${base_url}/admin/stations?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

@@ -15,16 +15,18 @@ import Pagination from "../../../components/pagination/pagination";
 import { useTranslation } from "react-i18next";
 
 // Validation schema
-const countrySchema = Yup.object().shape({
-    countryName: Yup.object().shape({
-        en: Yup.string().required("English name is required"),
+const getCountrySchema = (t) =>
+    Yup.object().shape({
+      countryName: Yup.object().shape({
+        en: Yup.string().required(t('country.englishNameRequired')),
         ps: Yup.string().optional(),
         fa: Yup.string().optional(),
-    }),
-    countryCode: Yup.string()
-        .required("Country code is required")
-        .matches(/^[A-Z]{3}$/, "Country code must be exactly 3 uppercase letters"),
-});
+      }),
+      countryCode: Yup.string()
+        .required(t('country.codeRequired'))
+        .matches(/^[A-Z]{3}$/, t('country.codeInvalid')),
+    });
+  
 
 export default function CountryList() {
     const dispatch = useDispatch();
@@ -65,7 +67,7 @@ export default function CountryList() {
 
         try {
             // Validate form data using Yup
-            await countrySchema.validate(countryData, { abortEarly: false });
+            await getCountrySchema(t).validate(countryData, { abortEarly: false });
 
             if (isEditing) {
                 // Edit country

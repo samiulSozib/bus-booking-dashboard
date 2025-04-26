@@ -7,7 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, SearchIcon, View } from "../../icons";
+import { Delete, Edit, FunnelIcon, SearchIcon, View } from "../../icons";
 import { addCity, editCity, fetchCities, showCity } from "../../store/slices/citySlice";
 import { fetchCountries } from "../../store/slices/countrySlice";
 import { fetchProvinces } from "../../store/slices/provinceSlice";
@@ -16,28 +16,31 @@ import * as Yup from 'yup';
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import StationFilter from "./StationFIlter";
 
 
-const stationSchema = Yup.object().shape({
-    stationName: Yup.object().shape({
-        en: Yup.string().required('Station Name (English) is required'),
+const getStationSchema = (t) =>
+    Yup.object().shape({
+      stationName: Yup.object().shape({
+        en: Yup.string().required(t('station.stationNameRequiredEn')),
         ps: Yup.string().optional(),
         fa: Yup.string().optional(),
-    }),
-    stationLat: Yup.number()
-        .typeError('Latitude must be a number')
-        .required('Latitude is required')
-        .min(-90, 'Latitude must be greater than or equal to -90')
-        .max(90, 'Latitude must be less than or equal to 90'),
-    stationLong: Yup.number()
-        .typeError('Longitude must be a number')
-        .required('Longitude is required')
-        .min(-180, 'Longitude must be greater than or equal to -180')
-        .max(180, 'Longitude must be less than or equal to 180'),
-    countryId: Yup.string().required('Country is required'),
-    provinceId: Yup.string().required('Province is required'),
-    cityId: Yup.string().required('City is required'),
-});
+      }),
+      stationLat: Yup.number()
+        .typeError(t('station.latitudeTypeError'))
+        .required(t('station.latitudeRequired'))
+        .min(-90, t('station.latitudeMin'))
+        .max(90, t('station.latitudeMax')),
+      stationLong: Yup.number()
+        .typeError(t('station.longitudeTypeError'))
+        .required(t('station.longitudeRequired'))
+        .min(-180, t('station.longitudeMin'))
+        .max(180, t('station.longitudeMax')),
+      countryId: Yup.string().required(t('station.countryRequired')),
+      provinceId: Yup.string().required(t('station.provinceRequired')),
+      cityId: Yup.string().required(t('station.cityRequired')),
+    });
+  
 
 export default function StationList() {
     const dispatch = useDispatch();
@@ -58,6 +61,9 @@ export default function StationList() {
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
 
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [activeFilters, setActiveFilters] = useState({});
+
     // State for Add/Edit Station Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false); // Track if modal is in edit mode
@@ -75,10 +81,15 @@ export default function StationList() {
     const [showModalProvinceDropdown, setShowModalProvinceDropdown] = useState(false);
     const [showModalCityDropdown, setShowModalCityDropdown] = useState(false);
 
+    const handleApplyFilters = (filters) => {
+        setActiveFilters(filters);
+        setCurrentPage(1); 
+    };
+
     // Fetch stations 
     useEffect(() => {
-        dispatch(fetchStations({searchTag,page:currentPage}));
-    }, [dispatch,currentPage, searchTag]);
+        dispatch(fetchStations({searchTag,page:currentPage,filters:activeFilters}));
+    }, [dispatch,currentPage, searchTag,activeFilters]);
 
     // Fetch countries on component mount
     useEffect(() => {
@@ -176,7 +187,7 @@ export default function StationList() {
     
         try {
             // Validate form data
-            await stationSchema.validate(stationData, { abortEarly: false });
+            await getStationSchema(t).validate(stationData, { abortEarly: false });
     
             if (isEditMode) {
                 await dispatch(editStation({ id: currentStationId, stationData }));
@@ -268,6 +279,13 @@ export default function StationList() {
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
                 </div>
+                <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                >
+                    <FunnelIcon className="w-5 h-5" />
+                    {t("FILTER")}
+                </button>
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -277,84 +295,7 @@ export default function StationList() {
                 </div>
             </div>
 
-            {/* Table Filtering Section */}
-            <div className="flex flex-row items-center justify-end gap-3 mb-4">
-                {/* Country Dropdown */}
-                <div className="relative">
-                    <div className="relative flex-1">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <SearchIcon/>
-                            </div>
-                        <input
-                            type="text"
-                            placeholder="Search country..."
-                            value={countrySearchTag}
-                            onChange={(e) => {
-                                setCountrySearchTag(e.target.value);
-                                setShowCountryDropdown(true);
-                            }}
-                            onFocus={() => setShowCountryDropdown(true)}
-                            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            />
-                    </div>
-                    {showCountryDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {countries
-                                .filter((country) =>
-                                    country.name.toLowerCase().includes(countrySearchTag.toLowerCase())
-                                )
-                                .map((country) => (
-                                    <div
-                                        key={country.id}
-                                        onClick={() => handleCountrySelect(country)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                    >
-                                        {country.name}
-                                    </div>
-                                ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Province Dropdown (only shown if a country is selected) */}
-                {selectedCountryId && (
-                    <div className="relative">
-                            <div className="relative flex-1">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <SearchIcon/>
-                                </div>
-                            <input
-                                type="text"
-                                placeholder="Search province..."
-                                value={provinceSearchTag}
-                                onChange={(e) => {
-                                    setProvinceSearchTag(e.target.value);
-                                    setShowProvinceDropdown(true);
-                                }}
-                                onFocus={() => setShowProvinceDropdown(true)}
-                                className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                />
-                            </div>
-                        {showProvinceDropdown && (
-                            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                {provinces
-                                    .filter((province) =>
-                                        province.name.toLowerCase().includes(provinceSearchTag.toLowerCase())
-                                    )
-                                    .map((province) => (
-                                        <div
-                                            key={province.id}
-                                            onClick={() => handleProvinceSelect(province)}
-                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                        >
-                                            {province.name}
-                                        </div>
-                                    ))}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
+            
 
             {/* Station Table */}
             <div className="max-w-full overflow-x-auto">
@@ -654,6 +595,12 @@ export default function StationList() {
                     </div>
                 </div>
             )}
+
+            <StationFilter
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                onApplyFilters={handleApplyFilters}
+            />
         </div>
     );
 }

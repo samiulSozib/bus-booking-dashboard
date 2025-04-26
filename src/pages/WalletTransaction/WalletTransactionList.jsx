@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, View } from "../../icons";
+import { Delete, Edit, SearchIcon, View } from "../../icons";
 import { 
   fetchWalletTransactions,
   createWalletTransaction,
@@ -21,22 +21,29 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 
 // Yup validation schema
-const transactionSchema = Yup.object().shape({
-  user_id: Yup.number().required("User is required"),
-  amount: Yup.number().required("Amount is required").positive(),
-  fee: Yup.number().required("Fee is required").min(0),
-  total: Yup.number().required("Total is required").positive(),
-  status: Yup.string()
-    .oneOf(["pending", "verified", "rejected", "failed", "cancelled"])
-    .required("Status is required"),
-  type: Yup.string()
-    .oneOf(["credit", "debit", "withdrawal"])
-    .required("Type is required"),
-  data: Yup.object().shape({
-    reason: Yup.string().optional(),
-    description: Yup.string().optional(),
-  }).optional()
-});
+const getTransactionSchema = (t) =>
+  Yup.object().shape({
+    user_id: Yup.number().required(t('transaction.userRequired')),
+    amount: Yup.number().required(t('transaction.amountRequired')).positive(t('transaction.amountPositive')),
+    fee: Yup.number().required(t('transaction.feeRequired')).min(0, t('transaction.feeMin')),
+    total: Yup.number().required(t('transaction.totalRequired')).positive(t('transaction.totalPositive')),
+    status: Yup.string()
+      .oneOf(
+        ['pending', 'verified', 'rejected', 'failed', 'cancelled'],
+        t('transaction.invalidStatus')
+      )
+      .required(t('transaction.statusRequired')),
+    type: Yup.string()
+      .oneOf(['credit', 'debit', 'withdrawal'], t('transaction.invalidType'))
+      .required(t('transaction.typeRequired')),
+    data: Yup.object()
+      .shape({
+        reason: Yup.string().optional(),
+        description: Yup.string().optional(),
+      })
+      .optional(),
+  });
+
 
 export default function WalletTransactionList() {
   const dispatch = useDispatch();
@@ -78,9 +85,9 @@ export default function WalletTransactionList() {
 
   // Fetch initial data
   useEffect(() => {
-    dispatch(fetchWalletTransactions({page:currentPage}));
-    dispatch(fetchUsers({ searchTag: "" }));
-  }, [dispatch,currentPage]);
+    dispatch(fetchWalletTransactions({page:currentPage,searchTag:searchTerm}));
+    dispatch(fetchUsers({  }));
+  }, [dispatch,currentPage,searchTerm]);
 
   // Fetch users when search term changes
   useEffect(() => {
@@ -164,7 +171,7 @@ export default function WalletTransactionList() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await transactionSchema.validate(formData, { abortEarly: false });
+      await getTransactionSchema(t).validate(formData, { abortEarly: false });
 
       const payload = {
         ...formData,
@@ -251,13 +258,18 @@ export default function WalletTransactionList() {
           {t("TRANSACTION_LIST")}
         </h3>
         <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <SearchIcon/>
+              </div>
           <input
-            type="text"
-            className="rounded-md"
-            placeholder={t("SEARCH")}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+              type="text"
+              className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder={t("SEARCH")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
           />
+      </div>
           
          
           

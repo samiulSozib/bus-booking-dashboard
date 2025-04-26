@@ -4,33 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addBus, editBus, fetchBusById, updateSeat } from '../../store/slices/busSlice';
 import { useTranslation } from 'react-i18next';
+import {
+    fetchUsers,
+} from "../../store/slices/userSlice";
+import { userType } from "../../utils/utils";
+import { fetchDrivers } from '../../store/slices/driverSlice';
+
 
 // Yup validation schema for bus information
-const busInfoSchema = Yup.object().shape({
-    driver_id: Yup.number()
-        .typeError('Driver ID must be a number')
-        .required('Driver ID is required')
-        .positive('Driver ID must be a positive number')
-        .integer('Driver ID must be an integer'),
 
-    name: Yup.string()
-        .required('Bus Name is required')
-        .min(2, 'Bus Name must be at least 2 characters')
-        .max(50, 'Bus Name cannot exceed 50 characters'),
-
-    bus_number: Yup.string()
-        .required('Bus Number is required')
-        .matches(/^[A-Za-z0-9]+$/, 'Bus Number can only contain letters and numbers'),
-
-    facilities: Yup.string()
-        .required('Facilities are required')
-        .matches(/^[A-Za-z, ]+$/, 'Facilities can only contain letters and commas'),
-
-    ticket_price: Yup.number()
-        .typeError('Ticket Price must be a number')
-        .required('Ticket Price is required')
-        .positive('Ticket Price must be a positive number'),
-});
 
 const AddBus = () => {
     const dispatch = useDispatch();
@@ -38,8 +20,10 @@ const AddBus = () => {
     const { busId } = useParams(); // Get busId from URL if editing
     const {t}=useTranslation()
 
+
     const [formData, setFormData] = useState({
         driver_id: '',
+        vendor_id:'',
         name: '',
         bus_number: '',
         image: null,
@@ -56,8 +40,33 @@ const AddBus = () => {
     const [selectedSeat, setSelectedSeat] = useState(null); // Selected seat for editing
     const [imagePreview, setImagePreview] = useState(null);
     const [errors, setErrors] = useState({});
+    const isVendor=userType().role==="vendor"
+
+
+    const [driverSearch, setDriverSearch] = useState("");
+    const [showDriverDropdown, setShowDriverDropdown] = useState(false);
+    const [selectedDriver, setSelectedDriver] = useState(null);
+
+    const [vendorSearch, setVendorSearch] = useState("");
+    const [showVendorDropdown, setShowVendorDropdown] = useState(false);
+    const [selectedVendor, setSelectedVendor] = useState(null);
 
     const { bus } = useSelector((state) => state.buses); // Fetch bus data if editing
+    const { driverList,vendorList } = useSelector((state) => state.users); // Assuming you have a drivers slice
+    const { drivers } = useSelector((state) => state.drivers);
+
+
+
+
+    useEffect(() => {
+        
+        if (!isVendor) {
+            dispatch(fetchUsers({ searchTag: driverSearch, role: 'driver' }));
+            dispatch(fetchUsers({ searchTag: vendorSearch, role: 'vendor' }));
+        }else{
+            dispatch(fetchDrivers({ searchTag: driverSearch }));
+        }
+    }, [dispatch, isVendor,driverSearch,vendorSearch]);
 
     // Fetch bus data if busId is provided (editing mode)
     useEffect(() => {
@@ -73,8 +82,11 @@ const AddBus = () => {
     // Populate form data if bus data is fetched
     useEffect(() => {
         if (busId && bus) {
+            //setDriverSearch(bus.driver_id)
+            //setVendorSearch(bus.vendor_id)
             setFormData({
                 driver_id: bus.driver_id,
+                vendor_id:bus.vendor_id,
                 name: bus.name,
                 bus_number: bus.bus_number,
                 image: bus.image,
@@ -103,6 +115,18 @@ const AddBus = () => {
         } else {
             setFormData({ ...formData, [name]: value });
         }
+    };
+
+    const handleDriverSelect = (driver) => {
+        setSelectedDriver(driver);
+        setFormData({...formData, driver_id: driver.id});
+        setShowDriverDropdown(false);
+    };
+
+    const handleVendorSelect = (vendor) => {
+        setSelectedVendor(vendor);
+        setFormData({...formData, vendor_id: vendor.id});
+        setShowVendorDropdown(false);
     };
 
     const handleBerthChange = (e) => {
@@ -224,14 +248,17 @@ const AddBus = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(isVendor)
         try {
-            await busInfoSchema.validate(formData, { abortEarly: false });
-
+            await getBusInfoSchema(isVendor, t).validate(formData, { abortEarly: false });
+            
             if (busId) {
+               
                 // Update existing bus
                 await dispatch(editBus({ busId, busData: formData }));
             } else {
                 // Add new bus
+                
                 await dispatch(addBus({ busData: formData }));
             }
 
@@ -254,6 +281,42 @@ const AddBus = () => {
         await dispatch(updateSeat({busId,busData:formData}))
     }
 
+    const getBusInfoSchema = (isVendor, t) =>
+        Yup.object().shape({
+          driver_id: Yup.number()
+            .typeError(t('bus.driverRequired'))
+            .required(t('bus.driverRequired'))
+            .positive(t('bus.driverRequired'))
+            .integer(t('bus.driverRequired')),
+      
+          vendor_id: isVendor
+            ? Yup.mixed().notRequired()
+            : Yup.number()
+                .typeError(t('bus.vendorRequired'))
+                .required(t('bus.vendorRequired'))
+                .positive(t('bus.vendorRequired'))
+                .integer(t('bus.vendorRequired')),
+      
+          name: Yup.string()
+            .required(t('bus.nameRequired'))
+            .min(2, t('bus.nameMin'))
+            .max(50, t('bus.nameMax')),
+      
+          bus_number: Yup.string()
+            .required(t('bus.numberRequired'))
+            .matches(/^[A-Za-z0-9]+$/, t('bus.numberInvalid')),
+      
+          facilities: Yup.string()
+            .required(t('bus.facilitiesRequired'))
+            .matches(/^[A-Za-z, ]+$/, t('bus.facilitiesInvalid')),
+      
+          ticket_price: Yup.number()
+            .typeError(t('bus.priceType'))
+            .required(t('bus.priceRequired'))
+            .positive(t('bus.pricePositive')),
+        });
+      
+
     return (
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
             <h2 className="text-xl font-semibold mb-4 dark:text-white/90">
@@ -263,7 +326,7 @@ const AddBus = () => {
                 {/* Grid Container */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {/* Driver ID */}
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("DRIVER")}</label>
                         <input
                             type="number"
@@ -275,7 +338,114 @@ const AddBus = () => {
                         {errors.driver_id && (
                             <p className="text-red-500 text-sm mt-1">{errors.driver_id}</p>
                         )}
+                    </div> */}
+
+                    <div className="relative">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("DRIVER")}</label>
+                    <input
+                        type="text"
+                        placeholder={t("SEARCH_DRIVER")}
+                        value={driverSearch}  // Always use driverSearch for the value
+                        onChange={(e) => {
+                        setDriverSearch(e.target.value);
+                        setShowDriverDropdown(true);
+                        if (selectedDriver && e.target.value !== `${selectedDriver.first_name} ${selectedDriver.last_name || ''}`) {
+                            setSelectedDriver(null);
+                            setFormData({...formData, driver_id: ''});
+                        }
+                        }}
+                        onFocus={() => setShowDriverDropdown(true)}
+                        onBlur={() => setTimeout(() => setShowDriverDropdown(false), 200)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                    />
+                    {showDriverDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                        {(isVendor?drivers:driverList)
+                            .filter((driver) => 
+                            `${driver.first_name} ${driver.last_name || ''}`
+                                .toLowerCase()
+                                .includes(driverSearch.toLowerCase())
+                            )
+                            .map((driver) => (
+                            <div
+                                key={driver.id}
+                                onClick={() => {
+                                handleDriverSelect(driver);
+                                setDriverSearch(`${driver.first_name} ${driver.last_name || ''}`);
+                                }}
+                                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                            >
+                                {driver.first_name} {driver.last_name || ''}
+                            </div>
+                            ))}
+                        {(isVendor?drivers:driverList).filter(driver => 
+                            `${driver.first_name} ${driver.last_name || ''}`
+                            .toLowerCase()
+                            .includes(driverSearch.toLowerCase())
+                        ).length === 0 && (
+                            <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                            {t("NO_DRIVERS_FOUND")}
+                            </div>
+                        )}
+                        </div>
+                    )}
+                    {errors.driver_id && (
+                        <p className="text-red-500 text-sm mt-1">{errors.driver_id}</p>
+                    )}
                     </div>
+
+                    {!isVendor && (
+                        <div className="relative">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("VENDOR")}</label>
+                            <input
+                                type="text"
+                                placeholder={t("SEARCH_VENDOR")}
+                                value={vendorSearch}
+                                onChange={(e) => {
+                                    setVendorSearch(e.target.value);
+                                    setShowVendorDropdown(true);
+                                    if (selectedVendor && e.target.value !== `${selectedVendor.first_name} ${selectedVendor.last_name || ''}`) {
+                                        setSelectedVendor(null);
+                                        setFormData({...formData, vendor_id: ''});
+                                    }
+                                }}
+                                onFocus={() => setShowVendorDropdown(true)}
+                                onBlur={() => setTimeout(() => setShowVendorDropdown(false), 200)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                            />
+                            {showVendorDropdown && (
+                                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                                    {vendorList
+                                        .filter((vendor) => vendor.role === 'vendor' &&
+                                            `${vendor.first_name} ${vendor.last_name || ''}`
+                                                .toLowerCase()
+                                                .includes(vendorSearch.toLowerCase())
+                                        )
+                                        .map((vendor) => (
+                                            <div
+                                                key={vendor.id}
+                                                onClick={() => {
+                                                    handleVendorSelect(vendor);
+                                                    setVendorSearch(`${vendor.first_name} ${vendor.last_name || ''}`);
+                                                }}
+                                                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                                            >
+                                                {vendor.first_name} {vendor.last_name || ''}
+                                            </div>
+                                        ))}
+                                    {vendorList.filter(vendor => vendor.role === 'vendor' &&
+                                        `${vendor.first_name} ${vendor.last_name || ''}`
+                                            .toLowerCase()
+                                            .includes(vendorSearch.toLowerCase())
+                                    ).length === 0 && (
+                                        <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                                            {t("NO_VENDORS_FOUND")}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Bus Name */}
                     <div>

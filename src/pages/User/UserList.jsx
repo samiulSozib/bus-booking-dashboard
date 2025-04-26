@@ -8,7 +8,7 @@ import {
     TableHeader,
     TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, View } from "../../icons";
+import { Delete, Edit, SearchIcon, View } from "../../icons";
 import {
     addUser,
     editUser,
@@ -30,6 +30,8 @@ export default function UserList() {
     const [formErrors, setFormErrors] = useState({});
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedRole, setSelectedRole] = useState("");
+    
 
 
     // State for user form fields
@@ -59,8 +61,8 @@ export default function UserList() {
     });
 
     useEffect(() => {
-        dispatch(fetchUsers({searchTag,page:currentPage}));
-    }, [dispatch, searchTag,currentPage]);
+        dispatch(fetchUsers({searchTag,page:currentPage,role:selectedRole}));
+    }, [dispatch, searchTag,currentPage,selectedRole]);
 
     useEffect(() => {
         if (selectedUser) {
@@ -117,7 +119,7 @@ export default function UserList() {
     
         try {
             // Validate form data
-            await validationSchema.validate(formData, { abortEarly: false });
+            await getValidationSchema(t).validate(formData, { abortEarly: false });
     
             const userData = { ...formData };
     
@@ -205,62 +207,64 @@ export default function UserList() {
     };
 
   
-    const validationSchema = Yup.object().shape({
-        first_name: Yup.string().required('First Name is required'),
-        last_name: Yup.string().required('Last Name is required'),
-        email: Yup.string().email('Invalid email').required('Email is required'),
-        mobile: Yup.string().matches(/^[0-9]{10}$/, 'Mobile must be 10 digits'),
-        role: Yup.string().required('Role is required'),
-        password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
-        status: Yup.string().required('Status is required'),
-    
-        // Conditional Fields
-        name: Yup.string().when('role', (role, schema) =>
-            role === 'agent' || role === 'vendor' ? schema.required('Name is required') : schema
-        ),
-        phone: Yup.string().when('role', (role, schema) =>
-            role === 'agent' || role === 'vendor' ? schema.required('Phone is required') : schema
-        ),
-        code: Yup.string().when('role', (role, schema) =>
-            role === 'agent' ? schema.required('Code is required') : schema
-        ),
-        comission_amount: Yup.number().when('role', (role, schema) =>
-            role === 'agent' ? schema.required('Commission Amount is required') : schema
-        ),
-        comission_type: Yup.string().when('role', (role, schema) =>
-            role === 'agent' ? schema.required('Commission Type is required') : schema
-        ),
-        registration_number: Yup.string().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Registration Number is required') : schema
-        ),
-        license_number: Yup.string().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('License Number is required') : schema
-        ),
-        rating: Yup.number().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Rating is required') : schema
-        ),
-        admin_comission_amount: Yup.number().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Admin Commission Amount is required') : schema
-        ),
-        admin_comission_type: Yup.string().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Admin Commission Type is required') : schema
-        ),
-        agent_comission_amount: Yup.number().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Agent Commission Amount is required') : schema
-        ),
-        agent_comission_type: Yup.string().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Agent Commission Type is required') : schema
-        ),
-        logo: Yup.mixed().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Logo is required') : schema
-        ),
-        description: Yup.string().when('role', (role, schema) =>
-            role === 'vendor' ? schema.required('Description is required') : schema
-        ),
-        vendor_id: Yup.number().when('role', (role, schema) =>
-            role === 'driver' ? schema.required('Vendor ID is required') : schema
-        ),
-    });
+    const getValidationSchema = (t) =>
+        Yup.object().shape({
+          first_name: Yup.string().required(t('user.firstNameRequired')),
+          last_name: Yup.string().required(t('user.lastNameRequired')),
+          email: Yup.string().email(t('user.invalidEmail')).required(t('user.emailRequired')),
+          mobile: Yup.string().matches(/^[0-9]{10}$/, t('user.mobileInvalid')),
+          role: Yup.string().required(t('user.roleRequired')),
+          password: Yup.string().required(t('user.passwordRequired')).min(6, t('user.passwordMin')),
+          status: Yup.string().required(t('user.statusRequired')),
+      
+          // Conditional fields based on role
+          name: Yup.string().when('role', (role, schema) =>
+            role === 'agent' || role === 'vendor' ? schema.required(t('user.nameRequired')) : schema
+          ),
+          phone: Yup.string().when('role', (role, schema) =>
+            role === 'agent' || role === 'vendor' ? schema.required(t('user.phoneRequired')) : schema
+          ),
+          code: Yup.string().when('role', (role, schema) =>
+            role === 'agent' ? schema.required(t('user.codeRequired')) : schema
+          ),
+          comission_amount: Yup.number().when('role', (role, schema) =>
+            role === 'agent' ? schema.required(t('user.commissionAmountRequired')) : schema
+          ),
+          comission_type: Yup.string().when('role', (role, schema) =>
+            role === 'agent' ? schema.required(t('user.commissionTypeRequired')) : schema
+          ),
+          registration_number: Yup.string().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.registrationNumberRequired')) : schema
+          ),
+          license_number: Yup.string().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.licenseNumberRequired')) : schema
+          ),
+          rating: Yup.number().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.ratingRequired')) : schema
+          ),
+          admin_comission_amount: Yup.number().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.adminCommissionAmountRequired')) : schema
+          ),
+          admin_comission_type: Yup.string().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.adminCommissionTypeRequired')) : schema
+          ),
+          agent_comission_amount: Yup.number().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.agentCommissionAmountRequired')) : schema
+          ),
+          agent_comission_type: Yup.string().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.agentCommissionTypeRequired')) : schema
+          ),
+          logo: Yup.mixed().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.logoRequired')) : schema
+          ),
+          description: Yup.string().when('role', (role, schema) =>
+            role === 'vendor' ? schema.required(t('user.descriptionRequired')) : schema
+          ),
+          vendor_id: Yup.number().when('role', (role, schema) =>
+            role === 'driver' ? schema.required(t('user.vendorIdRequired')) : schema
+          ),
+        });
+      
     
 
     return (
@@ -766,13 +770,30 @@ export default function UserList() {
                 </div>
                 <div className="flex items-center gap-3">
                 {/* Search Bar */}
+                <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <SearchIcon/>
+                        </div>
                     <input
                         type="text"
-                        placeholder={t("SEARCH_USER")}
+                        className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder={t("SEARCH")}
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
-                        className="rounded-md"
                     />
+                </div>
+
+                <select
+                    className="rounded-md"
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                    <option value="">All Role</option>
+                    <option value="vendor">Vendor</option>
+                    <option value="agent">Agent</option>
+                    <option value="driver">Driver</option>
+                    <option value="customer">Customer</option>
+                </select>
 
                 {/* Add User Button */}
                     <button

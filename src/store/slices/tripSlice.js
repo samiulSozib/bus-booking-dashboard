@@ -12,12 +12,19 @@ export function user_type(){
 // Fetch Trips
 export const fetchTrips = createAsyncThunk(
     "trips/fetchTrips",
-    async ({searchTag="",page=1}, { rejectWithValue }) => {
+    async ({searchTag="",page=1,filters={}}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
             const type=user_type()
 
-            const response = await axios.get(`${base_url}/${type.role}/trips?search=${searchTag}&page=${page}`, {
+            const filterQuery = Object.entries(filters)
+            .filter(([_, value]) => value !== null && value !== undefined && value !== "")
+            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+            .join('&');
+
+            console.log(filterQuery)
+
+            const response = await axios.get(`${base_url}/${type.role}/trips?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',

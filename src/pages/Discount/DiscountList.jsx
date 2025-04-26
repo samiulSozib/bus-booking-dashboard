@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit } from "../../icons";
+import { Delete, Edit, FunnelIcon } from "../../icons";
 import { 
   fetchDiscounts, 
   createDiscount, 
@@ -23,62 +23,62 @@ import * as Yup from "yup";
 import { formatForDisplayDiscount, formatForInput, formatForInputDiscount } from "../../utils/utils";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import DiscountFilter from "./DiscountFilter";
 
 
 // Yup validation schema
 // Corrected Yup validation schema
-const discountSchema = Yup.object().shape({
+const getDiscountSchema = (t) =>
+  Yup.object().shape({
     scope: Yup.string()
       .oneOf(["global", "vendor", "route", "trip", "bus"])
-      .required("Scope is required"),
+      .required(t('discount.scopeRequired')),
     discount_amount: Yup.number()
-      .positive()
-      .required("Discount amount is required"),
+      .positive(t('discount.positiveAmount'))
+      .required(t('discount.amountRequired')),
     discount_type: Yup.string()
       .oneOf(["fixed", "percentage"])
-      .required("Type is required"),
-    start_date: Yup.string().required("Start date is required"),
-    end_date: Yup.string().required("End date is required"),
+      .required(t('discount.typeRequired')),
+    start_date: Yup.string().required(t('discount.startDateRequired')),
+    end_date: Yup.string().required(t('discount.endDateRequired')),
     status: Yup.string()
       .oneOf(["active", "inactive", "expired"])
-      .required("Status is required"),
+      .required(t('discount.statusRequired')),
   }).test(
     'scope-requirements',
-    'Invalid scope configuration',
+    t('discount.invalidScopeConfig'),
     function(value) {
-      const { scope } = value;
-      
+      const { scope } = value || {};
+
       if (scope === 'vendor' && !value.vendor_id) {
         return this.createError({
           path: 'vendor_id',
-          message: 'Vendor is required for vendor scope'
+          message: t('discount.vendorRequired')
         });
       }
-      
       if (scope === 'route' && !value.route_id) {
         return this.createError({
           path: 'route_id',
-          message: 'Route is required for route scope'
+          message: t('discount.routeRequired')
         });
       }
-      
       if (scope === 'bus' && !value.bus_id) {
         return this.createError({
           path: 'bus_id',
-          message: 'Bus is required for bus scope'
+          message: t('discount.busRequired')
         });
       }
-      
       if (scope === 'trip' && !value.trip_id) {
         return this.createError({
           path: 'trip_id',
-          message: 'Trip is required for trip scope'
+          message: t('discount.tripRequired')
         });
       }
-      
+
       return true;
     }
   );
+
 
 export default function DiscountList() {
   const dispatch = useDispatch();
@@ -89,6 +89,9 @@ export default function DiscountList() {
   const { trips } = useSelector((state) => state.trips);
   const {t}=useTranslation()
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
 
   // State for table filtering
   const [searchTag, setSearchTag] = useState("");
@@ -122,10 +125,15 @@ export default function DiscountList() {
   });
   const [errors, setErrors] = useState({});
 
+  const handleApplyFilters = (filters) => {
+    setActiveFilters(filters);
+    setCurrentPage(1); 
+};
+
   // Fetch initial data
   useEffect(() => {
-    dispatch(fetchDiscounts({page:currentPage}));
-  }, [dispatch,currentPage]);
+    dispatch(fetchDiscounts({page:currentPage,filters:activeFilters,searchTag}));
+  }, [dispatch,currentPage,activeFilters,searchTag]);
 
   useEffect(() => {
     dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
@@ -215,7 +223,7 @@ export default function DiscountList() {
     e.preventDefault();
     
     try {
-      await discountSchema.validate(formData, { abortEarly: false });
+      await getDiscountSchema(t).validate(formData, { abortEarly: false });
       
       const payload = {
         ...formData,
@@ -359,6 +367,17 @@ export default function DiscountList() {
             {t("ADD_DISCOUNT")}
           </button>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-end sm:justify-between">
+        <p></p>
+        <button
+            onClick={() => setIsFilterOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+        >
+            <FunnelIcon className="w-5 h-5" />
+            {t("FILTER")}
+        </button>
       </div>
 
       {/* Discount Table */}
@@ -735,6 +754,13 @@ export default function DiscountList() {
           </div>
         </div>
       )}
+
+    <DiscountFilter
+      isOpen={isFilterOpen}
+      onClose={() => setIsFilterOpen(false)}
+      onApplyFilters={handleApplyFilters}
+  />
+
     </div>
   );
 }

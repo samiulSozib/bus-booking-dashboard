@@ -18,18 +18,20 @@ import { useTranslation } from "react-i18next";
 
 
 // Yup validation schema
-const citySchema = Yup.object().shape({
-    cityName: Yup.object().shape({
-        en: Yup.string().required('English name is required'),
+const getCitySchema = (t) =>
+    Yup.object().shape({
+      cityName: Yup.object().shape({
+        en: Yup.string().required(t('city.englishNameRequired')),
         ps: Yup.string().optional(),
         fa: Yup.string().optional(),
-    }),
-    cityCode: Yup.string()
-        .required('City code is required')
-        .matches(/^[A-Z]{2,3}$/, 'Province code must be 2-3 uppercase letters'),
-    countryId: Yup.string().required('Country is required'),
-    provinceId: Yup.string().required('Province is required'),
-});
+      }),
+      cityCode: Yup.string()
+        .required(t('city.codeRequired'))
+        .matches(/^[A-Z]{2,3}$/, t('city.codeInvalid')),
+      countryId: Yup.string().required(t('city.countryRequired')),
+      provinceId: Yup.string().required(t('city.provinceRequired')),
+    });
+  
 
 export default function CityList() {
     const dispatch = useDispatch();
@@ -147,7 +149,7 @@ export default function CityList() {
             };
     
             try {
-                await citySchema.validate(cityData,{ abortEarly: false });
+                await getCitySchema(t).validate(cityData,{ abortEarly: false });
     
                 
     

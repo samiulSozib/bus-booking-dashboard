@@ -7,10 +7,10 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Async thunks
 export const fetchWalletTransactions = createAsyncThunk(
   'walletTransactions/fetchWalletTransactions',
-  async ({page=1}, { rejectWithValue }) => {
+  async ({searchTag="",page=1}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/admin/wallet-transactions?page=${page}`, {
+      const response = await axios.get(`${base_url}/admin/wallet-transactions?page=${page}&search=${searchTag}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
