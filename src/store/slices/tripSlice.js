@@ -81,6 +81,7 @@ export const addTrip = createAsyncThunk(
             formData.append('allow_partial_payment',true)
             formData.append('min_partial_payment',parseFloat(tripData.min_partial_payment))
             formData.append('partial_payment_type',tripData.partial_payment_type)
+            formData.append("ticket_price_per_seat",JSON.stringify(tripData.ticket_price_per_seat))
 
             const response = await axios.post(`${base_url}/${type.role}/trips`, formData, {
                 headers: {
@@ -119,6 +120,8 @@ export const editTrip = createAsyncThunk(
             formData.append('allow_partial_payment',updatedData.allow_partial_payment)
             formData.append('min_partial_payment',updatedData.min_partial_payment)
             formData.append('partial_payment_type',updatedData.partial_payment_type)
+            formData.append("ticket_price_per_seat",JSON.stringify(updatedData.ticket_price_per_seat))
+
             console.log(updatedData)
             const response = await axios.post(`${base_url}/${type.role}/trips/${tripId}/update`, formData, {
                 headers: {
@@ -148,6 +151,37 @@ export const deleteTrip = createAsyncThunk(
             return tripId;
         } catch (error) {
             return rejectWithValue(error.message);
+        }
+    }
+);
+
+// Update Trip Seat Prices
+export const updateTripSeatPrices = createAsyncThunk(
+    "trips/updateTripSeatPrices",
+    async ({ trip_id, ticket_price_per_seat }, { rejectWithValue }) => {
+        try {
+            const token = getAuthToken();
+            const type = user_type();
+            
+            const formData = new FormData();
+            formData.append('trip_id', trip_id);
+            formData.append('ticket_price_per_seat', JSON.stringify(ticket_price_per_seat));
+
+            const response = await axios.post(
+                `${base_url}/${type.role}/trips/seat-prices`, 
+                formData, 
+                {
+                    headers: {
+                        Authorization: `${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+            
+            return { trip_id, updatedPrices: ticket_price_per_seat };
+        } catch (error) {
+            console.log(error);
+            return rejectWithValue(error?.response?.statusText);
         }
     }
 );
@@ -195,6 +229,30 @@ const tripsSlice = createSlice({
             })
             .addCase(deleteTrip.fulfilled, (state, action) => {
                 state.trips = state.trips.filter((trip) => trip.id !== action.payload);
+            })
+            .addCase(updateTripSeatPrices.fulfilled, (state, action) => {
+                const { trip_id, updatedPrices } = action.payload;
+                // Update the specific trip's seat prices in the state
+                state.trips = state.trips.map(trip => {
+                    if (trip.id === trip_id) {
+                        return {
+                            ...trip,
+                            ticket_price_per_seat: updatedPrices
+                        };
+                    }
+                    return trip;
+                });
+                
+                // Also update the selectedTrip if it's the one being updated
+                if (state.selectedTrip && state.selectedTrip.id === trip_id) {
+                    state.selectedTrip = {
+                        ...state.selectedTrip,
+                        ticket_price_per_seat: updatedPrices
+                    };
+                }
+            })
+            .addCase(updateTripSeatPrices.rejected, (state, action) => {
+                state.error = action.payload;
             });
     },
 });

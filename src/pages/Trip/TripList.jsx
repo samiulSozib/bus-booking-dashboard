@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "../../components/ui/table";
 import { Delete, Edit, FunnelIcon, View } from "../../icons";
-import { addTrip, editTrip, fetchTrips, showTrip } from "../../store/slices/tripSlice";
+import { addTrip, editTrip, fetchTrips, showTrip, updateTripSeatPrices } from "../../store/slices/tripSlice";
 import { fetchBuses } from "../../store/slices/busSlice";
 import { fetchRoutes } from "../../store/slices/routeSlice";
 import { fetchUsers } from "../../store/slices/userSlice";
@@ -48,7 +48,7 @@ export default function TripList() {
     const { trips, selectedTrip, loading,pagination } = useSelector((state) => state.trips);
     const { buses } = useSelector((state) => state.buses);
     const { routes } = useSelector((state) => state.routes);
-    const { users } = useSelector((state) => state.users);
+    const { vendorList } = useSelector((state) => state.users);
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -70,12 +70,17 @@ export default function TripList() {
     const [errors, setErrors] = useState({});
 
     // State for Add/Edit Trip Modal
+    const [openSeatsDialog, setOpenSeatsDialog] = useState(false);
+    const [openSeatsEditDialog, setOpenSeatsEditDialog] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [vendorId, setVendorId] = useState(null);
     const [routeId, setRouteId] = useState(null);
     const [busId, setBusId] = useState(null);
+    const [bus,setBus]=useState(null)
+    const [seats,setSeats]=useState([])
     const [totalSeats, setTotalSeats] = useState("");
+    const [selectedSeat, setSelectedSeat] = useState(null);
     const [ticketPrice, setTicketPrice] = useState("");
     const [departureTime, setDepartureTime] = useState("");
     const [arrivalTime, setArrivalTime] = useState("");
@@ -91,6 +96,7 @@ export default function TripList() {
     const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
     const [showModalRouteDropdown, setShowModalRouteDropdown] = useState(false);
     const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
+
 
     const isAdmin=userType().role==="admin"
 
@@ -119,12 +125,13 @@ export default function TripList() {
 
     // Pre-fill form when editing a trip
     useEffect(() => {
-        if (selectedTrip) {
+        if (selectedTrip && isEditMode) {
             setVendorId(selectedTrip.vendor.id);
             setModalVendorSearchTag(selectedTrip.vendor.name)
             setRouteId(selectedTrip.route.id);
             setModalRouteSearchTag(selectedTrip.route.name)
             setBusId(selectedTrip.bus.id);
+            setSeats(selectedTrip.seat_prices)
             setModalBusSearchTag(selectedTrip.bus.name)
             setTotalSeats(selectedTrip.total_seats);
             setTicketPrice(selectedTrip.ticket_price);
@@ -136,7 +143,7 @@ export default function TripList() {
             setMinPartialPayment(selectedTrip.min_partial_payment)
             setPartialPaymentType(selectedTrip.partial_payment_type)
         }
-    }, [selectedTrip, users, routes, buses]);
+    }, [selectedTrip, vendorList, routes, buses]);
 
     // Handle vendor selection (for table filtering)
     const handleVendorSelect = (vendor) => {
@@ -175,7 +182,10 @@ export default function TripList() {
 
     // Handle bus selection in modal
     const handleModalBusSelect = (bus) => {
+        console.log(bus)
         setBusId(bus.id);
+        setBus(bus)
+        setSeats(bus?.seats.seats)
         setTicketPrice(bus.ticket_price)
         setTotalSeats(bus?.seats?.seats.length||0)
         setModalBusSearchTag(bus.name);
@@ -198,18 +208,29 @@ export default function TripList() {
             status,
             allow_partial_payment:allowPartialPayment,
             min_partial_payment:minPartialPayment,
-            partial_payment_type:partialPaymentType
+            partial_payment_type:partialPaymentType,
         };
 
         if(isAdmin){
             tripData.vendor_id=vendorId
         }
-        //console.log(tripData)
-        //return
+        if (!isEditMode) {
+            tripData.ticket_price_per_seat = seats.map(seat => ({
+                seat_number: seat.seat_number,
+                ticket_price: seat.price
+            }));
+        }
 
         try {
-            await getTripSchema(t).validate(tripData, { abortEarly: false });
-
+            //await getTripSchema(t).validate(tripData, { abortEarly: false });
+            // const ticket_price_per_seat = seats.map(seat => ({
+            //     seat_number: seat.seat_number,
+            //     ticket_price: seat.price
+            //   }));
+              
+            //   console.log(ticket_price_per_seat);
+              
+            //return
             if (isEditMode) {
                 await dispatch(
                     editTrip({ tripId: currentTripId, updatedData: tripData })
@@ -250,8 +271,11 @@ export default function TripList() {
     const resetModal = () => {
         setIsEditMode(false);
         setVendorId(null);
+        setModalVendorSearchTag("")
         setRouteId(null);
+        setModalRouteSearchTag("")
         setBusId(null);
+        setModalBusSearchTag("")
         setTotalSeats("");
         setTicketPrice("");
         setDepartureTime("");
@@ -269,6 +293,172 @@ export default function TripList() {
         setIsModalOpen(true);
         setCurrentTripId(tripId);
     };
+
+    const handleSeatClick = (row, column) => {
+        const seat = seats.find((s) => s.row === row && s.column === column);
+        
+        const rowChar = String.fromCharCode(64 + row); 
+        const seatNumberInt = parseInt(`${row}${column}`, 10); 
+        
+        setSelectedSeat({ 
+            row, 
+            column, 
+            seat_number: seatNumberInt, 
+            ...seat 
+        });
+    };
+
+    const handleSeatEditClick = (seat) => {
+        console.log(seat)
+        
+        setSelectedSeat({ 
+            
+            seat_number: seat.seat_number, 
+            ticket_price:seat.ticket_price,
+            ...seat 
+        });
+    };
+
+    const handleSeatSave = (seatData) => {
+        const { row, column, ...rest } = seatData;
+        const updatedSeats = seats.filter(
+            (s) => !(s.row === row && s.column === column)
+        );
+        updatedSeats.push({ row, column, ...rest });
+
+        setSeats( updatedSeats );
+        setSelectedSeat(null);
+    };
+
+    const handleEditSeatSave = (seatData) => {
+        setSeats(prevSeats => {
+            const index = prevSeats.findIndex(seat => seat.seat_number === seatData.seat_number);
+    
+            if (index !== -1) {
+                const updatedSeats = [...prevSeats];
+                updatedSeats[index] = seatData;
+                return updatedSeats;
+            } else {
+                return [...prevSeats, seatData];
+            }
+        });
+    
+        setSelectedSeat(null);
+    };
+    
+    
+
+       const handleSaveChangeSeat=async (e)=>{
+            console.log(seats)
+            const data = seats.map(seat => ({
+                seat_number: seat.seat_number,
+                ticket_price: seat.ticket_price
+            }));
+            await dispatch(updateTripSeatPrices({trip_id:selectedTrip.id,ticket_price_per_seat:data}))
+            setSeats(data)
+            setOpenSeatsEditDialog(false)
+        }
+
+    const generateSeatLayout = (rows, columns) => {
+        if (!rows || !columns) return null;
+
+        // Determine the number of seats on the left and right sides
+        let leftSeats, rightSeats;
+        if (columns === 2) {
+            leftSeats = 1;
+            rightSeats = 1;
+        } else if (columns === 3) {
+            leftSeats = 1;
+            rightSeats = 2;
+        } else if (columns === 4) {
+            leftSeats = 2;
+            rightSeats = 2;
+        } else if (columns === 5) {
+            leftSeats = 2;
+            rightSeats = 3;
+        } else {
+            // Default to equal split for other column counts
+            leftSeats = Math.floor(columns / 2);
+            rightSeats = columns - leftSeats;
+        }
+
+        // Function to get row hint text (A, B, C, D, etc.)
+        const getRowHint = (rowIndex) => {
+            return String.fromCharCode(65 + rowIndex); // 65 is ASCII for 'A'
+        };
+
+        return (
+            <div className="grid gap-2 mt-4">
+                {Array.from({ length: rows }, (_, rowIndex) => (
+                    <div key={rowIndex} className="flex gap-2 justify-between mb-3 bg-gray-100 rounded-md p-1">
+                        {/* Left Side Seats */}
+                        <div className="flex gap-2">
+                            {Array.from({ length: leftSeats }, (_, colIndex) => {
+                                const seatNumber = `${getRowHint(rowIndex)}${colIndex + 1}`; // e.g., A1, A2, etc.
+                                const seat = seats.find(
+                                    (s) => s.row === rowIndex + 1 && s.column === colIndex + 1
+                                );
+                                return (
+                                    <div
+                                        key={colIndex}
+                                        className={`w-14 h-14 rounded-md p-2 flex flex-col gap-1 items-center justify-center dark:border-gray-600 cursor-pointer ${
+                                            seat ? 'bg-green-200' : 'dark:bg-gray-700'
+                                        }`}
+                                        onClick={() => handleSeatClick(rowIndex + 1, colIndex + 1)}
+                                    >
+                                        <img src="/public/images/img/seat.png" alt="" className="w-8 h-8" />
+                                        <span className="text-xs">{seatNumber}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Right Side Seats */}
+                        <div className="flex gap-2">
+                            {Array.from({ length: rightSeats }, (_, colIndex) => {
+                                const seatNumber = `${getRowHint(rowIndex)}${colIndex + leftSeats + 1}`; // e.g., A3, A4, etc.
+                                const seat = seats.find(
+                                    (s) => s.row === rowIndex + 1 && s.column === colIndex + leftSeats + 1
+                                );
+                                return (
+                                    <div
+                                        key={colIndex + leftSeats}
+                                        className={`w-14 h-14 rounded-md p-2 flex flex-col items-center justify-center dark:border-gray-600 cursor-pointer ${
+                                            seat ? 'bg-green-200' : 'dark:bg-gray-700'
+                                        }`}
+                                        onClick={() => handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1)}
+                                    >
+                                        <img src="/public/images/img/seat.png" alt="" className="w-8 h-8" />
+                                        <span className="text-xs">{seatNumber}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const generateSeatEditLayout = () => {
+        return (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-2 mt-4">
+                {seats.map((seat, index) => (
+                    <div
+                        key={seat.seat_number || index}
+                        className='w-20 h-20 p-1 rounded-md flex flex-col items-center justify-center cursor-pointer bg-green-200 text-center'
+                        onClick={() => handleSeatEditClick(seat)}
+                    >
+                        <img src="/images/img/seat.png" alt="Seat" className="w-8 h-8" />
+                        <span className="text-[10px] font-medium">No: {seat.seat_number}</span>
+                        <span className="text-[10px] font-medium">Price: {seat.ticket_price}</span>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+    
+    
 
 
     return (
@@ -441,7 +631,7 @@ export default function TripList() {
                                         />
                                         {showModalVendorDropdown && (
                                             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                {users
+                                                {vendorList
                                                     .filter((user) => 
                                                         user.first_name.toLowerCase().includes(modalVendorSearchTag.toLowerCase())
                                                     )
@@ -690,6 +880,29 @@ export default function TripList() {
                                     <p className="text-red-500 text-sm mt-1">{errors.min_partial_payment}</p>
                                 )}
                             </div>
+                            {isEditMode?(
+                                <div className="flex justify-end mt-2 mb-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenSeatsEditDialog(true)}
+                                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                >
+                                    {t("EDIT_SEATS")}
+                                </button>
+                                
+                            </div>
+                            ) :(
+                                <div className="flex justify-end mt-2 mb-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setOpenSeatsDialog(true)}
+                                        className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    >
+                                        {t("MANAGE_SEATS")}
+                                    </button>
+                                    
+                                </div>
+                            )}
 
                             {/* Buttons */}
                             <div className="flex justify-end gap-2">
@@ -708,10 +921,193 @@ export default function TripList() {
                                 </button>
                             </div>
                         </form>
+                        
                     </div>
                 </div>
             )}
 
+            {/* add seats dialog */}
+            {openSeatsDialog && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] flex flex-col dark:bg-gray-800 overflow-y-auto">
+                        <div className="mt-4">
+                            {/* Seat Layout Preview */}
+                            {generateSeatLayout(bus?.seats.rows, bus?.seats.columns)}
+                        </div>
+                        <div className="mt-6 flex justify-end gap-4">
+                        {/* {busId && (
+                            <button
+                                onClick={handleSaveChangeSeat}
+                                type="submit"
+                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+                            >
+                                {t("SAVE_CHANGE")}
+                            </button>
+                        )} */}
+                            <button
+                                type="button"
+                                onClick={() => setOpenSeatsDialog(false)}
+                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-600"
+                            >
+                                {t("CLOSE")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/*  */}
+
+            {/* edit seats dialog */}
+            {openSeatsEditDialog && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[80vh] flex flex-col dark:bg-gray-800 overflow-y-auto">
+                        <div className="mt-4">
+                            {/* Seat Layout Preview */}
+                            {generateSeatEditLayout()}
+                        </div>
+                        <div className="mt-6 flex justify-end gap-4">
+                        {selectedTrip && (
+                            <button
+                                onClick={handleSaveChangeSeat}
+                                type="submit"
+                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+                            >
+                                {t("SAVE_CHANGE")}
+                            </button>
+                        )}
+                            <button
+                                type="button"
+                                onClick={() => setOpenSeatsEditDialog(false)}
+                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-600"
+                            >
+                                {t("CLOSE")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/*  */}
+
+            {/* Dialog for Seat Details */}
+            {selectedSeat && !isEditMode && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-sm dark:bg-gray-800">
+                        <h3 className="text-lg font-semibold mb-4 dark:text-white/90">
+                        {t("EDIT_SEAT")} {selectedSeat.row}-{selectedSeat.column}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+                            {/* Seat Number (Read-Only) */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("SEAT_NUMBER")}</label>
+                                <input
+                                onChange={(e) => {
+                                    const seatNumber = e.target.value;
+                                    const rowChar = seatNumber.charAt(0).toUpperCase();  // First character is the row (A, B, C, etc.)
+                                    const columnNumber = seatNumber.slice(1);             // The remaining part is the column (1, 2, 3, etc.)
+
+                                    // Convert rowChar (e.g., 'A' -> 1, 'B' -> 2, etc.)
+                                    const row = rowChar.charCodeAt(0) - 64;  // 'A' -> 1, 'B' -> 2, etc.
+
+                                    // Construct seat_number as a combination of row and column, for example: 'A1' becomes 11, 'B2' becomes 21
+                                    const seatNumberInt = parseInt(`${row}${columnNumber}`, 10);
+
+                                    // Update the state with the parsed seat_number
+                                    setSelectedSeat({...selectedSeat, seat_number: seatNumberInt });
+                                }}
+                                    type="text"
+                                    value={`${String.fromCharCode(64 + selectedSeat.row)}${selectedSeat.column}`}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white bg-gray-100"
+                                    
+                                />
+                            </div>
+
+                            {/* Price Input */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("PRICE")}</label>
+                                <input
+                                    type="number"
+                                    value={selectedSeat.price || ''}
+                                    onChange={(e) =>
+                                        setSelectedSeat({ ...selectedSeat, price: parseFloat(e.target.value) })
+                                    }
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                />
+                            </div>
+
+                        </div>
+                        <div className="mt-6 flex justify-end gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedSeat(null)}
+                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-600"
+                            >
+                                {t("CANCEL")}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleSeatSave(selectedSeat)}
+                                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                            >
+                                {t("SAVE")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Dialog for Seat Edit in Edit Mode */}
+            {selectedSeat && isEditMode && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-sm dark:bg-gray-800">
+                        <h3 className="text-lg font-semibold mb-4 dark:text-white/90">
+                            {t("EDIT_SEAT")}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
+                            {/* Seat Number Editable */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("SEAT_NUMBER")}</label>
+                                <input
+                                    disabled
+                                    type="text"
+                                    value={selectedSeat.seat_number}
+                                   
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                />
+                            </div>
+
+                            {/* Price Input */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("PRICE")}</label>
+                                <input
+                                    type="number"
+                                    value={selectedSeat.ticket_price||'' }
+                                    onChange={(e) =>
+                                        setSelectedSeat({ ...selectedSeat, ticket_price: parseFloat(e.target.value) })
+                                    }
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                />
+                            </div>
+
+                        </div>
+                        <div className="mt-6 flex justify-end gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedSeat(null)}
+                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-500 dark:hover:bg-gray-600"
+                            >
+                                {t("CANCEL")}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleEditSeatSave(selectedSeat)}
+                                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                            >
+                                {t("SAVE")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
 <DiscountFilter
       isOpen={isFilterOpen}
