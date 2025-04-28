@@ -18,7 +18,7 @@ export const fetchStations = createAsyncThunk(
     .join('&');
 
 
-    const response = await axios.get(`${base_url}/admin/stations?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
+    const response = await axios.get(`${base_url}/admin/stations?city-id=${cityId}&search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
