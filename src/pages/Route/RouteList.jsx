@@ -755,6 +755,7 @@ useEffect(() => {
                                     </label>
                                     <div className="relative">
                                         <input
+                                            disabled={!origin.stationId}
                                             type="text"
                                             placeholder={t("SEARCH_COUNTRY")}
                                             value={searchTags.destinationCountry}
@@ -922,6 +923,7 @@ useEffect(() => {
                                     </div>
                                 )}
                             </div>
+                            
                         </div>
 
                         {/* Distance */}
