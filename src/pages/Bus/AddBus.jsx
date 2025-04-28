@@ -251,7 +251,8 @@ const AddBus = () => {
         console.log(isVendor)
         try {
             await getBusInfoSchema(isVendor, t).validate(formData, { abortEarly: false });
-            
+            //console.log(formData)
+            //
             if (busId) {
                
                 // Update existing bus
@@ -370,7 +371,7 @@ const AddBus = () => {
                             <div
                                 key={driver.id}
                                 onClick={() => {
-                                handleDriverSelect(driver);
+                                handleDriverSelect(driver.driver);
                                 setDriverSearch(`${driver.first_name} ${driver.last_name || ''}`);
                                 }}
                                 className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
@@ -425,7 +426,7 @@ const AddBus = () => {
                                             <div
                                                 key={vendor.id}
                                                 onClick={() => {
-                                                    handleVendorSelect(vendor);
+                                                    handleVendorSelect(vendor.vendor);
                                                     setVendorSearch(`${vendor.first_name} ${vendor.last_name || ''}`);
                                                 }}
                                                 className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
