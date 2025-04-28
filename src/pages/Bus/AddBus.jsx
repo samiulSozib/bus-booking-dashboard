@@ -212,7 +212,7 @@ const AddBus = () => {
                                         }`}
                                         onClick={() => handleSeatClick(rowIndex + 1, colIndex + 1)}
                                     >
-                                        <img src="/public/images/img/seat.png" alt="" className="w-8 h-8" />
+                                        <img src="/images/img/seat.png" alt="" className="w-8 h-8" />
                                         <span className="text-xs">{seatNumber}</span>
                                     </div>
                                 );
