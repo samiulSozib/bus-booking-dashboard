@@ -638,7 +638,7 @@ export default function TripList() {
                                                     .map((vendor) => (
                                                         <div
                                                             key={vendor.id}
-                                                            onClick={() => handleModalVendorSelect(vendor)}
+                                                            onClick={() => handleModalVendorSelect(vendor.vendor)}
                                                             className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                                         >
                                                             {vendor.first_name}
