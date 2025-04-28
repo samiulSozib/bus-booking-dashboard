@@ -32,6 +32,7 @@ import Booking from "./pages/Booking/Booking";
 import TripCancellationPolicy from "./pages/tripCancellationPolicy/TripCancellationPolicy";
 import AdminWallet from "./pages/adminWallet/AdminWallet";
 import VendorWallet from "./pages/vendorWaller/vendorWallet";
+import AddBooking from "./pages/Booking/AddBooking";
 
 export default function App() {
   return (
@@ -55,7 +56,7 @@ export default function App() {
             <Route index path="/discounts" element={<ProtectedRoute><Discount/></ProtectedRoute>}/>
             <Route index path="/wallet-transactions" element={<ProtectedRoute><WalletTransaction/></ProtectedRoute>}/>
             <Route index path="/bookings" element={<ProtectedRoute><Booking/></ProtectedRoute>}/>
-            <Route index path="/bookings" element={<ProtectedRoute><Booking/></ProtectedRoute>}/>
+            <Route index path="/add-booking" element={<ProtectedRoute><AddBooking/></ProtectedRoute>}/>
             <Route index path="/trip-cancellation-policy" element={<ProtectedRoute><TripCancellationPolicy/></ProtectedRoute>}/>
             <Route index path="/admin-wallet" element={<ProtectedRoute><AdminWallet/></ProtectedRoute>}/>
             <Route index path="/vendor-wallet" element={<ProtectedRoute><VendorWallet/></ProtectedRoute>}/>

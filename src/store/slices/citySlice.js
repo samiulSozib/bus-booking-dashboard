@@ -12,7 +12,7 @@ export const fetchCities = createAsyncThunk(
             const token = getAuthToken();
             if (!provinceId) return rejectWithValue("Invalid provinceId");
             const response = await axios.get(
-                `${base_url}/admin/location/${provinceId}/cities/list?search=${searchTag}&page=${page}`,
+                `${base_url}/web/location/${provinceId}/cities/list?search=${searchTag}&page=${page}`,
                 { headers: { Authorization: `${token}` } }
             );
             console.log(response)

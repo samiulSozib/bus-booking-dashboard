@@ -15,6 +15,7 @@ import statisticsReducer from "./slices/statisticsSlice.js"
 import tripCancellationPolicyReducer from "./slices/tripCancellationPolicy"
 import adminWalletReducer from "./slices/adminWalletSlice.js"
 import vendorWalletReducer from "./slices/vendorWalletSlice.js"
+import bookingReducer from "./slices/bookingSlice.js"
 
 const store = configureStore({
     reducer: {
@@ -33,7 +34,8 @@ const store = configureStore({
         statistics:statisticsReducer,
         tripCancellationPolicy:tripCancellationPolicyReducer,
         adminWallet:adminWalletReducer,
-        vendorWallet:vendorWalletReducer
+        vendorWallet:vendorWalletReducer,
+        bookings:bookingReducer
     },
 });
 

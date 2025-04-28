@@ -10,7 +10,7 @@ export const fetchCountries = createAsyncThunk(
     async ({searchTag="",page=1}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/location/countries?search=${searchTag}&page=${page}`, {
+            const response = await axios.get(`${base_url}/web/location/countries?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',

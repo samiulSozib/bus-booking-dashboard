@@ -18,6 +18,7 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import RouteFilter from "./RouteFilter";
+import { userType } from "../../utils/utils";
 
 const getValidationSchema = (t) =>
     Yup.object().shape({
@@ -52,6 +53,7 @@ export default function RouteList() {
     const { routes, selectedRoute,loading,pagination } = useSelector((state) => state.routes);
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
+    const role=userType()
 
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -169,7 +171,7 @@ useEffect(() => {
 
     // Set route details when a route is selected for editing
     useEffect(() => {
-        if (selectedRoute) {
+        if (selectedRoute && isEditMode) {
             setRouteName(selectedRoute.name);
             setDropdowns({originCountry:true})
             setSearchTags(
@@ -468,12 +470,15 @@ useEffect(() => {
                         <FunnelIcon className="w-5 h-5" />
                         {t("FILTER")}
                     </button>
-                    <button
+                    {role.role==="admin"&&(
+                        <button
                         onClick={() => setIsModalOpen(true)}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
                         {t("ADD_ROUTE")}
                     </button>
+                    )}
+                    
                 </div>
             </div>
 
@@ -499,9 +504,12 @@ useEffect(() => {
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("DISTANCE")}
                                 </TableCell>
-                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                {t("ACTION")}
-                                </TableCell>
+                                {role.role==="admin"&&(
+                                    <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    {t("ACTION")}
+                                    </TableCell>
+                                )}
+                                
                             </TableRow>
                         </TableHeader>
 
@@ -526,7 +534,8 @@ useEffect(() => {
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         {route.distance} Km
                                     </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    {role.role==="admin"&&(
+                                        <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         <div className="flex flex-row items-center justify-start gap-2">
                                             <Edit
                                                 className="w-6 h-6 cursor-pointer"
@@ -535,6 +544,8 @@ useEffect(() => {
                                             
                                         </div>
                                     </TableCell>
+                                    )}
+                                    
                                 </TableRow>
                             ))}
                         </TableBody>

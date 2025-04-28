@@ -119,7 +119,7 @@ export default function StationList() {
 
     // Set station details when a station is selected for editing
     useEffect(() => {
-        if (selectedStation) {
+        if (selectedStation && isEditMode) {
             setStationName({ en: selectedStation?.name?.en??selectedStation.name, ps: selectedStation.name.ps, fa: selectedStation.name.fa });
             setModalSelectedCountryId(selectedStation.city.country.id)
             setModalCountrySearchTag(selectedStation.city.country.name)

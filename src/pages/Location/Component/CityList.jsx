@@ -97,7 +97,7 @@ export default function CityList() {
 
     //
     useEffect(()=>{
-        if(selectedCity){
+        if(selectedCity && isEditMode){
             setCityName({ en: selectedCity.name.en, ps: selectedCity.name.ps, fa: selectedCity.name.fa });
             setCityCode(selectedCity.code);
             setModalSelectedCountryId(selectedCity.country.id)

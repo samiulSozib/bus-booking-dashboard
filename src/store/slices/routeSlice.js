@@ -29,7 +29,7 @@ export const fetchRoutes = createAsyncThunk(
         
         console.log(filterQuery)
       // Build full URL
-      const url = `${base_url}/${type.role}/routes?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`;
+      const url = `${base_url}/${type.role}/routes/list?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`;
   
       try {
         const response = await axios.get(url, {
@@ -38,11 +38,13 @@ export const fetchRoutes = createAsyncThunk(
             'Content-Type': 'application/json',
           },
         });
+        console.log(response)
         return {
           items: response.data.body.items,
           pagination: response.data.body.data,
         };
       } catch (error) {
+        console.log(error)
         return rejectWithValue(error.message);
       }
     }

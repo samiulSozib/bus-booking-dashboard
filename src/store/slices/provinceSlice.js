@@ -11,7 +11,7 @@ export const fetchProvinces = createAsyncThunk(
         try {
             const token = getAuthToken();
             if (!countryId) return rejectWithValue("Invalid country id");
-            const response = await axios.get(`${base_url}/admin/location/${countryId}/provinces?search=${searchTag}&page=${page}`, {
+            const response = await axios.get(`${base_url}/web/location/${countryId}/provinces?search=${searchTag}&page=${page}`, {
                 headers: {
                     Authorization: `${token}`,
                     "Content-Type": "application/json",

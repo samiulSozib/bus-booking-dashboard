@@ -1,5 +1,5 @@
 import PageMeta from "../../components/common/PageMeta";
-// import BookingList from "./BookingList";
+import BookingList from "./BookingList";
 
 export default function Booking() {
   return (
@@ -9,7 +9,7 @@ export default function Booking() {
         description=""
       />
       <div className="">
-        {/* <BookingList/> */}
+        <BookingList/>
       </div>
     </>
   );

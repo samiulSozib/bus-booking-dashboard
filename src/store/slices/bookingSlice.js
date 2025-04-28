@@ -48,7 +48,7 @@ export const createBooking = createAsyncThunk(
         },
       });
 
-      return response.data.body.item;
+      return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -124,6 +124,11 @@ const bookingSlice = createSlice({
     bookings: [],
     bookingDetails: null,
     error: null,
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      total: 0
+  }
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -135,7 +140,8 @@ const bookingSlice = createSlice({
       })
       .addCase(fetchBookings.fulfilled, (state, action) => {
         state.loading = false;
-        state.bookings = action.payload;
+        state.bookings = action.payload.items;
+        state.pagination=action.payload.pagination
       })
       .addCase(fetchBookings.rejected, (state, action) => {
         state.loading = false;
@@ -150,6 +156,7 @@ const bookingSlice = createSlice({
       .addCase(createBooking.fulfilled, (state, action) => {
         state.loading = false;
         state.bookings.push(action.payload);
+        state.pagination.total+=1
       })
       .addCase(createBooking.rejected, (state, action) => {
         state.loading = false;

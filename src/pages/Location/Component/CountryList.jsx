@@ -51,7 +51,7 @@ export default function CountryList() {
     }, [dispatch, searchTag, currentPage]);
 
     useEffect(() => {
-        if (selectedCountry) {
+        if (selectedCountry && isEditing) {
             setCountryName({ en: selectedCountry.name.en, ps: selectedCountry.name.ps, fa: selectedCountry.name.fa });
             setCountryCode(selectedCountry.code);
         }

@@ -47,7 +47,7 @@ export default function DriverList() {
     }, [dispatch,currentPage, searchTag]);
 
     useEffect(() => {
-        if (selectedDriver) {
+        if (selectedDriver && isEditing) {
             setFirstName(selectedDriver.first_name);
             setLastName(selectedDriver.last_name);
             setEmail(selectedDriver.email);

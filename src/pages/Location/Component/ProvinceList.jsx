@@ -60,7 +60,7 @@ export default function ProvinceList() {
     }, [dispatch, countrySearchTag]);
 
     useEffect(() => {
-        if (selectedProvince) {
+        if (selectedProvince && isEditing) {
             setProvinceName({ en: selectedProvince.name.en, ps: selectedProvince.name.ps, fa: selectedProvince.name.fa });
             setProvinceCode(selectedProvince.code);
             setSelectedCountryId(selectedProvince.country.id);

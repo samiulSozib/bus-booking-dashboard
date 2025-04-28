@@ -59,7 +59,7 @@ const AppSidebar = () => {
       icon: <Direction />,
       name: "ROUTES",
       path: "/routes",
-      roles: ["admin"]
+      roles: ["admin","vendor"]
     },
     {
       icon: <Station />,
@@ -115,12 +115,12 @@ const AppSidebar = () => {
       path: "/drivers",
       roles: ["vendor"]
     },
-    // {
-    //   icon: <Ticket />,
-    //   name: "BOOKING",
-    //   path: "/bookings",
-    //   roles: ["agent"]
-    // },
+    {
+      icon: <Ticket />,
+      name: "BOOKING",
+      path: "/bookings",
+      roles: ["vendor"]
+    },
     {
       icon: <Settings />,
       name: "TRIP_CANCELLATION_POLICY",
