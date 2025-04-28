@@ -240,7 +240,8 @@
       "facilitiesInvalid": "Facilities can only contain letters and commas",
       "priceType": "Ticket Price must be a number",
       "priceRequired": "Ticket Price is required",
-      "pricePositive": "Ticket Price must be a positive number"
+      "pricePositive": "Ticket Price must be a positive number",
+      "imageRequired": "Bus image is required"
   },
   "user": {
     "firstNameRequired": "First Name is required",

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
 import {
@@ -14,6 +14,8 @@ import { fetchCountries } from "../../../store/slices/countrySlice";
 import { addProvince, editProvince, fetchProvinces, showProvince } from "../../../store/slices/provinceSlice";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../../components/pagination/pagination";
+import useOutsideClick from "../../../hooks/useOutSideClick";
+
 
 // Yup validation schema
 const getProvinceSchema = (t) =>
@@ -30,6 +32,10 @@ const getProvinceSchema = (t) =>
     });
   
 export default function ProvinceList() {
+    const dropdownRef = useRef(null);
+   
+
+
     const dispatch = useDispatch();
     const { countries } = useSelector((state) => state.countries);
     const { provinces, selectedProvince, loading,pagination } = useSelector((state) => state.provinces);
@@ -49,6 +55,10 @@ export default function ProvinceList() {
     const [showCountryDropdown, setShowCountryDropdown] = useState(false);
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
+
+    useOutsideClick(dropdownRef, () => {
+        setShowCountryDropdown(false);
+    });
 
 
     useEffect(() => {

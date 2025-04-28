@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Table,
     TableBody,
@@ -17,6 +17,7 @@ import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import StationFilter from "./StationFIlter";
+import useOutsideClick from "../../hooks/useOutSideClick";
 
 
 const getStationSchema = (t) =>
@@ -43,6 +44,21 @@ const getStationSchema = (t) =>
   
 
 export default function StationList() {
+    const countryDropdownRef = useRef(null);
+    const provinceDropdownRef = useRef(null);
+    const cityDropdownRef = useRef(null);
+
+    useOutsideClick(countryDropdownRef, () => {
+        setShowModalCountryDropdown(false);
+    });
+    useOutsideClick(provinceDropdownRef, () => {
+        setShowModalProvinceDropdown(false)
+    });
+    useOutsideClick(cityDropdownRef, () => {
+        setShowModalCityDropdown(false)
+    });
+
+    
     const dispatch = useDispatch();
     const { countries } = useSelector((state) => state.countries);
     const { provinces } = useSelector((state) => state.provinces);
@@ -367,11 +383,11 @@ export default function StationList() {
                         <div className="overflow-y-auto flex-1">
                         <form onSubmit={handleSubmit}>
                             {/* Country Dropdown in Modal */}
-                            <div className="mb-4">
+                            <div className="mb-4" >
                                 <label className="block text-sm font-medium text-gray-700">
                                 {t("COUNTRY")} *
                                 </label>
-                                <div className="relative">
+                                <div className="relative" ref={countryDropdownRef}>
                                     <input
                                         type="text"
                                         placeholder="Search country..."
@@ -408,11 +424,11 @@ export default function StationList() {
 
                             {/* Province Dropdown in Modal (only shown if a country is selected) */}
                             {modalSelectedCountryId && (
-                                <div className="mb-4">
+                                <div className="mb-4" >
                                     <label className="block text-sm font-medium text-gray-700">
                                     {t("PROVINCE")} *
                                     </label>
-                                    <div className="relative">
+                                    <div className="relative" ref={provinceDropdownRef}>
                                         <input
                                             type="text"
                                             placeholder="Search province..."
@@ -450,11 +466,11 @@ export default function StationList() {
 
                             {/* City Dropdown in Modal (only shown if a province is selected) */}
                             {modalSelectedProvinceId && (
-                                <div className="mb-4">
+                                <div className="mb-4" >
                                     <label className="block text-sm font-medium text-gray-700">
                                     {t("CITY")} *
                                     </label>
-                                    <div className="relative">
+                                    <div className="relative" ref={cityDropdownRef}>
                                         <input
                                             type="text"
                                             placeholder="Search city..."

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import {
   Table,
   TableBody,
@@ -24,6 +24,8 @@ import { formatForDisplayDiscount, formatForInput, formatForInputDiscount } from
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import DiscountFilter from "./DiscountFilter";
+import useOutsideClick from "../../hooks/useOutSideClick";
+
 
 
 // Yup validation schema
@@ -81,6 +83,38 @@ const getDiscountSchema = (t) =>
 
 
 export default function DiscountList() {
+  // Create refs for each dropdown
+  const vendorDropdownRef = useRef(null);
+  const routeDropdownRef = useRef(null);
+  const busDropdownRef = useRef(null);
+  const tripDropdownRef = useRef(null);
+
+    // Close dropdowns when clicking outside
+  useOutsideClick(vendorDropdownRef, () => {
+    if (showModalVendorDropdown) {
+      setShowModalVendorDropdown(false);
+    }
+  });
+
+  useOutsideClick(routeDropdownRef, () => {
+    if (showModalRouteDropdown) {
+      setShowModalRouteDropdown(false);
+    }
+  });
+
+  useOutsideClick(busDropdownRef, () => {
+    if (showModalBusDropdown) {
+      setShowModalBusDropdown(false);
+    }
+  });
+
+  useOutsideClick(tripDropdownRef, () => {
+    if (showModalTripDropdown) {
+      setShowModalTripDropdown(false);
+    }
+  });
+
+
   const dispatch = useDispatch();
   const { discounts, loading, error,pagination } = useSelector((state) => state.discounts);
   const { users } = useSelector((state) => state.users);
@@ -483,7 +517,7 @@ export default function DiscountList() {
 
               {/* Conditional Entity Selection */}
               {formData.scope === 'vendor' && (
-                <div className="mb-4">
+                <div className="mb-4" ref={vendorDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("VENDOR")} *
                   </label>
@@ -525,7 +559,7 @@ export default function DiscountList() {
               )}
 
               {formData.scope === 'route' && (
-                <div className="mb-4">
+                <div className="mb-4" ref={routeDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("ROUTES")} *
                   </label>
@@ -566,7 +600,7 @@ export default function DiscountList() {
               )}
 
               {formData.scope === 'bus' && (
-                <div className="mb-4">
+                <div className="mb-4" ref={busDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("BUS")} *
                   </label>
@@ -606,7 +640,7 @@ export default function DiscountList() {
               )}
 
               {formData.scope === 'trip' && (
-                <div className="mb-4">
+                <div className="mb-4" ref={tripDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("TRIPS")} *
                   </label>

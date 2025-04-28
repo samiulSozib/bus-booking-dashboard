@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Table,
     TableBody,
@@ -18,6 +18,7 @@ import { formatForDisplay, formatForInput, formatForInputDiscount, userType } fr
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import DiscountFilter from "../Discount/DiscountFilter";
+import useOutsideClick from "../../hooks/useOutSideClick";
 
 
 // Yup validation schema
@@ -44,6 +45,29 @@ const getTripSchema = (t) =>
 
 
 export default function TripList() {
+    const vendorDropdownRef = useRef(null);
+    const routeDropdownRef = useRef(null);
+    const busDropdownRef = useRef(null);
+
+      useOutsideClick(vendorDropdownRef, () => {
+        if (showModalVendorDropdown) {
+          setShowModalVendorDropdown(false);
+        }
+      });
+    
+      useOutsideClick(routeDropdownRef, () => {
+        if (showModalRouteDropdown) {
+          setShowModalRouteDropdown(false);
+        }
+      });
+    
+      useOutsideClick(busDropdownRef, () => {
+        if (showModalBusDropdown) {
+          setShowModalBusDropdown(false);
+        }
+      });
+
+
     const dispatch = useDispatch();
     const { trips, selectedTrip, loading,pagination } = useSelector((state) => state.trips);
     const { buses } = useSelector((state) => state.buses);
@@ -168,8 +192,8 @@ export default function TripList() {
 
     // Handle vendor selection in modal
     const handleModalVendorSelect = (vendor) => {
-        setVendorId(vendor.vendor.id);
-        setModalVendorSearchTag(vendor.first_name);
+        setVendorId(vendor.id);
+        setModalVendorSearchTag(vendor.name);
         setShowModalVendorDropdown(false);
     };
 
@@ -613,7 +637,7 @@ export default function TripList() {
                             
 
                             {isAdmin && (
-                                <div className="mb-4">
+                                <div className="mb-4" ref={vendorDropdownRef}>
                                     <label className="block text-sm font-medium text-gray-700">
                                     {t("VENDOR")} *
                                     </label>
@@ -632,20 +656,21 @@ export default function TripList() {
                                         {showModalVendorDropdown && (
                                             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                                                 {vendorList
-                                                    .filter((user) => 
-                                                        user.first_name.toLowerCase().includes(modalVendorSearchTag.toLowerCase())
+                                                    .filter((vendor) => 
+                                                        vendor?.vendor.name.includes(modalVendorSearchTag)
                                                     )
                                                     .map((vendor) => (
                                                         <div
-                                                            key={vendor.id}
+                                                            key={vendor.vendor.id}
                                                             onClick={() => handleModalVendorSelect(vendor.vendor)}
                                                             className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                                         >
-                                                            {vendor.first_name}
+                                                            {vendor.vendor.name}
                                                         </div>
                                                     ))}
                                             </div>
                                         )}
+                                        
                                     </div>
                                     {errors.vendor_id && (
                                         <p className="text-red-500 text-sm mt-1">{errors.vendor_id}</p>
@@ -654,7 +679,7 @@ export default function TripList() {
                             )}
 
                             {/* Route Dropdown in Modal */}
-                            <div className="mb-4">
+                            <div className="mb-4" ref={routeDropdownRef}>
                                 <label className="block text-sm font-medium text-gray-700">
                                 {t("ROUTES")} *
                                 </label>
@@ -694,7 +719,7 @@ export default function TripList() {
                             </div>
 
                             {/* Bus Dropdown in Modal */}
-                            <div className="mb-4">
+                            <div className="mb-4" ref={busDropdownRef}>
                                 <label className="block text-sm font-medium text-gray-700">
                                 {t("BUS")} *
                                 </label>
@@ -713,19 +738,26 @@ export default function TripList() {
                                     />
                                     {showModalBusDropdown && (
                                         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                            {buses
-                                                
-                                                .map((bus) => (
-                                                    <div
-                                                        key={bus.id}
-                                                        onClick={() => handleModalBusSelect(bus)}
-                                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                                    >
-                                                        {bus.name}
-                                                    </div>
-                                                ))}
+                                            {buses.filter((bus) => bus.vendor_id === vendorId).length > 0 ? (
+                                                buses
+                                                    .filter((bus) => bus.vendor_id === vendorId)
+                                                    .map((bus) => (
+                                                        <div
+                                                            key={bus.id}
+                                                            onClick={() => handleModalBusSelect(bus)}
+                                                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                        >
+                                                            {bus.name}
+                                                        </div>
+                                                    ))
+                                            ) : (
+                                                <div className="px-4 py-2 text-gray-500 text-center">
+                                                    {t("NO_BUS_FOUND")}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
+
                                 </div>
                                 {errors.bus_id && (
                                     <p className="text-red-500 text-sm mt-1">{errors.bus_id}</p>

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as Yup from 'yup';
 import {
     Table,
@@ -18,10 +18,17 @@ import {
 import Swal from "sweetalert2";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import useOutsideClick from "../../hooks/useOutSideClick";
 
 export default function UserList() {
+    const dropdownRef = useRef(null);
+        useOutsideClick(dropdownRef, () => {
+            setShowModalVendorDropdown(false);
+        });
+
+
     const dispatch = useDispatch();
-    const { users, selectedUser,loading,pagination } = useSelector((state) => state.users);
+    const { users,vendorList, selectedUser,loading,pagination } = useSelector((state) => state.users);
 
     const [searchTag, setSearchTag] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,6 +38,17 @@ export default function UserList() {
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedRole, setSelectedRole] = useState("");
+    const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
+    const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
+    
+    const handleModalVendorSelect = (vendor) => {
+        setFormData({
+            ...formData,
+            vendor_id: vendor.id,
+        })
+        setModalVendorSearchTag(vendor.name);
+        setShowModalVendorDropdown(false);
+    };
     
 
 
@@ -62,7 +80,13 @@ export default function UserList() {
 
     useEffect(() => {
         dispatch(fetchUsers({searchTag,page:currentPage,role:selectedRole}));
+
     }, [dispatch, searchTag,currentPage,selectedRole]);
+
+    useEffect(()=>{
+        dispatch(fetchUsers({role:"vendor"}))
+    },[dispatch,isModalOpen])
+
 
     useEffect(() => {
         if (selectedUser) {
@@ -114,6 +138,7 @@ export default function UserList() {
             });
         }
     }, [selectedUser]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
     
@@ -122,7 +147,8 @@ export default function UserList() {
             await getValidationSchema(t).validate(formData, { abortEarly: false });
     
             const userData = { ...formData };
-    
+            //console.log(userData)
+            //return
             if (isEditing) {
                 // Dispatch the edit action
                 await dispatch(editUser(currentUserId, userData)).unwrap();
@@ -711,20 +737,46 @@ export default function UserList() {
 
                                 {formData.role === "driver" && (
                                     <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                        {t("VENDOR")}
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={formData?formData.vendor_id:0}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    vendor_id: parseInt(e.target.value),
-                                                })
-                                            }
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
+                                        
+                                        
+                                        {/*  */}
+                                        <div className="mb-4" ref={dropdownRef}>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                            {t("VENDOR")} *
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    placeholder={t("SEARCH_VENDOR")}
+                                                    value={modalVendorSearchTag}
+                                                    onChange={(e) => {
+                                                        setModalVendorSearchTag(e.target.value);
+                                                        setShowModalVendorDropdown(true);
+                                                    }}
+                                                    onFocus={() => setShowModalVendorDropdown(true)}
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                />
+                                                {showModalVendorDropdown && (
+                                                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                        {vendorList
+                                                            .filter((vendor) => 
+                                                                vendor?.vendor.name.includes(modalVendorSearchTag)
+                                                            )
+                                                            .map((vendor) => (
+                                                                <div
+                                                                    key={vendor.vendor.id}
+                                                                    onClick={() => handleModalVendorSelect(vendor.vendor)}
+                                                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                                                >
+                                                                    {vendor.vendor.name}
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                )}
+                                                
+                                            </div>
+                                        </div>
+                                        {/*  */}
                                         {formErrors?.vendor_id && (
                                             <p className="text-red-500 text-sm">{formErrors?.vendor_id}</p>
                                         )}

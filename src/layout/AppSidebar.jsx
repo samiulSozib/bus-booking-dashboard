@@ -56,17 +56,18 @@ const AppSidebar = () => {
       ],
     },
     {
-      icon: <Direction />,
-      name: "ROUTES",
-      path: "/routes",
-      roles: ["admin","vendor"]
-    },
-    {
       icon: <Station />,
       name: "STATIONS",
       path: "/stations",
       roles: ["admin"]
     },
+    {
+      icon: <Direction />,
+      name: "ROUTES",
+      path: "/routes",
+      roles: ["admin","vendor"]
+    },
+    
     {
       icon: <Discount />,
       name: "DISCOUNTS",
@@ -125,7 +126,7 @@ const AppSidebar = () => {
       icon: <Settings />,
       name: "TRIP_CANCELLATION_POLICY",
       path: "/trip-cancellation-policy",
-      roles: ["admin"]
+      roles: ["admin","vendor"]
     }
   ], []);
 
@@ -142,7 +143,7 @@ const AppSidebar = () => {
   const filterItemsByRole = useCallback((items) => {
     return items.filter(item => {
       if (!item.roles) return false;
-      if (isAdmin) return true;
+      // Only show items that match the user's exact role
       return item.roles.includes(user?.role);
     }).map(item => {
       // Handle dynamic sub-items
@@ -158,14 +159,13 @@ const AppSidebar = () => {
           ...item,
           subItems: item.subItems.filter(subItem => {
             if (!subItem.roles) return true;
-            if (isAdmin) return true;
             return subItem.roles.includes(user?.role);
           })
         };
       }
       return item;
     });
-  }, [isAdmin, user?.role]);
+  }, [user?.role]);  // Removed isAdmin from dependencies
 
   const filteredNavItems = useMemo(() => filterItemsByRole(navItems), [filterItemsByRole, navItems]);
   const filteredOthersItems = useMemo(() => filterItemsByRole(othersItems), [filterItemsByRole, othersItems]);

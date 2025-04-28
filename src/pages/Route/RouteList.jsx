@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Table,
     TableBody,
@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import RouteFilter from "./RouteFilter";
 import { userType } from "../../utils/utils";
+import useOutsideClick from "../../hooks/useOutSideClick";
 
 const getValidationSchema = (t) =>
     Yup.object().shape({
@@ -45,6 +46,65 @@ const getValidationSchema = (t) =>
   
 
 export default function RouteList() {
+    // Create refs for each dropdown
+        const originCountryRef = useRef(null);
+        const originProvinceRef = useRef(null);
+        const originCityRef = useRef(null);
+        const originStationRef = useRef(null);
+        const destinationCountryRef = useRef(null);
+        const destinationProvinceRef = useRef(null);
+        const destinationCityRef = useRef(null);
+        const destinationStationRef = useRef(null);
+
+        // Close dropdowns when clicking outside
+useOutsideClick(originCountryRef, () => {
+    if (dropdowns.showOriginCountry) {
+      toggleDropdown("showOriginCountry", false);
+    }
+  });
+  
+  useOutsideClick(originProvinceRef, () => {
+    if (dropdowns.showOriginProvince) {
+      toggleDropdown("showOriginProvince", false);
+    }
+  });
+  
+  useOutsideClick(originCityRef, () => {
+    if (dropdowns.showOriginCity) {
+      toggleDropdown("showOriginCity", false);
+    }
+  });
+  
+  useOutsideClick(originStationRef, () => {
+    if (dropdowns.showOriginStation) {
+      toggleDropdown("showOriginStation", false);
+    }
+  });
+  
+  useOutsideClick(destinationCountryRef, () => {
+    if (dropdowns.showDestinationCountry) {
+      toggleDropdown("showDestinationCountry", false);
+    }
+  });
+  
+  useOutsideClick(destinationProvinceRef, () => {
+    if (dropdowns.showDestinationProvince) {
+      toggleDropdown("showDestinationProvince", false);
+    }
+  });
+  
+  useOutsideClick(destinationCityRef, () => {
+    if (dropdowns.showDestinationCity) {
+      toggleDropdown("showDestinationCity", false);
+    }
+  });
+  
+  useOutsideClick(destinationStationRef, () => {
+    if (dropdowns.showDestinationStation) {
+      toggleDropdown("showDestinationStation", false);
+    }
+  });
+
     const dispatch = useDispatch();
     const { countries } = useSelector((state) => state.countries);
     const { provinces } = useSelector((state) => state.provinces);
@@ -571,7 +631,7 @@ useEffect(() => {
                             <div>
                                 <h3 className="text-md font-semibold mb-2">{t("ORIGIN")}</h3>
                                 {/* Origin Country Dropdown */}
-                                <div className="mb-4">
+                                <div className="mb-4" ref={originCountryRef}>
                                     <label className="block text-sm font-medium text-gray-700">
                                     {t("ORIGIN")} {t("COUNTRY")} *
                                     </label>
@@ -614,7 +674,7 @@ useEffect(() => {
 
                                 {/* Origin Province Dropdown */}
                                 {origin.countryId && (
-                                    <div className="mb-4">
+                                    <div className="mb-4" ref={originProvinceRef}>
                                         <label className="block text-sm font-medium text-gray-700">
                                         {t("ORIGIN")} {t("PROVINCE")} *
                                         </label>
@@ -658,7 +718,7 @@ useEffect(() => {
 
                                 {/* Origin City Dropdown */}
                                 {origin.provinceId && (
-                                    <div className="mb-4">
+                                    <div className="mb-4" ref={originCityRef}>
                                         <label className="block text-sm font-medium text-gray-700">
                                         {t("ORIGIN")} {t("CITY")} *
                                         </label>
@@ -702,7 +762,7 @@ useEffect(() => {
 
                                 {/* Origin Station Dropdown */}
                                 {origin.cityId && (
-                                    <div className="mb-4">
+                                    <div className="mb-4" ref={originStationRef}>
                                         <label className="block text-sm font-medium text-gray-700">
                                         {t("ORIGIN")} {t("STATION")} *
                                         </label>
@@ -723,8 +783,7 @@ useEffect(() => {
                                                     {stations
                                                         .filter((station) =>
                                                             station.name.en
-                                                                .toLowerCase()
-                                                                .includes(searchTags.originStation.toLowerCase())
+                                                                .includes(searchTags.originStation)
                                                         )
                                                         .map((station) => (
                                                             <div
@@ -749,7 +808,7 @@ useEffect(() => {
                             <div>
                                 <h3 className="text-md font-semibold mb-2">{t("DESTINATION")}</h3>
                                 {/* Destination Country Dropdown */}
-                                <div className="mb-4">
+                                <div className="mb-4" ref={destinationCountryRef}>
                                     <label className="block text-sm font-medium text-gray-700">
                                     {t("DESTINATION")} {t("COUNTRY")} *
                                     </label>
@@ -793,7 +852,7 @@ useEffect(() => {
 
                                 {/* Destination Province Dropdown */}
                                 {destination.countryId && (
-                                    <div className="mb-4">
+                                    <div className="mb-4" ref={destinationProvinceRef}>
                                         <label className="block text-sm font-medium text-gray-700">
                                         {t("DESTINATION")} {t("PROVINCE")} *
                                         </label>
@@ -837,7 +896,7 @@ useEffect(() => {
 
                                 {/* Destination City Dropdown */}
                                 {destination.provinceId && (
-                                    <div className="mb-4">
+                                    <div className="mb-4" ref={destinationCityRef}>
                                         <label className="block text-sm font-medium text-gray-700">
                                         {t("DESTINATION")} {t("CITY")} *
                                         </label>
@@ -881,7 +940,7 @@ useEffect(() => {
 
                                 {/* Destination Station Dropdown */}
                                 {destination.cityId && (
-                                    <div className="mb-4">
+                                    <div className="mb-4" ref={destinationStationRef}>
                                         <label className="block text-sm font-medium text-gray-700">
                                         {t("DESTINATION")} {t("STATION")} *
                                         </label>
@@ -902,8 +961,7 @@ useEffect(() => {
                                                     {stations
                                                         .filter((station) =>
                                                             station.name.en
-                                                                .toLowerCase()
-                                                                .includes(searchTags.destinationStation.toLowerCase())
+                                                                .includes(searchTags.destinationStation)
                                                         )
                                                         .map((station) => (
                                                             <div

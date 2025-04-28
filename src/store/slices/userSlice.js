@@ -189,8 +189,10 @@ const userSlice = createSlice({
 
                 if (role === "vendor") {
                     state.vendorList = items;
+                    state.users = items;
                 } else if (role === "driver") {
                     state.driverList = items;
+                    state.users = items;
                 } else {
                     state.users = items; // for all users
                 }

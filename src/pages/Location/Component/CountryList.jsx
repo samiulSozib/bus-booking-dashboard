@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
+import useOutsideClick from "../../../hooks/useOutSideClick";
 import Swal from "sweetalert2";
 import {
     Table,
@@ -29,6 +30,12 @@ const getCountrySchema = (t) =>
   
 
 export default function CountryList() {
+
+    const dropdownRef = useRef(null);
+    useOutsideClick(dropdownRef, () => {
+        //setShowModalBusDropdown(false);
+    });
+
     const dispatch = useDispatch();
     const { countries, selectedCountry, loading,pagination } = useSelector((state) => state.countries);
 

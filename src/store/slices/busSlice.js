@@ -16,7 +16,7 @@ export const addBus = createAsyncThunk(
   'bus/addBus',
   async ({busData}, { rejectWithValue }) => {
     try {
-      
+      console.log(busData)
       const token = getAuthToken();
       const type=user_type()
       const formData = new FormData();

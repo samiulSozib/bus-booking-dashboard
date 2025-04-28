@@ -315,6 +315,12 @@ const AddBus = () => {
             .typeError(t('bus.priceType'))
             .required(t('bus.priceRequired'))
             .positive(t('bus.pricePositive')),
+
+            image: Yup.mixed()
+            .required(t('bus.imageRequired'))
+            .test('fileRequired', t('bus.imageRequired'), value => {
+                return value && value instanceof File;
+            }),
         });
       
 
@@ -543,6 +549,9 @@ const AddBus = () => {
                                     className="w-32 h-32 object-cover rounded-md"
                                 />
                             </div>
+                        )}
+                        {errors.image && (
+                            <p className="text-red-500 text-sm mt-1">{errors.image}</p>
                         )}
                     </div>
 
