@@ -140,7 +140,7 @@ export default function TripList() {
      // Fetch buses, routes, and vendors on component mount
      useEffect(() => {
         dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
-        dispatch(fetchBuses({ searchTag: modalBusSearchTag }));
+        dispatch(fetchBuses({ searchTag: modalBusSearchTag,vendor_id:vendorId }));
         dispatch(fetchRoutes({searchTag:modalRouteSearchTag}));
     }, [dispatch, modalBusSearchTag, modalRouteSearchTag,modalVendorSearchTag]);
 
@@ -738,9 +738,9 @@ export default function TripList() {
                                     />
                                     {showModalBusDropdown && (
                                         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                            {buses.filter((bus) => bus.vendor_id === vendorId).length > 0 ? (
+                                            {buses.length > 0 ? (
                                                 buses
-                                                    .filter((bus) => bus.vendor_id === vendorId)
+                                                    
                                                     .map((bus) => (
                                                         <div
                                                             key={bus.id}

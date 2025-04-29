@@ -36,7 +36,7 @@ const AddBooking = () => {
 
     // Fetch trips when component mounts or search term changes
     useEffect(() => {
-        dispatch(fetchTrips({ search: searchTerm }));
+        dispatch(fetchActiveTrips({ search: searchTerm }));
     }, [dispatch, searchTerm]);
 
     // Set trip when selectedTrip changes
@@ -73,7 +73,7 @@ const AddBooking = () => {
     
 
     // Format trips for react-select
-    const tripOptions = trips.map(trip => ({
+    const tripOptions = activeTrips.map(trip => ({
         value: trip.id,
         label: `${trip?.route?.origin_station?.name} → ${trip?.route?.destination_station?.name} - ${new Date(trip.departure_time).toLocaleString()} (${trip.bus?.name})`
     }));
@@ -179,21 +179,21 @@ const AddBooking = () => {
             await dispatch(createBooking(bookingData));
             
             // Show success dialog
-            // await Swal.fire({
-            //     title: 'Booking Successful!',
-            //     text: 'Your booking has been confirmed successfully.',
-            //     icon: 'success',
-            //     confirmButtonText: 'View Bookings',
-            //     confirmButtonColor: '#3085d6',
-            //     showCancelButton: true,
-            //     cancelButtonText: 'Stay Here',
-            //     cancelButtonColor: '#d33'
-            // }).then((result) => {
-            //     if (result.isConfirmed) {
-            //         navigate('/bookings'); // Redirect to bookings list if confirmed
-            //     }
-            //     // If cancelled, stays on current page
-            // });
+            await Swal.fire({
+                title: 'Booking Successful!',
+                text: 'Your booking has been confirmed successfully.',
+                icon: 'success',
+                confirmButtonText: 'View Bookings',
+                confirmButtonColor: '#3085d6',
+                showCancelButton: true,
+                cancelButtonText: 'Stay Here',
+                cancelButtonColor: '#d33'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    navigate('/bookings'); // Redirect to bookings list if confirmed
+                }
+                // If cancelled, stays on current page
+            });
     
         } catch (error) {
             if (error instanceof Yup.ValidationError) {
