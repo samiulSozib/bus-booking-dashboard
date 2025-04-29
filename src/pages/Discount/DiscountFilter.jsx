@@ -82,7 +82,7 @@ const DiscountFilter = ({ isOpen, onClose, onApplyFilters }) => {
     const handleVendorSelect = (vendor) => {
         setFilters((prevFilters) => ({
             ...prevFilters,
-            vendorId: vendor.id,
+            vendorId: vendor.vendor.id,
         }));
 
         setSearchTags((prevSearchTags) => ({
@@ -194,7 +194,7 @@ const DiscountFilter = ({ isOpen, onClose, onApplyFilters }) => {
                                 <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
                                     {users
                                 .filter((user) => 
-                                    user.first_name.toLowerCase().includes(searchTags.vendor.toLowerCase())
+                                    user.first_name.includes(searchTags.vendor)
                                 )
                                 .map((vendor) => (
                                     <div

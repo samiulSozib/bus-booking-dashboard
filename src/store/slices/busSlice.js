@@ -175,6 +175,8 @@ export const fetchBusById = createAsyncThunk(
   'bus/fetchBusById',
   async (busId, { rejectWithValue }) => {
     try {
+      console.log("fdf")
+      console.log(busId)
       const token=getAuthToken()
       const type=user_type()
       const response = await axios.get(`${base_url}/${type.role}/buses/${busId}/show`,{
@@ -182,10 +184,8 @@ export const fetchBusById = createAsyncThunk(
           Authorization: `${token}`
         }
       });
-      console.log(response)
       return response.data.body.item;
     } catch (error) {
-      console.log(error)
       return rejectWithValue(error?.response?.statusText);
     }
   }

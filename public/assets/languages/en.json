@@ -148,8 +148,17 @@
   "EDIT_SEATS":"Edit Seats",
 
   "ADD_BOOKING":"Add Booking",
-
-
+  "TICKET_COUNT":"Ticket Count",
+  "BOOKED_AT":"Booked At",
+  "BOOKING_LIST":"Booking List",
+  "SEARCH_BOOKINGS":"Search Bookings",
+  "BOOKING_DETAILS":"Booking Details",
+  "CUSTOMER_INFO":"Customer Info",
+  "BOOKING_INFO":"Booking Info",
+  "TICKETS":"Tickets",
+  "PASSENGER":"Passenger",
+  "SEAT":"Seat",
+  "PRINT_TICKET":"Print Ticket",
 
   "YES":"Yes",
   "NO":"No",
@@ -228,6 +237,7 @@
     "APPLY_FILTERS":"Apply Filters",
     "RESET":"Reset",
 
+
     "bus": {
       "driverRequired": "Driver must be selected",
       "vendorRequired": "Vendor must be selected",
@@ -241,7 +251,15 @@
       "priceType": "Ticket Price must be a number",
       "priceRequired": "Ticket Price is required",
       "pricePositive": "Ticket Price must be a positive number",
-      "imageRequired": "Bus image is required"
+      "imageRequired": "Bus image is required",
+      "successTitle": "Success!",
+      "addedSuccessfully": "Bus added successfully.",
+      "updatedSuccessfully": "Bus updated successfully.",
+      "noChangesMade": "No changes made.",
+      "nothingToUpdate": "The bus details were already up to date.",
+      "notAdded": "Bus not added.",
+      "noActionTaken": "No action taken",
+      "checkForm": "Please check the form and try again."
   },
   "user": {
     "firstNameRequired": "First Name is required",
@@ -364,6 +382,55 @@
     "invalidStatus": "Invalid status",
     "typeRequired": "Type is required",
     "invalidType": "Invalid transaction type"
+  },
+  "booking": {
+    "newBooking": "New Booking",
+    "selectTrip": "Select Trip",
+    "searchTrip": "Search for a trip...",
+    "noTripsFound": "No trips found",
+    "tripRequired": "Trip is required",
+    "mobileRequired": "Mobile number is required",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "atLeastOneSeat": "Please select at least one seat",
+    "passengerFirstNameRequired": "Passenger first name is required",
+    "passengerLastNameRequired": "Passenger last name is required",
+    "passengerPhoneRequired": "Passenger phone is required",
+    "passengerGenderRequired": "Passenger gender is required",
+    "tripDetails": "Trip Details",
+    "route": "Route",
+    "departure": "Departure",
+    "bus": "Bus",
+    "passengerDetails": "Passenger Details",
+    "passengerInfo": "Passenger Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "nationalId": "National ID",
+    "birthday": "Birthday",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "customerDetails": "Customer Details",
+    "mobile": "Mobile",
+    "paymentDetails": "Payment Details",
+    "paymentType": "Payment Type",
+    "fullPayment": "Full Payment",
+    "partialPayment": "Partial Payment",
+    "totalAmount": "Total Amount",
+    "selectSeats": "Select Seats",
+    "selected": "Selected",
+    "booked": "Booked",
+    "available": "Available",
+    "creating": "Creating Booking...",
+    "createBooking": "Create Booking"
+  },
+  "common": {
+    "ok": "OK",
+    "errorOccurred": "An error occurred!",
+    "somethingWentWrong": "Something went wrong. Please try again."
   }
   
 }

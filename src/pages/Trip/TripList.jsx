@@ -312,7 +312,7 @@ export default function TripList() {
 
     // Handle edit trip button click
     const handleEditTrip = (tripId) => {
-        dispatch(showTrip(tripId));
+        dispatch(showTrip({trip_id:tripId}));
         setIsEditMode(true);
         setIsModalOpen(true);
         setCurrentTripId(tripId);
@@ -430,7 +430,7 @@ export default function TripList() {
                                         }`}
                                         onClick={() => handleSeatClick(rowIndex + 1, colIndex + 1)}
                                     >
-                                        <img src="/public/images/img/seat.png" alt="" className="w-8 h-8" />
+                                        <img src="/images/img/seat.png" alt="" className="w-8 h-8" />
                                         <span className="text-xs">{seatNumber}</span>
                                     </div>
                                 );
@@ -452,7 +452,7 @@ export default function TripList() {
                                         }`}
                                         onClick={() => handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1)}
                                     >
-                                        <img src="/public/images/img/seat.png" alt="" className="w-8 h-8" />
+                                        <img src="/images/img/seat.png" alt="" className="w-8 h-8" />
                                         <span className="text-xs">{seatNumber}</span>
                                     </div>
                                 );

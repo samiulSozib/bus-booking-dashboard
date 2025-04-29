@@ -37,14 +37,42 @@ export const fetchTrips = createAsyncThunk(
     }
 );
 
-// Show Trip
-export const showTrip = createAsyncThunk(
-    "trips/showTrip",
-    async (tripId, { rejectWithValue }) => {
+// Fetch active Trips
+export const fetchActiveTrips = createAsyncThunk(
+    "trips/fetchActiveTrips",
+    async ({searchTag="",page=1,filters={}}, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
             const type=user_type()
-            const response = await axios.get(`${base_url}/${type.role}/trips/${tripId}/show`, {
+            console.log(filters)
+            const filterQuery = Object.entries(filters)
+            .filter(([_, value]) => value !== null && value !== undefined && value !== "")
+            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+            .join('&');
+
+            console.log(filterQuery)
+
+            const response = await axios.get(`${base_url}/${type.role}/trips/active?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
+                headers: {
+                    Authorization: `${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            return {items:response.data.body.items,pagination:response.data.body.data};
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// Show Trip
+export const showTrip = createAsyncThunk(
+    "trips/showTrip",
+    async ({trip_id }, { rejectWithValue }) => {
+        try {
+            const token = getAuthToken();
+            const type=user_type()
+            const response = await axios.get(`${base_url}/${type.role}/trips/${trip_id }/show`, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'application/json',
@@ -191,6 +219,7 @@ const tripsSlice = createSlice({
     initialState: {
         loading: false,
         trips: [],
+        activeTrips:[],
         selectedTrip: null,
         error: null,
         pagination: {
@@ -212,6 +241,19 @@ const tripsSlice = createSlice({
                 state.pagination=action.payload.pagination
             })
             .addCase(fetchTrips.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(fetchActiveTrips.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchActiveTrips.fulfilled, (state, action) => {
+                state.loading = false;
+                state.activeTrips = action.payload.items;
+                state.pagination=action.payload.pagination
+            })
+            .addCase(fetchActiveTrips.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })

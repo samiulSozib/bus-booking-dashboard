@@ -17,7 +17,8 @@ export const fetchBookings = createAsyncThunk(
           Authorization: `${token}`,
         },
       });
-      return response.data.body.items;
+      console.log(response.data.body.items)
+      return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -32,7 +33,7 @@ export const createBooking = createAsyncThunk(
       const token = getAuthToken();
       const type = userType();
       const formData = new FormData();
-
+      console.log(bookingData)
       formData.append("trip_id", bookingData.trip_id);
       formData.append("is_partial_payment", bookingData.is_partial_payment);
       formData.append("amount", bookingData.amount);
@@ -47,9 +48,10 @@ export const createBooking = createAsyncThunk(
           "Content-Type": "multipart/form-data",
         },
       });
-
-      return {items:response.data.body.items,pagination:response.data.body.data};
+      console.log(response)
+      return response.data.body.item
     } catch (error) {
+      console.log(error)
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -67,6 +69,7 @@ export const getBookingDetails = createAsyncThunk(
           Authorization: `${token}`,
         },
       });
+      console.log(response.data.body.item)
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -100,9 +103,9 @@ export const cancelBooking = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type = userType();
-      const response = await axios.post(
+      const response = await axios.get(
         `${base_url}/${type.role}/bookings/${bookingId}/cancel`,
-        {},
+       
         {
           headers: {
             Authorization: `${token}`,
@@ -111,7 +114,8 @@ export const cancelBooking = createAsyncThunk(
       );
       return response.data.body.item;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      console.log(error)
+      return rejectWithValue(error.response.statusText || error.message);
     }
   }
 );

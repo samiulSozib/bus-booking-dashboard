@@ -9,6 +9,7 @@ import {
 } from "../../store/slices/userSlice";
 import { userType } from "../../utils/utils";
 import { fetchDrivers } from '../../store/slices/driverSlice';
+import Swal from 'sweetalert2';
 
 
 // Yup validation schema for bus information
@@ -165,9 +166,122 @@ const AddBus = () => {
         setSelectedSeat(null);
     };
 
+    // const generateSeatLayout = (rows, columns) => {
+    //     if (!rows || !columns) return null;
+
+    //     // Determine the number of seats on the left and right sides
+    //     let leftSeats, rightSeats;
+    //     if (columns === 2) {
+    //         leftSeats = 1;
+    //         rightSeats = 1;
+    //     } else if (columns === 3) {
+    //         leftSeats = 1;
+    //         rightSeats = 2;
+    //     } else if (columns === 4) {
+    //         leftSeats = 2;
+    //         rightSeats = 2;
+    //     } else if (columns === 5) {
+    //         leftSeats = 2;
+    //         rightSeats = 3;
+    //     } else {
+    //         // Default to equal split for other column counts
+    //         leftSeats = Math.floor(columns / 2);
+    //         rightSeats = columns - leftSeats;
+    //     }
+
+    //     // Function to get row hint text (A, B, C, D, etc.)
+    //     const getRowHint = (rowIndex) => {
+    //         return String.fromCharCode(65 + rowIndex); // 65 is ASCII for 'A'
+    //     };
+
+    //     return (
+    //         <div className="grid gap-2 mt-4">
+    //             {Array.from({ length: rows }, (_, rowIndex) => (
+    //                 <div key={rowIndex} className="flex gap-2 justify-between mb-3 bg-gray-100 rounded-md p-1">
+    //                     {/* Left Side Seats */}
+    //                     <div className="flex gap-2">
+    //                         {Array.from({ length: leftSeats }, (_, colIndex) => {
+    //                             const seatNumber = `${getRowHint(rowIndex)}${colIndex + 1}`; // e.g., A1, A2, etc.
+    //                             const seat = formData.seats.find(
+    //                                 (s) => s.row === rowIndex + 1 && s.column === colIndex + 1
+    //                             );
+    //                             return (
+    //                                 <div
+    //                                     key={colIndex}
+    //                                     className={`w-14 h-14 rounded-md p-2 flex flex-col gap-1 items-center justify-center dark:border-gray-600 cursor-pointer ${
+    //                                         seat ? 'bg-green-200' : 'dark:bg-gray-700'
+    //                                     }`}
+    //                                     onClick={() => handleSeatClick(rowIndex + 1, colIndex + 1)}
+    //                                 >
+    //                                     <img src="/images/img/seat.png" alt="" className="w-8 h-8" />
+    //                                     <span className="text-xs">{seatNumber}</span>
+    //                                 </div>
+    //                             );
+    //                         })}
+    //                     </div>
+
+    //                     {/* Right Side Seats */}
+    //                     <div className="flex gap-2">
+    //                         {Array.from({ length: rightSeats }, (_, colIndex) => {
+    //                             const seatNumber = `${getRowHint(rowIndex)}${colIndex + leftSeats + 1}`; // e.g., A3, A4, etc.
+    //                             const seat = formData.seats.find(
+    //                                 (s) => s.row === rowIndex + 1 && s.column === colIndex + leftSeats + 1
+    //                             );
+    //                             return (
+    //                                 <div
+    //                                     key={colIndex + leftSeats}
+    //                                     className={`w-14 h-14 rounded-md p-2 flex flex-col items-center justify-center dark:border-gray-600 cursor-pointer ${
+    //                                         seat ? 'bg-green-200' : 'dark:bg-gray-700'
+    //                                     }`}
+    //                                     onClick={() => handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1)}
+    //                                 >
+    //                                     <img src="/public/images/img/seat.png" alt="" className="w-8 h-8" />
+    //                                     <span className="text-xs">{seatNumber}</span>
+    //                                 </div>
+    //                             );
+    //                         })}
+    //                     </div>
+    //                 </div>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+
+    const isSeatComplete = (seat) => {
+        return (
+            seat.price > 0 &&
+            seat.seat_type &&
+            seat.seat_type.trim() !== '' &&
+            seat.seat_class &&
+            seat.seat_class.trim() !== '' &&
+            seat.is_recliner !== undefined &&
+            seat.is_sleeper !== undefined
+        );
+    };
     const generateSeatLayout = (rows, columns) => {
         if (!rows || !columns) return null;
-
+    
+        // If seats array is empty, initialize it with default seat objects
+        if (formData.seats.length === 0) {
+            const newSeats = [];
+            for (let row = 1; row <= rows; row++) {
+                for (let col = 1; col <= columns; col++) {
+                    const seatType=(col===1|| col===columns)?'window':"middle"
+                    newSeats.push({
+                        row,
+                        column: col,
+                        seat_number: parseInt(`${row}${col}`, 10),
+                        price: formData.ticket_price || 0,
+                        seat_type: seatType,
+                        seat_class: 'economic',
+                        is_recliner: 0,
+                        is_sleeper: 0,
+                    });
+                }
+            }
+            setFormData(prev => ({ ...prev, seats: newSeats }));
+        }
+    
         // Determine the number of seats on the left and right sides
         let leftSeats, rightSeats;
         if (columns === 2) {
@@ -187,12 +301,12 @@ const AddBus = () => {
             leftSeats = Math.floor(columns / 2);
             rightSeats = columns - leftSeats;
         }
-
+    
         // Function to get row hint text (A, B, C, D, etc.)
         const getRowHint = (rowIndex) => {
             return String.fromCharCode(65 + rowIndex); // 65 is ASCII for 'A'
         };
-
+    
         return (
             <div className="grid gap-2 mt-4">
                 {Array.from({ length: rows }, (_, rowIndex) => (
@@ -204,11 +318,13 @@ const AddBus = () => {
                                 const seat = formData.seats.find(
                                     (s) => s.row === rowIndex + 1 && s.column === colIndex + 1
                                 );
+                                const isComplete = seat ? isSeatComplete(seat) : false;
+
                                 return (
                                     <div
                                         key={colIndex}
                                         className={`w-14 h-14 rounded-md p-2 flex flex-col gap-1 items-center justify-center dark:border-gray-600 cursor-pointer ${
-                                            seat ? 'bg-green-200' : 'dark:bg-gray-700'
+                                            isComplete ? 'bg-green-200' : 'dark:bg-gray-700'
                                         }`}
                                         onClick={() => handleSeatClick(rowIndex + 1, colIndex + 1)}
                                     >
@@ -218,7 +334,7 @@ const AddBus = () => {
                                 );
                             })}
                         </div>
-
+    
                         {/* Right Side Seats */}
                         <div className="flex gap-2">
                             {Array.from({ length: rightSeats }, (_, colIndex) => {
@@ -226,15 +342,17 @@ const AddBus = () => {
                                 const seat = formData.seats.find(
                                     (s) => s.row === rowIndex + 1 && s.column === colIndex + leftSeats + 1
                                 );
+                                const isComplete = seat ? isSeatComplete(seat) : false;
+
                                 return (
                                     <div
                                         key={colIndex + leftSeats}
                                         className={`w-14 h-14 rounded-md p-2 flex flex-col items-center justify-center dark:border-gray-600 cursor-pointer ${
-                                            seat ? 'bg-green-200' : 'dark:bg-gray-700'
+                                            isComplete ? 'bg-green-200' : 'dark:bg-gray-700'
                                         }`}
                                         onClick={() => handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1)}
                                     >
-                                        <img src="/public/images/img/seat.png" alt="" className="w-8 h-8" />
+                                        <img src="/images/img/seat.png" alt="" className="w-8 h-8" />
                                         <span className="text-xs">{seatNumber}</span>
                                     </div>
                                 );
@@ -246,24 +364,28 @@ const AddBus = () => {
         );
     };
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(isVendor)
         try {
             await getBusInfoSchema(isVendor, t).validate(formData, { abortEarly: false });
-            //console.log(formData)
-            //
+
             if (busId) {
-               
-                // Update existing bus
                 await dispatch(editBus({ busId, busData: formData }));
             } else {
-                // Add new bus
-                
                 await dispatch(addBus({ busData: formData }));
             }
 
-            navigate('/buses'); // Redirect to bus list after successful submission
+            // Show success alert
+            Swal.fire({
+                icon: 'success',
+                title: t('bus.successTitle'), // e.g., "Success!"
+                text: busId ? t('bus.updatedSuccessfully') : t('bus.addedSuccessfully'), // e.g., "Bus updated successfully."
+                confirmButtonText: t('common.ok') || 'OK'
+            }).then(() => {
+                navigate('/buses'); // Redirect after closing alert
+            });
+
         } catch (error) {
             if (error instanceof Yup.ValidationError) {
                 const newErrors = {};
@@ -273,6 +395,11 @@ const AddBus = () => {
                 setErrors(newErrors);
             } else {
                 console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: t('common.errorOccurred') || 'Error!',
+                    text: error.message || t('common.somethingWentWrong'),
+                });
             }
         }
     };
@@ -317,10 +444,14 @@ const AddBus = () => {
             .positive(t('bus.pricePositive')),
 
             image: Yup.mixed()
-            .required(t('bus.imageRequired'))
-            .test('fileRequired', t('bus.imageRequired'), value => {
-                return value && value instanceof File;
-            }),
+        .test('fileOrUrl', t('bus.imageRequired'), (value) => {
+          // If value is a string (URL), it's valid (editing case)
+          if (typeof value === 'string' && value.trim() !== '') return true;
+          // If value is a File object, it's valid (new upload case)
+          if (value instanceof File) return true;
+          // Otherwise invalid
+          return false;
+        }),
         });
       
 
