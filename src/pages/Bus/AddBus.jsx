@@ -372,21 +372,26 @@ const AddBus = () => {
         try {
             await getBusInfoSchema(isVendor, t).validate(formData, { abortEarly: false });
 
-            if (busId) {
-                await dispatch(editBus({ busId, busData: formData }));
-            } else {
-                await dispatch(addBus({ busData: formData }));
-            }
+            const resultAction = busId 
+      ? await dispatch(editBus({ busId, busData: formData }))
+      : await dispatch(addBus({ busData: formData }));
 
-            // Show success alert
-            Swal.fire({
-                icon: 'success',
-                title: t('bus.successTitle'), // e.g., "Success!"
-                text: busId ? t('bus.updatedSuccessfully') : t('bus.addedSuccessfully'), // e.g., "Bus updated successfully."
-                confirmButtonText: t('common.ok') || 'OK'
-            }).then(() => {
-                navigate('/buses'); // Redirect after closing alert
-            });
+    // Check if the action was successful
+        if (addBus.fulfilled.match(resultAction)) {
+        Swal.fire({
+            icon: 'success',
+            title: t('bus.successTitle'),
+            text: busId ? t('bus.updatedSuccessfully') : t('bus.addedSuccessfully'),
+            confirmButtonText: t('common.ok'),
+            timer: 2000,
+            timerProgressBar: true,
+            willClose: () => {
+            navigate('/buses');
+            }
+        });
+        } else {
+        throw new Error(resultAction.payload || t('common.requestFailed'));
+        }
 
         } catch (error) {
             if (error instanceof Yup.ValidationError) {
@@ -480,6 +485,59 @@ const AddBus = () => {
                         )}
                     </div> */}
 
+                    {!isVendor && (
+                        <div className="relative">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("VENDOR")}</label>
+                            <input
+                                type="text"
+                                placeholder={t("SEARCH_VENDOR")}
+                                value={vendorSearch}
+                                onChange={(e) => {
+                                    setVendorSearch(e.target.value);
+                                    setShowVendorDropdown(true);
+                                    if (selectedVendor && e.target.value !== `${selectedVendor.first_name} ${selectedVendor.last_name || ''}`) {
+                                        setSelectedVendor(null);
+                                        setFormData({...formData, vendor_id: ''});
+                                    }
+                                }}
+                                onFocus={() => setShowVendorDropdown(true)}
+                                onBlur={() => setTimeout(() => setShowVendorDropdown(false), 200)}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                            />
+                            {showVendorDropdown && (
+                                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                                    {vendorList
+                                        .filter((vendor) => vendor.role === 'vendor' &&
+                                            `${vendor.first_name} ${vendor.last_name || ''}`
+                                                .toLowerCase()
+                                                .includes(vendorSearch.toLowerCase())
+                                        )
+                                        .map((vendor) => (
+                                            <div
+                                                key={vendor.id}
+                                                onClick={() => {
+                                                    handleVendorSelect(vendor.vendor);
+                                                    setVendorSearch(`${vendor.first_name} ${vendor.last_name || ''}`);
+                                                }}
+                                                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                                            >
+                                                {vendor.first_name} {vendor.last_name || ''}
+                                            </div>
+                                        ))}
+                                    {vendorList.filter(vendor => vendor.role === 'vendor' &&
+                                        `${vendor.first_name} ${vendor.last_name || ''}`
+                                            .toLowerCase()
+                                            .includes(vendorSearch.toLowerCase())
+                                    ).length === 0 && (
+                                        <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                                            {t("NO_VENDORS_FOUND")}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     <div className="relative">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("DRIVER")}</label>
                     <input
@@ -534,58 +592,7 @@ const AddBus = () => {
                     )}
                     </div>
 
-                    {!isVendor && (
-                        <div className="relative">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("VENDOR")}</label>
-                            <input
-                                type="text"
-                                placeholder={t("SEARCH_VENDOR")}
-                                value={vendorSearch}
-                                onChange={(e) => {
-                                    setVendorSearch(e.target.value);
-                                    setShowVendorDropdown(true);
-                                    if (selectedVendor && e.target.value !== `${selectedVendor.first_name} ${selectedVendor.last_name || ''}`) {
-                                        setSelectedVendor(null);
-                                        setFormData({...formData, vendor_id: ''});
-                                    }
-                                }}
-                                onFocus={() => setShowVendorDropdown(true)}
-                                onBlur={() => setTimeout(() => setShowVendorDropdown(false), 200)}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                            />
-                            {showVendorDropdown && (
-                                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
-                                    {vendorList
-                                        .filter((vendor) => vendor.role === 'vendor' &&
-                                            `${vendor.first_name} ${vendor.last_name || ''}`
-                                                .toLowerCase()
-                                                .includes(vendorSearch.toLowerCase())
-                                        )
-                                        .map((vendor) => (
-                                            <div
-                                                key={vendor.id}
-                                                onClick={() => {
-                                                    handleVendorSelect(vendor.vendor);
-                                                    setVendorSearch(`${vendor.first_name} ${vendor.last_name || ''}`);
-                                                }}
-                                                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                                            >
-                                                {vendor.first_name} {vendor.last_name || ''}
-                                            </div>
-                                        ))}
-                                    {vendorList.filter(vendor => vendor.role === 'vendor' &&
-                                        `${vendor.first_name} ${vendor.last_name || ''}`
-                                            .toLowerCase()
-                                            .includes(vendorSearch.toLowerCase())
-                                    ).length === 0 && (
-                                        <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
-                                            {t("NO_VENDORS_FOUND")}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                    
 
                     {/* Bus Name */}
                     <div>

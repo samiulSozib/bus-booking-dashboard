@@ -44,10 +44,10 @@ export const addBus = createAsyncThunk(
           'Content-Type': 'multipart/form-data',
         },
       });
-      //console.log(response)
+      console.log(response)
       return response.data.body.item;
     } catch (error) {
-      //console.log(error)
+      console.log(error)
       return rejectWithValue(error?.response?.statusText);
     }
   }
