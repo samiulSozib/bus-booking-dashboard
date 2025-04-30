@@ -428,6 +428,7 @@
     "createBooking": "Create Booking"
   },
   "common": {
+    "download":"Download",
     "ok": "OK",
     "errorOccurred": "An error occurred!",
     "somethingWentWrong": "Something went wrong. Please try again."

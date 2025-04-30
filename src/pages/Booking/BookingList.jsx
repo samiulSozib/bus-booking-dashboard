@@ -165,133 +165,133 @@ export default function BookingList() {
             {/* View Details Modal */}
             {isViewModalOpen && bookingDetails && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-4">
-                        {/* Modal Header */}
-                        <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center">
-                            <h2 className="text-xl font-semibold text-white">
-                                {t("BOOKING_DETAILS")}
-                            </h2>
-                            <button 
-                                onClick={() => setIsViewModalOpen(false)}
-                                className="text-white hover:text-indigo-200 focus:outline-none"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-4">
+                  {/* Modal Header */}
+                  <div className="bg-indigo-600 px-6 py-4 flex justify-between items-center">
+                    <h2 className="text-xl font-semibold text-white">
+                      {t("BOOKING_DETAILS")}
+                    </h2>
+                    <button 
+                      onClick={() => setIsViewModalOpen(false)}
+                      className="text-white hover:text-indigo-200 focus:outline-none"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  {/* Modal Content */}
+                  <div className="p-6 overflow-y-auto" dir="rtl">
+                    {/* Customer and Booking Info */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <h3 className="font-medium text-gray-900 mb-3 flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                          {t("CUSTOMER_INFO")}
+                        </h3>
+                        <div className="space-y-2 text-gray-700">
+                          <p className="flex items-center">
+                            {bookingDetails.user.first_name} {bookingDetails.user.last_name}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </p>
+                          <p className="flex items-center">
+                            {bookingDetails.user.mobile}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                          </p>
                         </div>
-                        
-                        {/* Modal Content */}
-                        <div className="p-6 overflow-y-auto">
-                            {/* Customer and Booking Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                    <h3 className="font-medium text-gray-900 mb-3 flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                        </svg>
-                                        {t("CUSTOMER_INFO")}
-                                    </h3>
-                                    <div className="space-y-2 text-gray-700">
-                                        <p className="flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                            </svg>
-                                            {bookingDetails.user.first_name} {bookingDetails.user.last_name}
-                                        </p>
-                                        <p className="flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                            </svg>
-                                            {bookingDetails.user.mobile}
-                                        </p>
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                                    <h3 className="font-medium text-gray-900 mb-3 flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        {t("BOOKING_INFO")}
-                                    </h3>
-                                    <div className="space-y-2 text-gray-700">
-                                        <p className="flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                            </svg>
-                                            Booking #: {bookingDetails.trip.route.name}
-                                        </p>
-                                        <p className="flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Status: {getStatusBadge(bookingDetails.status)}
-                                        </p>
-                                        <p className="flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Amount: <span className="font-semibold ml-1">{bookingDetails.total_price}</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {/* Tickets Table */}
-                            <div className="mb-8">
-                                <h3 className="font-medium text-gray-900 mb-4 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                                    </svg>
-                                    {t("TICKETS")}
-                                </h3>
-                                <div className="border border-gray-200 rounded-lg overflow-hidden">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passenger</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seat</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                            {bookingDetails.tickets.map((ticket, index) => (
-                                                <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {ticket.passenger.first_name} {ticket.passenger.last_name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {ticket.seat_number}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {ticket.price}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            {/* Modal Footer */}
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    onClick={() => setIsViewModalOpen(false)}
-                                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                >
-                                    {t("CLOSE")}
-                                </button>
-                                <button
-                                    onClick={() => {/* Add print or download functionality */}}
-                                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                >
-                                    {t("PRINT_TICKET")}
-                                </button>
-                            </div>
+                      </div>
+                      
+                      <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        <h3 className="font-medium text-gray-900 mb-3 flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          {t("BOOKING_INFO")}
+                        </h3>
+                        <div className="space-y-2 text-gray-700">
+                          <p className="flex items-center">
+                            <span className="ml-1">{t('BOOKING')} #: {bookingDetails.trip.route.name}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                          </p>
+                          <p className="flex items-center">
+                            {t('STATUS')}: {getStatusBadge(bookingDetails.status)}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </p>
+                          <p className="flex items-center">
+                            <span className="font-semibold ml-1">{t('AMOUNT')}: {bookingDetails.total_price}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </p>
                         </div>
+                      </div>
                     </div>
+                    
+                    {/* Tickets Table */}
+                    <div className="mb-8">
+                      <h3 className="font-medium text-gray-900 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                        </svg>
+                        {t("TICKETS")}
+                      </h3>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('PASSENGER')}</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('SEAT')}</th>
+                              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('PRICE')}</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {bookingDetails.tickets.map((ticket, index) => (
+                              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                                  {ticket.passenger.first_name} {ticket.passenger.last_name}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                  {ticket.seat_number}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                  {ticket.price}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    
+                    {/* Modal Footer */}
+                    <div className="flex justify-start space-x-3 space-x-reverse">
+                      <button
+                        onClick={() => setIsViewModalOpen(false)}
+                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        {t("CLOSE")}
+                      </button>
+                      <button
+                        onClick={() => {/* Add print or download functionality */}}
+                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        {t("PRINT_TICKET")}
+                      </button>
+                    </div>
+                  </div>
                 </div>
+              </div>
             )}
 
             {/* Table Header and Search/Filter */}
@@ -424,7 +424,7 @@ export default function BookingList() {
                                                     onClick={() => handleCancelBooking(booking.id)}
                                                     className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                                                 >
-                                                    Cancel
+                                                    {t("CANCEL")}
                                                 </button>
                                             )}
                                             {(type.role==="admin")&&(

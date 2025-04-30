@@ -427,6 +427,7 @@
     "createBooking": "بکنګ جوړ کړئ"
   },
   "common": {
+     "download": "دانلود",
     "ok": "ښه",
     "errorOccurred": "یوه تېروتنه رامنځته شوه!",
     "somethingWentWrong": "یوه تېروتنه رامنځته شوه. مهرباني وکړئ بیا هڅه وکړئ."
