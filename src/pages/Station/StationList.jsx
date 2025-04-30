@@ -110,7 +110,7 @@ export default function StationList() {
     // Fetch countries on component mount
     useEffect(() => {
         dispatch(fetchCountries({searchTag:""}));
-    }, [dispatch]);
+    }, [dispatch,searchTag]);
 
     // Fetch provinces when a country is selected (for table filtering)
     useEffect(() => {
@@ -206,19 +206,29 @@ export default function StationList() {
             await getStationSchema(t).validate(stationData, { abortEarly: false });
     
             if (isEditMode) {
-                await dispatch(editStation({ id: currentStationId, stationData }));
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Station updated successfully.',
-                });
+                const resultAction=await dispatch(editStation({ id: currentStationId, stationData }));
+                if(editStation.fulfilled.match(resultAction)){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Station updated successfully.',
+                    });
+                }else {
+                    throw new Error(resultAction.payload || "Failed to add station.");
+                }
+                
             } else {
-                await dispatch(addStation(stationData));
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Station added successfully.',
-                });
+                const resultAction=await dispatch(addStation(stationData));
+                if(addStation.fulfilled.match(resultAction)){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Station added successfully.',
+                    });
+                }else{
+                    throw new Error(resultAction.payload || "Failed to add station.");
+
+                }
             }
     
             // Reset modal state
@@ -262,6 +272,9 @@ export default function StationList() {
         setIsModalOpen(false);
         setCurrentStationId(null);
         setErrors({})
+        setModalCountrySearchTag("");
+        setModalProvinceSearchTag("");
+        setModalCitySearchTag("");
     };
 
     // Handle edit station button click

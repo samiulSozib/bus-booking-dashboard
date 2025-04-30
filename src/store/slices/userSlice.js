@@ -109,10 +109,10 @@ export const addUser = createAsyncThunk(
                 },
             });
 
-            //console.log(response);
+            console.log(response);
             return response.data.body.item;
         } catch (error) {
-            //console.log(error)
+            console.log(error)
             if (error.response?.data?.errors) {
                 // Handle validation errors from API
                 return rejectWithValue({
@@ -135,6 +135,8 @@ export const editUser = createAsyncThunk(
             const token = getAuthToken();
             const formData = new FormData();
 
+            console.log(updatedData)
+            
             // Append all fields to formData
             Object.keys(updatedData).forEach((key) => {
                 if (updatedData[key] !== null && updatedData[key] !== undefined) {
@@ -142,11 +144,16 @@ export const editUser = createAsyncThunk(
                 }
             });
 
+            // for (let [key, value] of formData.entries()) {
+            //     console.log(`${key}:`, value);
+            // }
+
             const response = await axios.post(`${base_url}/admin/users/${userId}/update`, formData, {
                 headers: { Authorization: `${token}`, "Content-Type": "multipart/form-data" },
             });
             return response.data.body.item;
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error.message);
         }
     }

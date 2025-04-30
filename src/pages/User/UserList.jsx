@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect, useRef } from "react";
 import * as Yup from 'yup';
+import { ValidationError } from 'yup';
+
 import {
     Table,
     TableBody,
@@ -147,24 +149,34 @@ export default function UserList() {
             await getValidationSchema(t).validate(formData, { abortEarly: false });
     
             const userData = { ...formData };
-            //console.log(userData)
+            console.log(userData)
             //return
             if (isEditing) {
                 // Dispatch the edit action
-                await dispatch(editUser(currentUserId, userData)).unwrap();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'User updated successfully.',
-                });
+                const editAction=await dispatch(editUser({userId:currentUserId, updatedData:userData}))
+                if(editUser.fulfilled.match(editAction)){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'User updated successfully.',
+                    });
+                }else{
+                    throw new Error(editAction.payload || "Failed to edit User.");
+                }
+                
             } else {
                 // Dispatch the add action
-                await dispatch(addUser(userData)).unwrap();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'User added successfully.',
-                });
+                const addAction=await dispatch(addUser(userData))
+                if(addUser.fulfilled.match(addAction)){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'User added successfully.',
+                    });
+                }else{
+                    throw new Error(addAction.payload || "Failed to add User.");
+                }
+                
             }
     
             // Reset form data and close modal
@@ -198,24 +210,22 @@ export default function UserList() {
             setCurrentUserId(null);
             setFormErrors({}); // Clear any previous errors
         } catch (err) {
-            const errors = {};
-            if (err.inner) {
-                // Yup validation errors
+            if (err instanceof ValidationError) {
+                const errors = {};
                 err.inner.forEach((error) => {
-                    errors[error.path] = error.message;
+                    if (!errors[error.path]) {
+                        errors[error.path] = error.message;
+                    }
                 });
                 setFormErrors(errors);
-    
-                
-            }else if(err.type==='api'){
+                return; // Prevent further error handling
+            } else if (err.type === 'api') {
                 const newErrors = {};
                 Object.entries(err.errors).forEach(([field, messages]) => {
                     newErrors[field] = Array.isArray(messages) ? messages.join(' ') : messages;
                 });
                 setFormErrors(newErrors);
-            } 
-            else {
-                // API or other errors
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -223,6 +233,7 @@ export default function UserList() {
                 });
             }
         }
+        
     };
 
     const handleEdit = (userId) => {

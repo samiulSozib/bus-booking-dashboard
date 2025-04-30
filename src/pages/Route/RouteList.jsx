@@ -289,19 +289,28 @@ useEffect(() => {
             await getValidationSchema(t).validate(formData, { abortEarly: false });
     
             if (isEditMode) {
-                await dispatch(editRoute({ id: currentRouteId, formData })).unwrap();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Route updated successfully.',
-                });
+                const editAction=await dispatch(editRoute({ id: currentRouteId, formData }))
+                if(editRoute.fulfilled.match(editAction)){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Route updated successfully.',
+                    });
+                }else{
+                    throw new Error(editAction.payload || "Failed to add Route.");
+                }
             } else {
-                await dispatch(addRoute(formData)).unwrap();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Route added successfully.',
-                });
+                const addAction=await dispatch(addRoute(formData))
+                if(addRoute.fulfilled.match(addAction)){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Route added successfully.',
+                    });
+                }else{
+                    throw new Error(addAction.payload || "Failed to add Route.");
+                }
+                
             }
     
             // Reset modal state

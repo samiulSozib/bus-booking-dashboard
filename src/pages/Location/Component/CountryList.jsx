@@ -264,15 +264,16 @@ export default function CountryList() {
 
                     {/* Filter Button and Dropdown */}
                     <div className="relative">
-                        <button
+                        {/* <button
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                         >
                             <FunnelIcon className="h-5 w-5" />
                             {t("FILTER")}
-                        </button>
+                        </button> */}
 
                         {/* Filter Dropdown */}
+                        
                         {isFilterOpen && (
                             <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                                 <div className="p-4 space-y-4">
@@ -320,6 +321,7 @@ export default function CountryList() {
                                 </div>
                             </div>
                         )}
+
                     </div>
 
                     {/* Add Country Button */}

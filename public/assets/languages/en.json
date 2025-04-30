@@ -239,6 +239,7 @@
 
 
     "bus": {
+      "bus.imageRequired":"Image Is Required",
       "driverRequired": "Driver must be selected",
       "vendorRequired": "Vendor must be selected",
       "nameRequired": "Bus Name is required",

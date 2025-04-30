@@ -257,21 +257,25 @@ export default function TripList() {
             //return
             
             if (isEditMode) {
-                await dispatch(
-                    editTrip({ tripId: currentTripId, updatedData: tripData })
-                ).unwrap();
-                Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: "Trip updated successfully.",
-                });
+                const editAction=await dispatch(editTrip({ tripId: currentTripId, updatedData: tripData }))
+                if(editTrip.fulfilled.match(editAction)){
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success!",
+                        text: "Trip updated successfully.",
+                    });
+                }
+                
             } else {
-                await dispatch(addTrip(tripData)).unwrap();
-                Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: "Trip added successfully.",
-                });
+                const addAction=await dispatch(addTrip(tripData))
+                if(addTrip.fulfilled.match(addAction)){
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success!",
+                        text: "Trip added successfully.",
+                    });
+                }
+                
             }
 
             resetModal();
