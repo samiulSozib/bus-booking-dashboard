@@ -50,7 +50,7 @@ export const createOrUpdateTripCancellationPolicy = createAsyncThunk(
       );
       return response.data.body.item;
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }

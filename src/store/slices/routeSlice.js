@@ -27,7 +27,7 @@ export const fetchRoutes = createAsyncThunk(
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
         
-        console.log(filterQuery)
+        //console.log(filterQuery)
       // Build full URL
       const url = `${base_url}/${type.role}/routes/list?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`;
   
@@ -38,13 +38,13 @@ export const fetchRoutes = createAsyncThunk(
             'Content-Type': 'application/json',
           },
         });
-        console.log(response)
+        //console.log(response)
         return {
           items: response.data.body.items,
           pagination: response.data.body.data,
         };
       } catch (error) {
-        console.log(error)
+        //console.log(error)
         return rejectWithValue(error.message);
       }
     }
@@ -90,11 +90,11 @@ export const addRoute = createAsyncThunk(
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(response)
+            //console.log(response)
             return response.data.body.item
             
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -122,7 +122,7 @@ export const editRoute = createAsyncThunk(
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(response)
+            //console.log(response)
             // return {
             //     id: response.data.body.item.id,
             //     name: response.data.body.item.name.en,
@@ -130,7 +130,7 @@ export const editRoute = createAsyncThunk(
             // };
             return response.data.body.item
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }

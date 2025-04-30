@@ -15,10 +15,10 @@ export const fetchWalletTransactions = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response)
+      //console.log(response)
       return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }

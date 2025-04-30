@@ -15,7 +15,7 @@ export const fetchDashboardData = createAsyncThunk(
             const response = await axios.get(`${base_url}/${type.role}/statistics`, {
                 headers: { Authorization: `${token}` },
             });
-            console.log(response.data.body.item)
+            //console.log(response.data.body.item)
             return response.data.body.item;
         } catch (error) {
             return rejectWithValue(error.message);

@@ -17,7 +17,7 @@ export const fetchBookings = createAsyncThunk(
           Authorization: `${token}`,
         },
       });
-      console.log(response.data.body.items)
+      //console.log(response.data.body.items)
       return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -33,7 +33,7 @@ export const createBooking = createAsyncThunk(
       const token = getAuthToken();
       const type = userType();
       const formData = new FormData();
-      console.log(bookingData)
+      //console.log(bookingData)
       formData.append("trip_id", bookingData.trip_id);
       formData.append("is_partial_payment", bookingData.is_partial_payment);
       formData.append("amount", bookingData.amount);
@@ -48,10 +48,10 @@ export const createBooking = createAsyncThunk(
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response)
+      //console.log(response)
       return response.data.body.item
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -69,7 +69,7 @@ export const getBookingDetails = createAsyncThunk(
           Authorization: `${token}`,
         },
       });
-      console.log(response.data.body.item)
+      //console.log(response.data.body.item)
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -114,11 +114,56 @@ export const cancelBooking = createAsyncThunk(
       );
       return response.data.body.item;
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       return rejectWithValue(error.response.statusText || error.message);
     }
   }
 );
+
+export const downloadBookingTickets = createAsyncThunk(
+  "bookings/downloadBookingTickets",
+  async (bookingId, { rejectWithValue }) => {
+    try {
+      const token = getAuthToken();
+      const type = userType();
+      const response = await axios.get(
+        `${base_url}/${type.role}/bookings/${bookingId}/download`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+          responseType: 'blob' // Important for file downloads
+        }
+      );
+      
+      // Create a blob URL for the downloaded file
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Try to get filename from content-disposition header
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'tickets.pdf'; // default filename
+      
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch && fileNameMatch.length === 2) {
+          fileName = fileNameMatch[1];
+        }
+      }
+      
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      return { bookingId, fileName };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 
 // Slice
 const bookingSlice = createSlice({
@@ -214,6 +259,19 @@ const bookingSlice = createSlice({
         }
       })
       .addCase(cancelBooking.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(downloadBookingTickets.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(downloadBookingTickets.fulfilled, (state, action) => {
+        state.loading = false;
+        // You might want to update some state here if needed
+        // For example, track which bookings have been downloaded
+      })
+      .addCase(downloadBookingTickets.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

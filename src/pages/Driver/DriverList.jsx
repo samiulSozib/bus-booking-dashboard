@@ -68,7 +68,7 @@ export default function DriverList() {
             password,
             status,
         };
-        console.log(driverData)
+        //console.log(driverData)
 
         try {
             // Validate form data using Yup

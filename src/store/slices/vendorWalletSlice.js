@@ -10,7 +10,7 @@ export const fetchWallets = createAsyncThunk(
   async ( { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      console.log(token)
+      //console.log(token)
       const response = await axios.get(`${base_url}/vendor/wallets/balance`, {
         headers: {
           Authorization: `${token}`,

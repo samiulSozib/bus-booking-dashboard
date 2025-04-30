@@ -77,7 +77,7 @@ const AddBus = () => {
     }, [busId, dispatch]);
 
     useEffect(()=>{
-        console.log(bus)
+        //console.log(bus)
     },[dispatch,busId])
 
     // Populate form data if bus data is fetched
@@ -101,6 +101,8 @@ const AddBus = () => {
                 columns: bus?.seats?.columns,
                 seats: bus?.seats?.seats,
             });
+            setDriverSearch(bus.driver.first_name)
+            setVendorSearch(bus.vendor.name)
             if (bus.image) {
                 setImagePreview(bus.image);
             }
@@ -405,7 +407,7 @@ const AddBus = () => {
     };
 
     const handleSaveChangeSeat=async (e)=>{
-        console.log(formData.seats)
+        //console.log(formData.seats)
         await dispatch(updateSeat({busId,busData:formData}))
     }
 

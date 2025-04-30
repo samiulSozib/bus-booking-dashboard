@@ -45,7 +45,7 @@ export const addUser = createAsyncThunk(
     "users/add",
     async (userData, { rejectWithValue }) => {
         try {
-            console.log("user_data"+userData)
+            //console.log("user_data"+userData)
             const token = getAuthToken();
             const formData = new FormData();
 
@@ -92,7 +92,7 @@ export const addUser = createAsyncThunk(
 
             // Debug FormData before sending
             for (let [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
+                //console.log(`${key}:`, value);
             }
 
             Object.keys(userData).forEach((key) => {
@@ -109,10 +109,10 @@ export const addUser = createAsyncThunk(
                 },
             });
 
-            console.log(response);
+            //console.log(response);
             return response.data.body.item;
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             if (error.response?.data?.errors) {
                 // Handle validation errors from API
                 return rejectWithValue({

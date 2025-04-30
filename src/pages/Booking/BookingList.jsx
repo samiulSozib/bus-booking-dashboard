@@ -13,12 +13,14 @@ import {
     fetchBookings, 
     getBookingDetails, 
     markBookingAsPaid, 
-    cancelBooking 
+    cancelBooking, 
+    downloadBookingTickets
 } from "../../store/slices/bookingSlice";
 import Pagination from "../../components/pagination/pagination";
 import { useTranslation } from "react-i18next";
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { userType } from "../../utils/utils";
 
 export default function BookingList() {
     const dispatch = useDispatch();
@@ -39,6 +41,7 @@ export default function BookingList() {
     });
     const { t } = useTranslation();
     const navigate=useNavigate()
+    const type=userType()
 
     useEffect(() => {
         const params = new URLSearchParams();
@@ -107,6 +110,18 @@ export default function BookingList() {
             }
         }
     };
+
+    const handleDownload = (bookingId) => {
+        dispatch(downloadBookingTickets(bookingId))
+          .unwrap()
+          .then(() => {
+            // Success - file download should have started automatically
+            Swal.fire('Success', 'Tickets downloaded successfully!', 'success');
+          })
+          .catch(error => {
+            Swal.fire('Error', error || 'Failed to download tickets', 'error');
+          });
+      };
 
     const handleApplyFilters = () => {
         setIsFilterOpen(false);
@@ -313,12 +328,16 @@ export default function BookingList() {
                     
                        
                     </div>
+                    {(type.role==="vendor")&&(
+
+                    
                     <button
                         onClick={() => navigate('/add-booking')}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     >
                         {t("ADD_BOOKING")}
                     </button>
+                    )}
                 </div>
             </div>
 
@@ -387,7 +406,7 @@ export default function BookingList() {
                                         {formatDate(booking.created_at)}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        <div className="flex flex-row items-center justify-start gap-2">
+                                        <div className="flex flex-row items-center justify-start gap-3">
                                             <View
                                                 className="w-5 h-5 cursor-pointer text-blue-500"
                                                 onClick={() => handleViewDetails(booking.id)}
@@ -407,6 +426,14 @@ export default function BookingList() {
                                                 >
                                                     Cancel
                                                 </button>
+                                            )}
+                                            {(type.role==="admin")&&(
+                                                 <button
+                                                 onClick={() => handleDownload(booking.id)}
+                                                 className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-gray-600"
+                                             >
+                                                 Download
+                                             </button>
                                             )}
                                         </div>
                                     </TableCell>

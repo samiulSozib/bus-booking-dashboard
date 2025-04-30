@@ -206,7 +206,7 @@ export default function TripList() {
 
     // Handle bus selection in modal
     const handleModalBusSelect = (bus) => {
-        console.log(bus)
+        //console.log(bus)
         setBusId(bus.id);
         setBus(bus)
         setSeats(bus?.seats.seats)
@@ -255,6 +255,7 @@ export default function TripList() {
             //   console.log(ticket_price_per_seat);
               
             //return
+            
             if (isEditMode) {
                 await dispatch(
                     editTrip({ tripId: currentTripId, updatedData: tripData })
@@ -333,7 +334,7 @@ export default function TripList() {
     };
 
     const handleSeatEditClick = (seat) => {
-        console.log(seat)
+        //console.log(seat)
         
         setSelectedSeat({ 
             
@@ -373,7 +374,7 @@ export default function TripList() {
     
 
        const handleSaveChangeSeat=async (e)=>{
-            console.log(seats)
+            //console.log(seats)
             const data = seats.map(seat => ({
                 seat_number: seat.seat_number,
                 ticket_price: seat.ticket_price

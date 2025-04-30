@@ -288,7 +288,7 @@ export default function DiscountList() {
         });
         setErrors(newErrors);
       } else {
-        console.log(error)
+        //console.log(error)
         Swal.fire("Error", error.message || "An error occurred", "error");
       }
     }

@@ -22,7 +22,7 @@ export const fetchTrips = createAsyncThunk(
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join('&');
 
-            console.log(filterQuery)
+            //console.log(filterQuery)
 
             const response = await axios.get(`${base_url}/${type.role}/trips?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
                 headers: {
@@ -44,13 +44,13 @@ export const fetchActiveTrips = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=user_type()
-            console.log(filters)
+            //console.log(filters)
             const filterQuery = Object.entries(filters)
             .filter(([_, value]) => value !== null && value !== undefined && value !== "")
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
             .join('&');
 
-            console.log(filterQuery)
+            //console.log(filterQuery)
 
             const response = await axios.get(`${base_url}/${type.role}/trips/active?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
                 headers: {
@@ -78,7 +78,7 @@ export const showTrip = createAsyncThunk(
                     'Content-Type': 'application/json',
                 },
             });
-            console.log(response)
+            //console.log(response)
             return response.data.body.item;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -91,7 +91,7 @@ export const addTrip = createAsyncThunk(
     "trips/addTrip",
     async (tripData, { rejectWithValue }) => {
         try {
-            console.log(tripData)
+            //console.log(tripData)
             const token = getAuthToken();
             const type=user_type()
             const formData = new FormData();
@@ -117,10 +117,10 @@ export const addTrip = createAsyncThunk(
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log(response)
+            //console.log(response)
             return response.data.body.item;
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -150,7 +150,7 @@ export const editTrip = createAsyncThunk(
             formData.append('partial_payment_type',updatedData.partial_payment_type)
             formData.append("ticket_price_per_seat",JSON.stringify(updatedData.ticket_price_per_seat))
 
-            console.log(updatedData)
+            //console.log(updatedData)
             const response = await axios.post(`${base_url}/${type.role}/trips/${tripId}/update`, formData, {
                 headers: {
                     Authorization: `${token}`,
@@ -159,7 +159,7 @@ export const editTrip = createAsyncThunk(
             });
             return response.data.body.item;
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -205,10 +205,10 @@ export const updateTripSeatPrices = createAsyncThunk(
                     },
                 }
             );
-            
+            //console.log(response)
             return { trip_id, updatedPrices: ticket_price_per_seat };
         } catch (error) {
-            console.log(error);
+            //console.log(error);
             return rejectWithValue(error?.response?.statusText);
         }
     }

@@ -64,7 +64,7 @@ export const addDriver = createAsyncThunk(
             });
             return response.data.body.item;
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }

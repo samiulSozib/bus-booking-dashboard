@@ -106,7 +106,7 @@ export default function TripCancellationPolicyList() {
             vendor_id: modalVendorId,
             penalty_steps: penaltySteps,
         };
-        console.log(policyData)
+        //console.log(policyData)
 
 
         try {

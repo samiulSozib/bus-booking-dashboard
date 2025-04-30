@@ -395,7 +395,7 @@ useEffect(() => {
 
     // Handle search tag change
     const handleSearchTagChange = (searchTagKey, value) => {
-        console.log(value)
+        //console.log(value)
         setSearchTags((prevSearchTags) => ({
             ...prevSearchTags,
             [searchTagKey]: value,

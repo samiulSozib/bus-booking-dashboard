@@ -53,6 +53,8 @@ const AddBooking = () => {
             dispatch(fetchBusById(selectedTrip.bus.id));  // Fetch the bus details
         }
     }, [selectedTrip, dispatch]);
+
+    
     
     
 
@@ -176,24 +178,18 @@ const AddBooking = () => {
             await bookingSchema.validate(bookingData, { abortEarly: false });
             
             // Submit booking
-            await dispatch(createBooking(bookingData));
-            
-            // Show success dialog
-            await Swal.fire({
-                title: 'Booking Successful!',
-                text: 'Your booking has been confirmed successfully.',
+            const resultAction = await dispatch(createBooking(bookingData));
+
+        if (createBooking.fulfilled.match(resultAction)) {
+            Swal.fire({
+                title: 'Booking Successful',
+                text: 'Your booking has been successfully created!',
                 icon: 'success',
-                confirmButtonText: 'View Bookings',
-                confirmButtonColor: '#3085d6',
-                showCancelButton: true,
-                cancelButtonText: 'Stay Here',
-                cancelButtonColor: '#d33'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    navigate('/bookings'); // Redirect to bookings list if confirmed
-                }
-                // If cancelled, stays on current page
+                confirmButtonText: 'OK'
+            }).then(() => {
+                navigate('/bookings'); // Navigate after user clicks OK
             });
+        }  
     
         } catch (error) {
             if (error instanceof Yup.ValidationError) {
@@ -289,7 +285,7 @@ const AddBooking = () => {
 
     // Render seat layout
     const renderSeatLayout = () => {
-        if (!bus?.seats) return null;
+        if (!selectedTripId||!bus?.seats) return null;
     
         const { rows, columns, seats } = bus.seats;
         
@@ -535,7 +531,7 @@ const AddBooking = () => {
                         </div>
     
                         {/* Trip Information */}
-                        {trip && (
+                        {(trip && selectedTripId) && (
                             <div className="p-4 bg-blue-50 rounded-md">
                                 <h2 className="text-xl font-semibold mb-2">{t('booking.tripDetails')}</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

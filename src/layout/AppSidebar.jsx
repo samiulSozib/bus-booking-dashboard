@@ -120,7 +120,7 @@ const AppSidebar = () => {
       icon: <Ticket />,
       name: "BOOKING",
       path: "/bookings",
-      roles: ["vendor"]
+      roles: ["admin","vendor"]
     },
     {
       icon: <Settings />,

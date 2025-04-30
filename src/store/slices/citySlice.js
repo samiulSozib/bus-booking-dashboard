@@ -15,10 +15,10 @@ export const fetchCities = createAsyncThunk(
                 `${base_url}/web/location/${provinceId}/cities/list?search=${searchTag}&page=${page}`,
                 { headers: { Authorization: `${token}` } }
             );
-            console.log(response)
+            //console.log(response)
             return {items:response.data.body.items,pagination:response.data.body.data};
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error.message);
         }
     }
@@ -59,7 +59,7 @@ export const addCity = createAsyncThunk(
             const newData={id:response.data.body.item.id,name:response.data.body.item.name.en,code:response.data.body.item.code}
             return newData;
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }

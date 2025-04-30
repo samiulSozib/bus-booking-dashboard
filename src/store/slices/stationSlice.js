@@ -24,7 +24,7 @@ export const fetchStations = createAsyncThunk(
         'Content-Type': 'application/json',
       },
     });
-    console.log(response.data.body.items)
+    //console.log(response.data.body.items)
     return {items:response.data.body.items,pagination:response.data.body.data};
   }
 );
@@ -39,7 +39,7 @@ export const showStation = createAsyncThunk(
         'Content-Type': 'application/json',
       },
     });
-    console.log(response)
+    //console.log(response)
     return response.data.body.item;
   }
 );

@@ -117,10 +117,25 @@ export function formatForDisplayDiscount(datetime) {
 }
 export function formatForInputDiscount(displayTime) {
   if (!displayTime) return '';
-  // Convert from datetime-local format (YYYY-MM-DDTHH:MM) to "Y-m-d H:i:s"
-  // Add :00 seconds if not present
+  
+  // Handle case where time is already in correct format
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/.test(displayTime)) {
+    return displayTime.length === 16 ? `${displayTime}:00` : displayTime;
+  }
+
+  // Split datetime-local format
   const [date, time] = displayTime.split('T');
-  return `${date} ${time}:00`.replace(/:00:00$/, ':00');
+  
+  if (!time) {
+    // If no time part, default to midnight
+    return `${date} 00:00:00`;
+  }
+
+  // Handle time part - remove seconds if they exist, then add :00 if needed
+  const timeParts = time.split(':');
+  const hoursMins = timeParts.slice(0, 2).join(':');
+  
+  return `${date} ${hoursMins}:00`;
 }
 
 export function userType(){

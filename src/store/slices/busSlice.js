@@ -16,7 +16,7 @@ export const addBus = createAsyncThunk(
   'bus/addBus',
   async ({busData}, { rejectWithValue }) => {
     try {
-      console.log(busData)
+      //console.log(busData)
       const token = getAuthToken();
       const type=user_type()
       const formData = new FormData();
@@ -35,7 +35,7 @@ export const addBus = createAsyncThunk(
       });
 
       formData.forEach((value,key)=>{
-        console.log(key,value)
+        //console.log(key,value)
       })
 
       const response = await axios.post(`${base_url}/${type.role}/buses`, formData, {
@@ -44,10 +44,10 @@ export const addBus = createAsyncThunk(
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response)
+      //console.log(response)
       return response.data.body.item;
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       return rejectWithValue(error?.response?.statusText);
     }
   }
@@ -58,7 +58,7 @@ export const editBus = createAsyncThunk(
   'bus/editBus',
   async ({ busId, busData }, { rejectWithValue }) => {
     try {
-      console.log("Bus Data:", busData);
+      //console.log("Bus Data:", busData);
 
       const token = getAuthToken();
       const type=user_type()
@@ -87,9 +87,9 @@ export const editBus = createAsyncThunk(
       
 
       // Debugging FormData output
-      console.log("FormData Contents:");
+      //console.log("FormData Contents:");
       for (let pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
+        //console.log(pair[0], pair[1]);
       }
 
       // API Request
@@ -100,10 +100,10 @@ export const editBus = createAsyncThunk(
         },
       });
 
-      console.log("Response:", response.data);
+      //console.log("Response:", response.data);
       return response.data.body.item;
     } catch (error) {
-      console.error("Error:", error);
+      //console.error("Error:", error);
       return rejectWithValue(error?.response?.statusText || "Request failed");
     }
   }
@@ -132,7 +132,7 @@ export const updateSeat = createAsyncThunk(
       const token=getAuthToken()
       const type=user_type()
       const formData=new FormData()
-      console.log(busData)
+      //console.log(busData)
       formData.append("bus_id",busId)
       formData.append("rows",busData.rows)
       formData.append("columns",busData.columns)
@@ -145,10 +145,10 @@ export const updateSeat = createAsyncThunk(
           Authorization: `${token}`,
         }
       });
-      console.log(response)
+      //console.log(response)
       return response.data.body.item;
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       return rejectWithValue(error?.response?.statusText);
     }
   }
@@ -161,13 +161,13 @@ export const fetchBuses = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type=user_type()
-      console.log("vendor-id",vendor_id)
+      //console.log("vendor-id",vendor_id)
       const response = await axios.get(`${base_url}/${type.role}/buses?search=${searchTag}&vendor-id=${vendor_id}&page=${page}`,{headers:{Authorization: `${token}`}});
-      console.log(searchTag)
-      console.log(response.data.body.items)
+      //console.log(searchTag)
+      //console.log(response.data.body.items)
       return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       return rejectWithValue(error?.response?.statusText);
     }
   }
@@ -178,8 +178,8 @@ export const fetchBusById = createAsyncThunk(
   'bus/fetchBusById',
   async (busId, { rejectWithValue }) => {
     try {
-      console.log("fdf")
-      console.log(busId)
+      //console.log("fdf")
+      //console.log(busId)
       const token=getAuthToken()
       const type=user_type()
       const response = await axios.get(`${base_url}/${type.role}/buses/${busId}/show`,{
