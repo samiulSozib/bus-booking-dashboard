@@ -135,7 +135,7 @@ export const editUser = createAsyncThunk(
             const token = getAuthToken();
             const formData = new FormData();
 
-            console.log(updatedData)
+            //console.log(updatedData)
             
             // Append all fields to formData
             Object.keys(updatedData).forEach((key) => {
@@ -143,17 +143,18 @@ export const editUser = createAsyncThunk(
                     formData.append(key, updatedData[key]);
                 }
             });
+            formData.append("id",userId)
 
-            // for (let [key, value] of formData.entries()) {
-            //     console.log(`${key}:`, value);
-            // }
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}:`, value);
+            }
 
-            const response = await axios.post(`${base_url}/admin/users/${userId}/update`, formData, {
+            const response = await axios.post(`${base_url}/admin/users/update`, formData, {
                 headers: { Authorization: `${token}`, "Content-Type": "multipart/form-data" },
             });
             return response.data.body.item;
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return rejectWithValue(error.message);
         }
     }

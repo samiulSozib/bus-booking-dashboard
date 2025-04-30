@@ -86,7 +86,7 @@ export default function UserList() {
     }, [dispatch, searchTag,currentPage,selectedRole]);
 
     useEffect(()=>{
-        dispatch(fetchUsers({role:"vendor"}))
+        dispatch(fetchUsers({role:""}))
     },[dispatch,isModalOpen])
 
 
@@ -149,7 +149,7 @@ export default function UserList() {
             await getValidationSchema(t).validate(formData, { abortEarly: false });
     
             const userData = { ...formData };
-            console.log(userData)
+            //console.log(userData)
             //return
             if (isEditing) {
                 // Dispatch the edit action
