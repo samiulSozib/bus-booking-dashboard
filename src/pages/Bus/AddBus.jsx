@@ -62,7 +62,10 @@ const AddBus = () => {
     useEffect(() => {
         
         if (!isVendor) {
-            dispatch(fetchUsers({ searchTag: driverSearch, role: 'driver' }));
+            
+            if(selectedVendor){
+                dispatch(fetchUsers({ searchTag: driverSearch, role: 'driver',vendorId:selectedVendor.id }));
+            }
             dispatch(fetchUsers({ searchTag: vendorSearch, role: 'vendor' }));
         }else{
             dispatch(fetchDrivers({ searchTag: driverSearch }));
@@ -111,6 +114,11 @@ const AddBus = () => {
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
+        setErrors(prevErrors => {
+            const newErrors = {...prevErrors};
+            delete newErrors[name];
+            return newErrors;
+          });
         if (type === 'file') {
             const file = files[0];
             setFormData({ ...formData, [name]: file });
@@ -124,16 +132,31 @@ const AddBus = () => {
         setSelectedDriver(driver);
         setFormData({...formData, driver_id: driver.id});
         setShowDriverDropdown(false);
+        setErrors(prevErrors => {
+            const newErrors = {...prevErrors};
+            delete newErrors.driver_id;
+            return newErrors;
+          });
     };
 
     const handleVendorSelect = (vendor) => {
         setSelectedVendor(vendor);
         setFormData({...formData, vendor_id: vendor.id});
         setShowVendorDropdown(false);
+        setErrors(prevErrors => {
+            const newErrors = {...prevErrors};
+            delete newErrors.vendor_id;
+            return newErrors;
+          });
     };
 
     const handleBerthChange = (e) => {
         const { name, value } = e.target;
+        setErrors(prevErrors => {
+            const newErrors = {...prevErrors};
+            delete newErrors[name];
+            return newErrors;
+          });
         setFormData({ ...formData, [name]: value });
     };
 
@@ -367,50 +390,126 @@ const AddBus = () => {
     };
 
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         await getBusInfoSchema(isVendor, t).validate(formData, { abortEarly: false });
+    //         if (!formData.berth_type || !formData.rows || !formData.columns) {
+                
+    //             throw new Yup.ValidationError(
+    //               'Berth configuration is incomplete',
+    //               {
+    //                 berth_type: !formData.berth_type ? t('bus.berthTypeRequired') : undefined,
+    //                 rows: !formData.rows ? t('bus.rowsRequired') : undefined,
+    //                 columns: !formData.columns ? t('bus.columnsRequired') : undefined,
+    //               },
+    //               'berth_configuration'
+    //             );
+    //           }
+
+    //         const resultAction = busId 
+    //   ? await dispatch(editBus({ busId, busData: formData }))
+    //   : await dispatch(addBus({ busData: formData }));
+
+    // // Check if the action was successful
+    //     if (addBus.fulfilled.match(resultAction)) {
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: t('bus.successTitle'),
+    //         text: busId ? t('bus.updatedSuccessfully') : t('bus.addedSuccessfully'),
+    //         confirmButtonText: t('common.ok'),
+    //         timer: 2000,
+    //         timerProgressBar: true,
+    //         willClose: () => {
+    //         navigate('/buses');
+    //         }
+    //     });
+    //     } else {
+    //     throw new Error(resultAction.payload || t('common.requestFailed'));
+    //     }
+
+    //     } catch (error) {
+    //         if (error instanceof Yup.ValidationError) {
+    //             const newErrors = {};
+    //             error.inner.forEach((err) => {
+    //                 newErrors[err.path] = err.message;
+    //             });
+    //             setErrors(newErrors);
+    //         } else {
+    //             console.error('Error:', error);
+    //             Swal.fire({
+    //                 icon: 'error',
+    //                 title: t('common.errorOccurred') || 'Error!',
+    //                 text: error.message || t('common.somethingWentWrong'),
+    //             });
+    //         }
+    //     }
+    // };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await getBusInfoSchema(isVendor, t).validate(formData, { abortEarly: false });
-
-            const resultAction = busId 
-      ? await dispatch(editBus({ busId, busData: formData }))
-      : await dispatch(addBus({ busData: formData }));
-
-    // Check if the action was successful
-        if (addBus.fulfilled.match(resultAction)) {
-        Swal.fire({
-            icon: 'success',
-            title: t('bus.successTitle'),
-            text: busId ? t('bus.updatedSuccessfully') : t('bus.addedSuccessfully'),
-            confirmButtonText: t('common.ok'),
-            timer: 2000,
-            timerProgressBar: true,
-            willClose: () => {
-            navigate('/buses');
-            }
-        });
-        } else {
-        throw new Error(resultAction.payload || t('common.requestFailed'));
-        }
-
+          // First validate all fields except berth configuration
+          const schema = getBusInfoSchema(isVendor, t).omit(['berth_type', 'rows', 'columns']);
+          await schema.validate(formData, { abortEarly: false });
+      
+          // Then manually check berth configuration
+          if (!formData.berth_type || !formData.rows || !formData.columns) {
+            setErrors({
+              ...errors,
+              berth_type: !formData.berth_type ? t('bus.berthTypeRequired') : undefined,
+              rows: !formData.rows ? t('bus.rowsRequired') : undefined,
+              columns: !formData.columns ? t('bus.columnsRequired') : undefined,
+            });
+            setOpenDialog(true);
+            return; // Exit early without submitting
+          }
+          
+          //console.log(formData)
+            //return
+          // If all validations pass, proceed with submission
+          const resultAction = busId 
+            ? await dispatch(editBus({ busId, busData: formData }))
+            : await dispatch(addBus({ busData: formData }));
+      
+          if (addBus.fulfilled.match(resultAction)) {
+            Swal.fire({
+              icon: 'success',
+              title: t('bus.successTitle'),
+              text: busId ? t('bus.updatedSuccessfully') : t('bus.addedSuccessfully'),
+              confirmButtonText: t('common.ok'),
+              timer: 2000,
+              timerProgressBar: true,
+              willClose: () => {
+                navigate('/buses');
+              }
+            });
+          } else {
+            throw new Error(resultAction.payload || t('common.requestFailed'));
+          }
+      
         } catch (error) {
-            if (error instanceof Yup.ValidationError) {
-                const newErrors = {};
-                error.inner.forEach((err) => {
-                    newErrors[err.path] = err.message;
-                });
-                setErrors(newErrors);
-            } else {
-                console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: t('common.errorOccurred') || 'Error!',
-                    text: error.message || t('common.somethingWentWrong'),
-                });
+          if (error instanceof Yup.ValidationError) {
+            const newErrors = {};
+            error.inner.forEach((err) => {
+              newErrors[err.path] = err.message;
+            });
+            setErrors(newErrors);
+            
+            // Check if the error is related to berth configuration
+            if (newErrors.berth_type || newErrors.rows || newErrors.columns) {
+              setOpenDialog(true);
             }
+          } else {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: t('common.errorOccurred') || 'Error!',
+              text: error.message || t('common.somethingWentWrong'),
+            });
+          }
         }
-    };
-
+      };
     const handleSaveChangeSeat=async (e)=>{
         //console.log(formData.seats)
         await dispatch(updateSeat({busId,busData:formData}))
@@ -451,14 +550,34 @@ const AddBus = () => {
             .positive(t('bus.pricePositive')),
 
             image: Yup.mixed()
-        .test('fileOrUrl', t('bus.imageRequired'), (value) => {
-          // If value is a string (URL), it's valid (editing case)
-          if (typeof value === 'string' && value.trim() !== '') return true;
-          // If value is a File object, it's valid (new upload case)
-          if (value instanceof File) return true;
-          // Otherwise invalid
-          return false;
-        }),
+                .test('fileOrUrl', t('bus.imageRequired'), (value) => {
+                    // If value is a string (URL), it's valid (editing case)
+                    if (typeof value === 'string' && value.trim() !== '') return true;
+                    // If value is a File object, it's valid (new upload case)
+                    if (value instanceof File) return true;
+                    // Otherwise invalid
+                    return false;
+                })
+                .test('fileSize', t('bus.imageSizeLimit'), (value) => {
+                    // Only validate if it's a file (not a URL string)
+                    if (value instanceof File) {
+                    return value.size <= 1024 * 1024; // 1MB limit
+                    }
+                    return true; // Skip validation if it's a URL
+                }),
+            berth_type: Yup.string()
+                .required(t('bus.berthTypeRequired'))
+                .oneOf(['lower', 'upper'], t('bus.berthTypeInvalid')),
+              rows: Yup.number()
+                .typeError(t('bus.rowsRequired'))
+                .required(t('bus.rowsRequired'))
+                .positive(t('bus.rowsPositive'))
+                .integer(t('bus.rowsInteger')),
+              columns: Yup.number()
+                .typeError(t('bus.columnsRequired'))
+                .required(t('bus.columnsRequired'))
+                .positive(t('columnsPositive'))
+                .integer(t('columnsInteger')),
         });
       
 
@@ -734,12 +853,17 @@ const AddBus = () => {
                                     name="berth_type"
                                     value={formData.berth_type}
                                     onChange={handleBerthChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                >
+                                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white ${
+                                        errors.berth_type ? 'border-red-500' : ''
+                                      }`}
+                                    required>
                                     <option value="">{t("SELECT_BERTH_TYPE")}</option>
                                     <option value="lower">Lower Berth</option>
                                     <option value="upper">Upper Berth</option>
                                 </select>
+                                {errors.berth_type && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.berth_type}</p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("ROWS")}</label>
@@ -748,9 +872,15 @@ const AddBus = () => {
                                     name="rows"
                                     value={formData.rows}
                                     onChange={handleBerthChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                                    required
+                                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white ${
+                                        errors.rows ? 'border-red-500' : ''
+                                      }`}
+                                      min="1"
+                                      required
                                 />
+                                {errors.rows && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.rows}</p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("COLUMNS")}</label>
@@ -759,9 +889,15 @@ const AddBus = () => {
                                     name="columns"
                                     value={formData.columns}
                                     onChange={handleBerthChange}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white ${
+                                        errors.columns ? 'border-red-500' : ''
+                                      }`}
+                                      min="1"
                                     required
                                 />
+                                {errors.columns && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.columns}</p>
+                                )}
                             </div>
                         </div>
                         <div className="mt-4">

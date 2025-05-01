@@ -92,7 +92,7 @@
   "DRIVER": "Driver",
   "BUS_NUMBER": "Bus Number",
   "FACILITIES": "Facilities",
-  "BUS_IMAGE": "Bus Image",
+  "BUS_IMAGE": "Bus Image: (Image must be less than 1MB in size)",
   "CONFIGURE_BERTH": "Configure Berth",
   "CONFIGURE_UPPER_BERTH": "Configure Upper Berth",
   "CONFIGURE_LOWER_BERTH": "Configure Lower Berth",
@@ -239,7 +239,7 @@
 
 
     "bus": {
-      "bus.imageRequired":"Image Is Required",
+      "imageSizeLimit": "Image must be less than 1MB in size",
       "driverRequired": "Driver must be selected",
       "vendorRequired": "Vendor must be selected",
       "nameRequired": "Bus Name is required",
@@ -260,7 +260,15 @@
       "nothingToUpdate": "The bus details were already up to date.",
       "notAdded": "Bus not added.",
       "noActionTaken": "No action taken",
-      "checkForm": "Please check the form and try again."
+      "checkForm": "Please check the form and try again.",
+      "berthTypeRequired": "Berth type is required",
+      "berthTypeInvalid": "Invalid berth type",
+      "rowsRequired": "Number of rows is required",
+      "rowsPositive": "Rows must be a positive number",
+      "rowsInteger": "Rows must be an integer",
+      "columnsRequired": "Number of columns is required",
+      "columnsPositive": "Columns must be a positive number",
+      "columnsInteger": "Columns must be an integer"
   },
   "user": {
     "firstNameRequired": "First Name is required",

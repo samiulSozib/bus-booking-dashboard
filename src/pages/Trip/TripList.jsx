@@ -21,10 +21,9 @@ import DiscountFilter from "../Discount/DiscountFilter";
 import useOutsideClick from "../../hooks/useOutSideClick";
 
 
-// Yup validation schema
-const getTripSchema = (t) =>
-    Yup.object().shape({
-      vendor_id: Yup.number().required(t('trip.vendorRequired')),
+// Updated Yup validation schema
+const getTripSchema = (t, isAdmin) => {
+    const schema = {
       route_id: Yup.number().required(t('trip.routeRequired')),
       bus_id: Yup.number().required(t('trip.busRequired')),
       total_seats: Yup.number().required(t('trip.totalSeatsRequired')),
@@ -33,13 +32,19 @@ const getTripSchema = (t) =>
       arrival_time: Yup.string().required(t('trip.arrivalTimeRequired')),
       booking_deadline: Yup.string().required(t('trip.bookingDeadlineRequired')),
       status: Yup.string()
-        .oneOf(
-          ['active', 'inactive'],
-          t('trip.invalidStatus')
-        )
+        .oneOf(['active', 'inactive'], t('trip.invalidStatus'))
         .required(t('trip.statusRequired')),
-      min_partial_payment: Yup.number().required(t('trip.minPartialPaymentRequired')),
-    });
+      allow_partial_payment: Yup.string()
+        .oneOf(["0", "1"], t('trip.invalidPartialPayment'))
+    };
+  
+    // Only add vendor_id validation if isAdmin is true
+    if (isAdmin) {
+      schema.vendor_id = Yup.number().required(t('trip.vendorRequired'));
+    }
+  
+    return Yup.object().shape(schema);
+  };
   
 
 
@@ -103,16 +108,16 @@ export default function TripList() {
     const [busId, setBusId] = useState(null);
     const [bus,setBus]=useState(null)
     const [seats,setSeats]=useState([])
-    const [totalSeats, setTotalSeats] = useState("");
+    const [totalSeats, setTotalSeats] = useState(0);
     const [selectedSeat, setSelectedSeat] = useState(null);
-    const [ticketPrice, setTicketPrice] = useState("");
+    const [ticketPrice, setTicketPrice] = useState(0);
     const [departureTime, setDepartureTime] = useState("");
     const [arrivalTime, setArrivalTime] = useState("");
     const [bookingDeadLine,setBookingDeadLine]=useState("")
     const [status, setStatus] = useState("active");
-    const [allowPartialPayment,setAllowPartialPayment]=useState(false)
+    const [allowPartialPayment,setAllowPartialPayment]=useState("0")
     const [partialPaymentType,setPartialPaymentType]=useState("total")
-    const [minPartialPayment,setMinPartialPayment]=useState("")
+    const [minPartialPayment,setMinPartialPayment]=useState(0)
     const [currentTripId, setCurrentTripId] = useState(null);
     const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
     const [modalRouteSearchTag, setModalRouteSearchTag] = useState("");
@@ -139,7 +144,10 @@ export default function TripList() {
 
      // Fetch buses, routes, and vendors on component mount
      useEffect(() => {
-        dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
+        if(isAdmin){
+            dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
+        }
+        
         dispatch(fetchBuses({ searchTag: modalBusSearchTag,vendor_id:vendorId }));
         dispatch(fetchRoutes({searchTag:modalRouteSearchTag}));
     }, [dispatch, modalBusSearchTag, modalRouteSearchTag,modalVendorSearchTag]);
@@ -195,6 +203,12 @@ export default function TripList() {
         setVendorId(vendor.id);
         setModalVendorSearchTag(vendor.name);
         setShowModalVendorDropdown(false);
+
+        setErrors(prevErrors => {
+            const newErrors = {...prevErrors};
+            delete newErrors.vendor_id;
+            return newErrors;
+          });
     };
 
     // Handle route selection in modal
@@ -202,19 +216,50 @@ export default function TripList() {
         setRouteId(route.id);
         setModalRouteSearchTag(route.name);
         setShowModalRouteDropdown(false);
+
+        setErrors(prevErrors => {
+            const newErrors = {...prevErrors};
+            delete newErrors.route_id;
+            return newErrors;
+          });
     };
 
     // Handle bus selection in modal
+    // const handleModalBusSelect = (bus) => {
+    //     //console.log(bus)
+    //     setBusId(bus.id);
+    //     setBus(bus)
+    //     setSeats(bus?.seats.seats)
+    //     setTicketPrice(bus.ticket_price)
+    //     setTotalSeats(bus?.seats?.seats.length||0)
+    //     setModalBusSearchTag(bus.name);
+    //     setShowModalBusDropdown(false);
+    // };
     const handleModalBusSelect = (bus) => {
-        //console.log(bus)
         setBusId(bus.id);
-        setBus(bus)
-        setSeats(bus?.seats.seats)
-        setTicketPrice(bus.ticket_price)
-        setTotalSeats(bus?.seats?.seats.length||0)
+        setBus(bus);
+    
+        // Add status: "available" to each seat
+        const updatedSeats = bus?.seats?.seats.map(seat => ({
+            ...seat,
+            status: "available"
+        }));
+    
+        setSeats(updatedSeats);
+        setTicketPrice(bus.ticket_price);
+        setTotalSeats(updatedSeats.length || 0);
         setModalBusSearchTag(bus.name);
         setShowModalBusDropdown(false);
+
+        setErrors(prevErrors => {
+            const newErrors = {...prevErrors};
+            delete newErrors.bus_id;
+            return newErrors;
+          });
     };
+    
+
+    
 
     // Handle add/edit trip form submission
     const handleSubmit = async (e) => {
@@ -230,10 +275,12 @@ export default function TripList() {
             arrival_time: arrivalTime,
             booking_deadline:bookingDeadLine,
             status,
-            allow_partial_payment:allowPartialPayment,
-            min_partial_payment:minPartialPayment,
-            partial_payment_type:partialPaymentType,
+            allow_partial_payment: allowPartialPayment,
+            min_partial_payment: minPartialPayment,
+            partial_payment_type: partialPaymentType
         };
+
+        //console.log(tripData)
 
         if(isAdmin){
             tripData.vendor_id=vendorId
@@ -241,12 +288,13 @@ export default function TripList() {
         if (!isEditMode) {
             tripData.ticket_price_per_seat = seats.map(seat => ({
                 seat_number: seat.seat_number,
-                ticket_price: seat.price
+                ticket_price: seat.price,
+                status:seat.status
             }));
         }
 
         try {
-            //await getTripSchema(t).validate(tripData, { abortEarly: false });
+            await getTripSchema(t,isAdmin).validate(tripData, { abortEarly: false });
             // const ticket_price_per_seat = seats.map(seat => ({
             //     seat_number: seat.seat_number,
             //     ticket_price: seat.price
@@ -254,6 +302,9 @@ export default function TripList() {
               
             //   console.log(ticket_price_per_seat);
               
+            //return
+            console.log(tripData)
+            console.log(currentTripId)
             //return
             
             if (isEditMode) {
@@ -305,14 +356,16 @@ export default function TripList() {
         setModalRouteSearchTag("")
         setBusId(null);
         setModalBusSearchTag("")
-        setTotalSeats("");
-        setTicketPrice("");
+        setTotalSeats(0);
+        setTicketPrice(0);
         setDepartureTime("");
         setArrivalTime("");
         setStatus("active");
+        setMinPartialPayment(0)
         setIsModalOpen(false);
         setCurrentTripId(null);
         setErrors({});
+        setAllowPartialPayment("0")
     };
 
     // Handle edit trip button click
@@ -344,6 +397,7 @@ export default function TripList() {
             
             seat_number: seat.seat_number, 
             ticket_price:seat.ticket_price,
+            status:seat.state,
             ...seat 
         });
     };
@@ -381,7 +435,8 @@ export default function TripList() {
             //console.log(seats)
             const data = seats.map(seat => ({
                 seat_number: seat.seat_number,
-                ticket_price: seat.ticket_price
+                ticket_price: seat.ticket_price,
+                status:seat.status
             }));
             await dispatch(updateTripSeatPrices({trip_id:selectedTrip.id,ticket_price_per_seat:data}))
             setSeats(data)
@@ -605,8 +660,12 @@ export default function TripList() {
                                         {trip.status}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        {trip.min_partial_payment}
+                                        {trip.allow_partial_payment === 1 || trip.allow_partial_payment==="1"
+                                            ? trip.min_partial_payment
+                                            : '--'}
                                     </TableCell>
+
+                                    
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         <div className="flex flex-row items-center justify-start gap-2">
                                             <Edit
@@ -633,7 +692,7 @@ export default function TripList() {
             {/* Add/Edit Trip Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[70vh] overflow-y-auto">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <h2 className="text-lg font-semibold mb-4">
                             {isEditMode ? t("EDIT_TRIP") :t("ADD_TRIP")}
                         </h2>
@@ -730,6 +789,7 @@ export default function TripList() {
                                 </label>
                                 <div className="relative">
                                     <input
+                                        disabled={isAdmin && !vendorId}
                                         type="text"
                                         placeholder={t("SEARCH_BUS")}
                                         value={modalBusSearchTag}
@@ -809,7 +869,13 @@ export default function TripList() {
                                 <input
                                     type="datetime-local"
                                     value={formatForDisplay(departureTime)}
-                                    onChange={(e) => setDepartureTime(formatForInputDiscount(e.target.value))}
+                                    onChange={(e) => {setDepartureTime(formatForInputDiscount(e.target.value)),
+                                        setErrors(prevErrors => {
+                                        const newErrors = {...prevErrors};
+                                        delete newErrors.departure_time;
+                                        return newErrors;
+                                      });
+                                    }}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 {errors.departure_time && (
@@ -825,7 +891,13 @@ export default function TripList() {
                                 <input
                                     type="datetime-local"
                                     value={formatForDisplay(arrivalTime)}
-                                    onChange={(e) => setArrivalTime(formatForInputDiscount(e.target.value))}
+                                    onChange={(e) => {setArrivalTime(formatForInputDiscount(e.target.value)),
+                                        setErrors(prevErrors => {
+                                            const newErrors = {...prevErrors};
+                                            delete newErrors.arrival_time;
+                                            return newErrors;
+                                          });
+                                    }}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 {errors.arrival_time && (
@@ -841,7 +913,13 @@ export default function TripList() {
                                 <input
                                     type="datetime-local"
                                     value={formatForDisplay(bookingDeadLine)}
-                                    onChange={(e) => setBookingDeadLine(formatForInputDiscount(e.target.value))}
+                                    onChange={(e) => {setBookingDeadLine(formatForInputDiscount(e.target.value)),
+                                        setErrors(prevErrors => {
+                                            const newErrors = {...prevErrors};
+                                            delete newErrors.booking_deadline;
+                                            return newErrors;
+                                          });
+                                    }}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 {errors.booking_deadline && (
@@ -874,19 +952,18 @@ export default function TripList() {
                                 </label>
                                 <select
                                     value={allowPartialPayment}
-                                    onChange={(e) => {
-                                        const value = e.target.value === "true";
-                                        setAllowPartialPayment(value);
-                                    }}
+                                    onChange={(e) => setAllowPartialPayment(e.target.value)}
+
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
-                                    <option value="true">Yes</option>
-                                    <option value="false">No</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
                                 </select>
                                 
                             </div>
 
                             {/*  partial payment type*/}
+                            {(allowPartialPayment==="1" || allowPartialPayment===1)&&(
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700">
                                 {t("PARTIAL_PAYMENT_TYPE")} *
@@ -901,22 +978,28 @@ export default function TripList() {
                                 </select>
                                 
                             </div>
+                            )}
 
                             {/* min partial payment */}
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">
-                                {t("MIN_PARTIAL_PAYMENT")} *
-                                </label>
-                                <input
-                                    type="number"
-                                    value={minPartialPayment}
-                                    onChange={(e) => setMinPartialPayment(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                />
-                                {errors.min_partial_payment && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.min_partial_payment}</p>
-                                )}
-                            </div>
+                            {(allowPartialPayment==="1" || allowPartialPayment===1)&&(
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                    {t("MIN_PARTIAL_PAYMENT")} *
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={minPartialPayment}
+                                        onChange={(e) => setMinPartialPayment(e.target.value)}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    />
+                                    {/* {errors.min_partial_payment && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.min_partial_payment}</p>
+                                    )} */}
+                                </div>
+                            )}
+                            
+
+
                             {isEditMode?(
                                 <div className="flex justify-end mt-2 mb-2">
                                 <button
@@ -929,14 +1012,18 @@ export default function TripList() {
                                 
                             </div>
                             ) :(
+                                
                                 <div className="flex justify-end mt-2 mb-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setOpenSeatsDialog(true)}
-                                        className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                    >
-                                        {t("MANAGE_SEATS")}
-                                    </button>
+                                    {busId&&(
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpenSeatsDialog(true)}
+                                            className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                        >
+                                            {t("MANAGE_SEATS")}
+                                        </button>
+                                    )}
+                                    
                                     
                                 </div>
                             )}
@@ -1030,11 +1117,11 @@ export default function TripList() {
                 <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-lg p-6 w-full max-w-sm dark:bg-gray-800">
                         <h3 className="text-lg font-semibold mb-4 dark:text-white/90">
-                        {t("EDIT_SEAT")} {selectedSeat.row}-{selectedSeat.column}
+                        {t("EDIT_SEAT")} {String.fromCharCode(64 + selectedSeat.row)}{selectedSeat.column} ({selectedSeat.row}{selectedSeat.column})
                         </h3>
                         <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto">
                             {/* Seat Number (Read-Only) */}
-                            <div>
+                            {/* <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("SEAT_NUMBER")}</label>
                                 <input
                                 onChange={(e) => {
@@ -1056,7 +1143,7 @@ export default function TripList() {
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white bg-gray-100"
                                     
                                 />
-                            </div>
+                            </div> */}
 
                             {/* Price Input */}
                             <div>
@@ -1070,6 +1157,24 @@ export default function TripList() {
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                                 />
                             </div>
+
+                            {/* Status Dropdown */}
+                            <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {t("STATUS")}
+                            </label>
+                            <select
+                                value={selectedSeat.status || 'available'}
+                                onChange={(e) =>
+                                setSelectedSeat({ ...selectedSeat, status: e.target.value })
+                                }
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                            >
+                                <option value="available">{t("Available")}</option>
+                                <option value="unavailable">{t("Unavailable")}</option>
+                            </select>
+                            </div>
+
 
                         </div>
                         <div className="mt-6 flex justify-end gap-4">
@@ -1123,6 +1228,23 @@ export default function TripList() {
                                     }
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                                 />
+                            </div>
+
+                            {/* Status Dropdown */}
+                            <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {t("STATUS")}
+                            </label>
+                            <select
+                                value={selectedSeat.status || 'available'}
+                                onChange={(e) =>
+                                setSelectedSeat({ ...selectedSeat, status: e.target.value })
+                                }
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                            >
+                                <option value="available">{t("Available")}</option>
+                                <option value="unavailable">{t("Unavailable")}</option>
+                            </select>
                             </div>
 
                         </div>

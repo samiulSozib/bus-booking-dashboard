@@ -915,13 +915,26 @@ export default function UserList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-                        {users.map((user,index) => (
+                        {(selectedRole === "vendor" ? vendorList : users).map((user, index) => (
                             <TableRow key={index}>
                                 <TableCell className="py-3 text-black-500 text-theme-sm dark:text-gray-400">{user?.first_name}</TableCell>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{user?.last_name}</TableCell>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{user?.email}</TableCell>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{user?.mobile}</TableCell>
-                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{user?.role}</TableCell>
+                                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    <div>
+                                        {user?.role}
+                                        {user?.role === "vendor" && user?.vendor && (
+                                        <div>
+                                            (<strong>{user.vendor.name}</strong>)
+                                            <div className="text-[14px] text-gray-400">{user.vendor.email}</div>
+                                        </div>
+                                        )}
+                                    </div>
+                                </TableCell>
+
+
+                               
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{user?.status}</TableCell>
                                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                     <button

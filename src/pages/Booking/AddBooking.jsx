@@ -173,7 +173,9 @@ const AddBooking = () => {
                 ...formData,
                 tickets: ticketsData
             };
-    
+            
+            console.log(bookingData)
+            return
             // Validate form data
             await bookingSchema.validate(bookingData, { abortEarly: false });
             

@@ -7,22 +7,30 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Users
 export const fetchUsers = createAsyncThunk(
     "users/fetch",
-    async ({searchTag = "",role="",page=1}, { rejectWithValue }) => {
-        try {
-            const token = getAuthToken();
-            const response = await axios.get(`${base_url}/admin/users?search=${searchTag}&role=${role}&page=${page}`, {
-                headers: { Authorization: `${token}` },
-            });
-            return {
-                items:response.data.body.items,
-                pagination: response.data.body.data,
-                role
-            };
-        } catch (error) {
-            return rejectWithValue(error.message);
+    async ({ searchTag = "", role = "", page = 1, vendorId = "" }, { rejectWithValue }) => {
+      try {
+        const token = getAuthToken();
+  
+        let url = `${base_url}/admin/users?search=${searchTag}&role=${role}&page=${page}`;
+        if (role === "driver" && vendorId) {
+          url += `&vendor-id=${vendorId}`;
         }
+  
+        const response = await axios.get(url, {
+          headers: { Authorization: `${token}` },
+        });
+        console.log(response)
+        return {
+          items: response.data.body.items,
+          pagination: response.data.body.data,
+          role,
+        };
+      } catch (error) {
+        return rejectWithValue(error.message);
+      }
     }
-);
+  );
+  
 
 // Show User
 export const showUser = createAsyncThunk(

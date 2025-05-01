@@ -106,7 +106,7 @@ export const addTrip = createAsyncThunk(
             formData.append('arrival_time', tripData.arrival_time);
             formData.append('booking_deadline',tripData.booking_deadline)
             formData.append('status', tripData.status);
-            formData.append('allow_partial_payment',true)
+            formData.append('allow_partial_payment',tripData.allow_partial_payment)
             formData.append('min_partial_payment',parseFloat(tripData.min_partial_payment))
             formData.append('partial_payment_type',tripData.partial_payment_type)
             formData.append("ticket_price_per_seat",JSON.stringify(tripData.ticket_price_per_seat))
@@ -149,9 +149,10 @@ export const editTrip = createAsyncThunk(
             formData.append('min_partial_payment',updatedData.min_partial_payment)
             formData.append('partial_payment_type',updatedData.partial_payment_type)
             formData.append("ticket_price_per_seat",JSON.stringify(updatedData.ticket_price_per_seat))
+            formData.append("id",tripId)
 
             //console.log(updatedData)
-            const response = await axios.post(`${base_url}/${type.role}/trips/${tripId}/update`, formData, {
+            const response = await axios.post(`${base_url}/${type.role}/trips/update`, formData, {
                 headers: {
                     Authorization: `${token}`,
                     'Content-Type': 'multipart/form-data',
@@ -159,7 +160,7 @@ export const editTrip = createAsyncThunk(
             });
             return response.data.body.item;
         } catch (error) {
-            //console.log(error)
+            console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
