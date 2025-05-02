@@ -63,6 +63,17 @@ export default function BookingList() {
     };
 
     const handleMarkAsPaid = async (bookingId) => {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to make paid this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, make paid it!',
+        cancelButtonText: 'No, keep it'
+    });
+    if(result.isConfirmed){
         try {
             await dispatch(markBookingAsPaid(bookingId)).unwrap();
             Swal.fire({
@@ -77,6 +88,7 @@ export default function BookingList() {
                 text: error || "Failed to mark booking as paid",
             });
         }
+      }
     };
 
     const handleCancelBooking = async (bookingId) => {
@@ -229,7 +241,13 @@ export default function BookingList() {
                             </svg>
                           </p>
                           <p className="flex items-center">
-                            <span className="font-semibold ml-1">{t('AMOUNT')}: {bookingDetails.total_price}</span>
+                            <span className="font-semibold ml-1">{t('booking.remainingAmount')}: {bookingDetails.remaining_amount}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </p>
+                          <p className="flex items-center">
+                            <span className="font-semibold ml-1">{t('booking.totalAmount')}: {bookingDetails.total_price}</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
@@ -359,7 +377,10 @@ export default function BookingList() {
                                     {t("VENDOR")}
                                 </TableCell> */}
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    {t("AMOUNT")}
+                                    {t("booking.totalAmount")}
+                                </TableCell>
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    {t("booking.remainingAmount")}
                                 </TableCell>
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                     {t("TICKET_COUNT")}
@@ -373,6 +394,11 @@ export default function BookingList() {
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                     {t("ACTION")}
                                 </TableCell>
+                                  {(type.role==="admin")&&(
+                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                    {t("DOWNLOAD")}
+                                </TableCell>
+                              )}
                             </TableRow>
                         </TableHeader>
 
@@ -397,6 +423,9 @@ export default function BookingList() {
                                         {booking?.total_price}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                        {booking?.remaining_amount}
+                                    </TableCell>
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                         {booking.ticket_count}
                                     </TableCell>
                                     <TableCell className="py-3">
@@ -411,32 +440,36 @@ export default function BookingList() {
                                                 className="w-5 h-5 cursor-pointer text-blue-500"
                                                 onClick={() => handleViewDetails(booking.id)}
                                             />
-                                            {booking.status === 'unpaid' && (
-                                                <button
-                                                    onClick={() => handleMarkAsPaid(booking.id)}
-                                                    className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                                                >
-                                                    Mark Paid
-                                                </button>
-                                            )}
-                                            {['paid', 'confirmed'].includes(booking.status) && (
+                                            
+                                            {['paid', 'pending','partial_paid'].includes(booking.status) && (
                                                 <button
                                                     onClick={() => handleCancelBooking(booking.id)}
                                                     className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                                                 >
-                                                    {t("CANCEL")}
+                                                    {t("booking.cancel")}
                                                 </button>
                                             )}
-                                            {(type.role==="admin")&&(
-                                                 <button
+                                            {['pending','partial_paid'].includes(booking.status) && (
+                                                <button
+                                                    onClick={() => handleMarkAsPaid(booking.id)}
+                                                    className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                                >
+                                                    {t("booking.paid")}
+                                                </button>
+                                            )}
+                                            
+                                        </div>
+                                    </TableCell>
+                                    {(type.role==="admin")&&(
+                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                      <button
                                                  onClick={() => handleDownload(booking.id)}
                                                  className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-gray-600"
                                              >
                                                  Download
                                              </button>
-                                            )}
-                                        </div>
                                     </TableCell>
+                                  )}
                                 </TableRow>
                             ))}
                         </TableBody>

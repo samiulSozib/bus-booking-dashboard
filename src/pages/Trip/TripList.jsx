@@ -293,6 +293,14 @@ export default function TripList() {
             }));
         }
 
+        if (isEditMode && !isAdmin) {
+            tripData.ticket_price_per_seat = seats.map(seat => ({
+                seat_number: seat.seat_number,
+                ticket_price: seat.price,
+                status:seat.status
+            }));
+        }
+
         try {
             await getTripSchema(t,isAdmin).validate(tripData, { abortEarly: false });
             // const ticket_price_per_seat = seats.map(seat => ({

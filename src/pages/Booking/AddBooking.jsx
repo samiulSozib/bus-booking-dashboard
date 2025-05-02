@@ -17,6 +17,9 @@ const AddBooking = () => {
     const {bus}=useSelector((state)=>state.buses)
     const [trip, setTrip] = useState(null);
     const [ticketPrices,setTicketPrices]=useState(null)
+    const [minPartialAmount,setMinPartialAmount]=useState(0)
+    const [partialAmountType,setPartialAmountType]=useState("")
+    const [totalAmount,setTotalAmount]=useState(0)
 
     const [formData, setFormData] = useState({
         trip_id: '',
@@ -32,6 +35,7 @@ const AddBooking = () => {
     const [selectedTripId, setSelectedTripId] = useState(null);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [errors, setErrors] = useState({});
+    const [amountError, setAmountError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     // Fetch trips when component mounts or search term changes
@@ -46,11 +50,23 @@ const AddBooking = () => {
         }
     }, [selectedTripId, dispatch]);
 
+
     useEffect(() => {
         if (selectedTrip && selectedTrip.bus && selectedTrip.bus.id) {
-            setTrip(selectedTrip);  // Set the trip data
-            setTicketPrices(selectedTrip?.seat_prices);  // Set the seat prices
-            dispatch(fetchBusById(selectedTrip.bus.id));  // Fetch the bus details
+            setTrip(selectedTrip);
+            setFormData(prev => ({
+                ...prev,
+                is_partial_payment: String(selectedTrip.allow_partial_payment || '0'),
+                amount: selectedTrip.allow_partial_payment === "1" ? 
+                    (selectedTrip.partial_payment_type === "total" ? 
+                        selectedTrip.min_partial_payment : 
+                        selectedTrip.min_partial_payment * 0) // Will be updated when seats are selected
+                    : 0
+            }));
+            setMinPartialAmount(selectedTrip.min_partial_payment);
+            setPartialAmountType(selectedTrip.partial_payment_type);
+            setTicketPrices(selectedTrip?.seat_prices);
+            dispatch(fetchBusById(selectedTrip.bus.id));
         }
     }, [selectedTrip, dispatch]);
 
@@ -64,14 +80,34 @@ const AddBooking = () => {
     // },[dispatch,selectedTrip,selectedTripId])
 
 
-    // Calculate total amount when selected seats change
-    useEffect(() => {
-        const totalAmount = selectedSeats.reduce((sum, seat) => {
-            const seatPrice = ticketPrices?.find(tp => tp.seat_number === seat.seat_number);
-            return sum + (seatPrice ? Number(seatPrice.ticket_price) : 0);
-        }, 0);
-        setFormData(prev => ({ ...prev, amount: totalAmount }));
-    }, [selectedSeats, ticketPrices]);
+// Calculate total amount and partial payment when selected seats change
+useEffect(() => {
+    const totalAmount = selectedSeats.reduce((sum, seat) => {
+        const seatPrice = ticketPrices?.find(tp => tp.seat_number === seat.seat_number);
+        return sum + (seatPrice ? Number(seatPrice.ticket_price) : 0);
+    }, 0);
+    setTotalAmount(totalAmount);
+
+    // For full payment, always set amount to totalAmount
+    if (formData.is_partial_payment !== "1") {
+        setFormData(prev => ({ 
+            ...prev, 
+            amount: totalAmount,
+        }));
+    } else {
+        // Partial payment calculation
+        let partialAmount = 0;
+        if (partialAmountType === "total") {
+            partialAmount = minPartialAmount;
+        } else if (partialAmountType === "per_seat") {
+            partialAmount = minPartialAmount * selectedSeats.length;
+        }
+        setFormData(prev => ({ 
+            ...prev, 
+            amount: Math.min(partialAmount, totalAmount),
+        }));
+    }
+}, [selectedSeats, ticketPrices, formData.is_partial_payment, minPartialAmount, partialAmountType]);
     
 
     // Format trips for react-select
@@ -83,14 +119,43 @@ const AddBooking = () => {
     // Handle trip selection
     const handleTripSelect = (selectedOption) => {
         setFormData({...formData,trip_id:selectedOption.value})
+        
         setSelectedTripId(selectedOption.value);
         setSelectedSeats([]); // Clear selected seats when trip changes
+        setErrors({})
+        setAmountError("")
     };
 
     // Handle form input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+    };
+
+    const handleAmountChange = (e) => {
+        const value = parseFloat(e.target.value) || 0;
+        
+        if (formData.is_partial_payment === "1") {
+            const minAmount = partialAmountType === "total" ? 
+                minPartialAmount : 
+                minPartialAmount * selectedSeats.length;
+            
+            if (value < minAmount) {
+                setAmountError(`Amount must be at least ${minAmount}`);
+            } else if (value > totalAmount) {
+                setAmountError(`Amount cannot exceed total ${totalAmount}`);
+            } else {
+                setAmountError('');
+            }
+        } else {
+            // For full payment, automatically set to total amount
+            setAmountError('');
+        }
+    
+        setFormData({
+            ...formData,
+            amount: formData.is_partial_payment === "1" ? value : totalAmount,
+        });
     };
 
     // Handle seat selection
@@ -146,8 +211,28 @@ const AddBooking = () => {
                     last_name: Yup.string().required(t('booking.passengerLastNameRequired')),
                     phone: Yup.string().required(t('booking.passengerPhoneRequired')),
                     gender: Yup.string().required(t('booking.passengerGenderRequired')),
-                    trip_seat_price_id: Yup.number().required().positive()
                 })
+            ),
+            amount: Yup.number()
+            .required(t('booking.amountRequired'))
+            .test(
+                'amount-validation',
+                t('booking.amountInvalid'),
+                function(value) {
+                    const { is_partial_payment } = this.parent;
+                    
+                    if (is_partial_payment === "1") {
+                        // For partial payments
+                        const minAmount = partialAmountType === "total" 
+                            ? minPartialAmount 
+                            : minPartialAmount * selectedSeats.length;
+                        
+                        return value >= minAmount && value <= totalAmount;
+                    } else {
+                        // For full payments - must exactly match total amount
+                        return value === totalAmount;
+                    }
+                }
             )
     });
 
@@ -173,11 +258,17 @@ const AddBooking = () => {
                 ...formData,
                 tickets: ticketsData
             };
+
             
-            console.log(bookingData)
-            return
+            
+            
             // Validate form data
             await bookingSchema.validate(bookingData, { abortEarly: false });
+            if(bookingData.is_partial_payment==="0"){
+                bookingData.amount=0
+            }
+            //console.log(bookingData)
+            //return
             
             // Submit booking
             const resultAction = await dispatch(createBooking(bookingData));
@@ -624,29 +715,72 @@ const AddBooking = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         {t('booking.paymentType')}
                                     </label>
-                                    <select
-                                        name="is_partial_payment"
-                                        value={formData.is_partial_payment}
-                                        onChange={handleChange}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    >
-                                        <option value="0">{t('booking.fullPayment')}</option>
-                                        <option value="1">{t('booking.partialPayment')}</option>
-                                    </select>
+                                    <input 
+                                        className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                                        value={(formData.is_partial_payment === "1")
+                                            ? t("booking.partialPayment")
+                                            : t("booking.fullPayment")}
+                                        readOnly
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        {t('booking.totalAmount')}
+                                        {t('booking.paymentAmount')} 
+                                        {formData.is_partial_payment === "1" && (
+                                            <span className="text-xs text-gray-500">
+                                                (Min: {partialAmountType === "total" ? 
+                                                    minPartialAmount : 
+                                                    `${minPartialAmount} × ${selectedSeats.length} = ${minPartialAmount * selectedSeats.length}`})
+                                            </span>
+                                        )}
                                     </label>
                                     <input
-                                        type="text"
-                                        value={`$${formData.amount.toFixed(2)}`}
+                                        type="number"
+                                        name="amount"
+                                        value={formData.amount}
+                                        onChange={handleAmountChange}
+                                        min={formData.is_partial_payment === "1" ? 
+                                            (partialAmountType === "total" ? minPartialAmount : minPartialAmount * selectedSeats.length) 
+                                            : totalAmount}
+                                        max={totalAmount}
+                                        disabled={formData.is_partial_payment !== "1"} // Disabled for full payment
+                                        className={`w-full rounded-md border-gray-300 shadow-sm ${
+                                            formData.is_partial_payment !== "1" ? 'bg-gray-100' : ''
+                                        }`}
+                                    />
+                                    {amountError && (
+                                        <p className="text-red-500 text-xs mt-1">{amountError}</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        {t('booking.totalAmount')} 
+                                    </label>
+                                    <input
                                         readOnly
+                                        type="text"
+                                        value={totalAmount}
                                         className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
                                     />
                                 </div>
+                                {formData.is_partial_payment === "1" && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            {t('booking.remainingAmount')} 
+                                        </label>
+                                        <input
+                                            readOnly
+                                            type="text"
+                                            value={totalAmount - formData.amount}
+                                            className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
+
                     </div>
     
                     {/* RIGHT COLUMN - Seat Layout */}

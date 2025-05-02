@@ -133,6 +133,7 @@ export const editTrip = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=user_type()
+            console.log(updatedData)
             const formData = new FormData();
             if(updatedData.vendor_id){
                 formData.append('vendor_id', updatedData.vendor_id);

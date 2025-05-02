@@ -429,12 +429,19 @@
     "fullPayment": "Full Payment",
     "partialPayment": "Partial Payment",
     "totalAmount": "Total Amount",
+    "partialAmount":"Partial Amount",
     "selectSeats": "Select Seats",
     "selected": "Selected",
     "booked": "Booked",
     "available": "Available",
     "creating": "Creating Booking...",
-    "createBooking": "Create Booking"
+    "createBooking": "Create Booking",
+    "remainingAmount":"Remaining Amount",
+    "fixedAmount":"Fixed Amount",
+    "perSeat":"Per Seat",
+    "paymentAmount":"Payment Amount",
+    "paid":"Paid",
+    "cancel":"Cancel"
   },
   "common": {
     "download":"Download",
