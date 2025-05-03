@@ -199,57 +199,46 @@ const bookingSlice = createSlice({
 
       // Create Booking
       .addCase(createBooking.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(createBooking.fulfilled, (state, action) => {
-        state.loading = false;
         state.bookings.push(action.payload);
         state.pagination.total+=1
       })
       .addCase(createBooking.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Get Booking Details
       .addCase(getBookingDetails.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(getBookingDetails.fulfilled, (state, action) => {
-        state.loading = false;
         state.bookingDetails = action.payload;
       })
       .addCase(getBookingDetails.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Mark as Paid
       .addCase(markBookingAsPaid.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(markBookingAsPaid.fulfilled, (state, action) => {
-        state.loading = false;
         const index = state.bookings.findIndex((b) => b.id === action.payload.id);
         if (index !== -1) {
           state.bookings[index] = action.payload;
         }
       })
       .addCase(markBookingAsPaid.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Cancel Booking
       .addCase(cancelBooking.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(cancelBooking.fulfilled, (state, action) => {
-        state.loading = false;
         const index = state.bookings.findIndex((b) => b.id === action.payload.id);
         if (index !== -1) {
           state.bookings[index] = action.payload; // Update booking as cancelled
@@ -259,20 +248,16 @@ const bookingSlice = createSlice({
         }
       })
       .addCase(cancelBooking.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
       .addCase(downloadBookingTickets.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(downloadBookingTickets.fulfilled, (state, action) => {
-        state.loading = false;
         // You might want to update some state here if needed
         // For example, track which bookings have been downloaded
       })
       .addCase(downloadBookingTickets.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       });
   },

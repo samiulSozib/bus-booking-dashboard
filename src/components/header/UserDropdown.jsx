@@ -77,12 +77,18 @@ export default function UserDropdown() {
 
       {/* Dropdown Menu */}
       <Dropdown
-        isOpen={isOpen}
-        onClose={closeDropdown}
-        className={`absolute mt-[17px] flex w-[150px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark ${
-          i18n.dir() === "rtl" ? "left-0" : "right-0" // Adjust positioning for RTL
-        }`}
-      >
+  isOpen={isOpen}
+  onClose={closeDropdown}
+  className={`absolute mt-[17px] w-[150px] flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark ${
+    i18n.dir() === "rtl" 
+      ? "left-0 rtl:left-auto rtl:right-0" 
+      : "right-0"
+  }`}
+  style={{
+    [i18n.dir() === "rtl" ? "right" : "left"]: "0",
+    [i18n.dir() === "rtl" ? "left" : "right"]: "auto"
+  }}
+>
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
             {user_info?.name}

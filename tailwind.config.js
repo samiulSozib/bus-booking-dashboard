@@ -6,7 +6,19 @@ export default {
   theme: {
     fontFamily: {
       outfit: ["Outfit", "sans-serif"],
+      sans: [
+        'var(--font-primary)',
+        'system-ui',
+        '-apple-system',
+        'BlinkMacSystemFont',
+        'Segoe UI',
+        'Roboto',
+        'Helvetica Neue',
+        'Arial',
+        'sans-serif'
+      ],
     },
+    
     screens: {
       "2xsm": "375px",
       xsm: "425px",

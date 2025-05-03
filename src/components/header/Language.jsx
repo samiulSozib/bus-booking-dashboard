@@ -1,9 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { Internet } from "../../icons";
+import useOutsideClick from "../../hooks/useOutSideClick";
 
 export default function Language() {
+
+  const dropdownRef = useRef(null);
+
+  useOutsideClick(dropdownRef, () => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  });
+  
+
   const [isOpen, setIsOpen] = useState(false);
   const { i18n } = useTranslation();
   const dispatch = useDispatch();
@@ -47,6 +58,7 @@ export default function Language() {
             i18n.dir() === "rtl" ? "right-0" : "left-0" // Adjust positioning for RTL
           }`}
           style={{ direction: "ltr" }} // Ensure dropdown content is LTR
+          ref={dropdownRef}
         >
           <ul className="py-2">
             {languagesWithFlags?.map((lang) => (

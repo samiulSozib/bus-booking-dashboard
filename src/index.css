@@ -7,6 +7,8 @@
 @layer base {
   body {
     @apply relative text-base font-normal z-1 bg-gray-50 font-outfit;
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-normal, 400);
   }
 }
 

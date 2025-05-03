@@ -10,7 +10,8 @@ import { Provider } from "react-redux";
 import "./i18n"; // i18next ইম্পোর্ট করুন
 import { I18nextProvider } from "react-i18next";
 import store from "./store/store.js";
-
+import './styles/fonts.css'
+import FontWrapper from "./components/FontWrapper.jsx";
 
 
 
@@ -22,7 +23,10 @@ createRoot(document.getElementById("root")).render(
       <ThemeProvider>
         <AppWrapper>
           <I18nextProvider>
-          <App />
+            <FontWrapper>
+              <App />
+            </FontWrapper>
+          
           </I18nextProvider>
         </AppWrapper>
       </ThemeProvider>

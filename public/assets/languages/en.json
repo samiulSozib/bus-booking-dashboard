@@ -69,6 +69,7 @@
   "TICKET_PRICE":"Ticket Price",
   "DEPARTURE_TIME":"Departure Time",
   "ARRIVAL_TIME":"Arrival Time",
+  "BOOKING_TIME":"Booking Time",
   "BOOKING_DEADLINE":"Booking Deadline",
   "ALLOW_PARTIAL_PAYMENT":"Allow Partial Payment",
   "PARTIAL_PAYMENT_TYPE":"Partial Payment Type",
@@ -441,7 +442,12 @@
     "perSeat":"Per Seat",
     "paymentAmount":"Payment Amount",
     "paid":"Paid",
-    "cancel":"Cancel"
+    "cancel":"Cancel",
+    "traveler":"Traveler",
+    "operator":"Operator",
+    "seatNumber":"Seat Number",
+    "customer":"Customer",
+    "vendor/agent/busOperator":"Vendor/Agent/Bus Operator"
   },
   "common": {
     "download":"Download",
