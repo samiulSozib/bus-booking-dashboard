@@ -277,14 +277,7 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
               )}
             </div>
             
-            {/* Barcode - Mobile */}
-            <div className="mobile-only block sm:hidden w-full mt-4">
-              <img 
-                src={leftBarcodeUrl || "/images/sample-barcode.png"} 
-                alt="barcode" 
-                className="w-full h-8" 
-              />
-            </div>
+            
           </div>
 
           {/* Dashed Divider - Mobile */}
@@ -295,13 +288,7 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
 
           {/* Right Side - Customer */}
           <div className="flex-[2] px-2 md:px-4 py-2 md:py-3">
-            {/* Header - Mobile */}
-            <div className="mobile-only md:hidden flex bg-purple-800 text-white text-xs md:text-sm font-bold rounded-md">
-              <div className="w-px bg-gradient-to-b from-gray-400 via-transparent to-gray-400 bg-[length:2px_6px] bg-repeat-y"></div>
-              <div className="flex-[2] text-center py-2 md:py-3 px-1 md:px-4">
-                <div className="flex items-center justify-center gap-1">{t('booking.customer')}</div>
-              </div>
-            </div>
+            
 
             <div className="bg-gray-200 flex justify-between items-center mb-2 md:mb-3 px-2 md:px-4 py-1 md:py-2 rounded-t">
               <div className="text-sm md:text-lg font-bold text-center">
@@ -394,14 +381,7 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
               </div>
             </div>
           </div>
-          {/* Barcode - Mobile */}
-          <div className="mobile-only block sm:hidden w-full mt-4">
-              <img 
-                src={leftBarcodeUrl || "/images/sample-barcode.png"} 
-                alt="barcode" 
-                className="w-full h-8" 
-              />
-            </div>
+          
         </div>
 
         {/* Footer Barcodes - Desktop */}
