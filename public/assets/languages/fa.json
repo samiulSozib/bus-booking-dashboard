@@ -51,14 +51,14 @@
   "EDIT_STATION": "ویرایش ایستگاه",
   "STATION_NAME": "نام ایستگاه",
   "STATION_CODE": "کد ایستگاه",
-  "STATION_LAT": "عرض جغرافیایی",
-  "STATION_LONG": "طول جغرافیایی",
+  "STATION_LAT": "عرض جغرافیایی ایستگاه",
+  "STATION_LONG": "طول جغرافیایی ایستگاه",
 
   "ROUTE_LIST": "لیست مسیرها",
   "ADD_ROUTE": "افزودن مسیر",
   "EDIT_ROUTE": "ویرایش مسیر",
   "ROUTE_NAME": "نام مسیر",
-  "ORIGIN": "مبدأ",
+  "ORIGIN": "مبدا",
   "DESTINATION": "مقصد",
   "DISTANCE": "فاصله",
 
@@ -69,6 +69,7 @@
   "TICKET_PRICE": "قیمت بلیط",
   "DEPARTURE_TIME": "زمان حرکت",
   "ARRIVAL_TIME": "زمان رسیدن",
+  "BOOKING_TIME": "زمان رزرو",
   "BOOKING_DEADLINE": "مهلت رزرو",
   "ALLOW_PARTIAL_PAYMENT": "پرداخت جزئی مجاز",
   "PARTIAL_PAYMENT_TYPE": "نوع پرداخت جزئی",
@@ -92,10 +93,10 @@
   "DRIVER": "راننده",
   "BUS_NUMBER": "شماره اتوبوس",
   "FACILITIES": "امکانات",
-  "BUS_IMAGE": "تصویر اتوبوس",
-  "CONFIGURE_BERTH": "تنظیم تخت",
-  "CONFIGURE_UPPER_BERTH": "تنظیم تخت بالا",
-  "CONFIGURE_LOWER_BERTH": "تنظیم تخت پایین",
+  "BUS_IMAGE": "تصویر اتوبوس: (حجم تصویر باید کمتر از 1 مگابایت باشد)",
+  "CONFIGURE_BERTH": "تنظیم تخت‌ها",
+  "CONFIGURE_UPPER_BERTH": "تنظیم تخت‌های بالا",
+  "CONFIGURE_LOWER_BERTH": "تنظیم تخت‌های پایین",
   "BERTH_TYPE": "نوع تخت",
   "ROWS": "ردیف‌ها",
   "COLUMNS": "ستون‌ها",
@@ -107,8 +108,8 @@
   "SELECT_SEAT_TYPE": "انتخاب نوع صندلی",
   "SEAT_CLASS": "کلاس صندلی",
   "SELECT_SEAT_CLASS": "انتخاب کلاس صندلی",
-  "IS_RECLINER?": "قابل تکیه؟",
-  "IS_SLEEPER?": "قابل خواب؟",
+  "IS_RECLINER?": "تکیه‌دار است؟",
+  "IS_SLEEPER?": "خوابیده است؟",
 
   "DRIVER_LIST": "لیست رانندگان",
   "ADD_DRIVER": "افزودن راننده",
@@ -149,7 +150,7 @@
 
   "ADD_BOOKING": "افزودن رزرو",
   "TICKET_COUNT": "تعداد بلیط",
-  "BOOKED_AT": "زمان رزرو",
+  "BOOKED_AT": "رزرو شده در",
   "BOOKING_LIST": "لیست رزروها",
   "SEARCH_BOOKINGS": "جستجوی رزروها",
   "BOOKING_DETAILS": "جزئیات رزرو",
@@ -167,7 +168,7 @@
   "CLOSE": "بستن",
   "SAVE_CHANGE": "ذخیره تغییرات",
   "ADD": "افزودن",
-  "CANCEL": "لغو",
+  "CANCEL": "انصراف",
   "UPDATE": "بروزرسانی",
   "SEARCH": "جستجو",
   "FILTER": "فیلتر",
@@ -200,7 +201,7 @@
   "LOGOUT_SUCCESS": "خروج موفقیت‌آمیز",
   "LOGIN_SUCCESS": "ورود موفقیت‌آمیز",
   "CONTACT_US": "تماس با ما",
-  "LOGIN_FAIL": "خطا در ورود",
+  "LOGIN_FAIL": "ورود ناموفق",
 
   "customers_count": "تعداد مشتریان",
   "agents_count": "تعداد نمایندگان",
@@ -230,14 +231,15 @@
   "REMOVE": "حذف",
   "ADD_PENALTY_STEP": "افزودن مرحله جریمه",
   "CREATE_POLICY": "ایجاد سیاست",
-  "NO_CANCELLATION_POLICY_SET": "هیچ سیاست لغوی تنظیم نشده",
-  "SELECT_VENDOR_TO_VIEW_POLICY": "انتخاب فروشنده برای مشاهده سیاست",
+  "NO_CANCELLATION_POLICY_SET": "هیچ سیاست لغو تنظیم نشده",
+  "SELECT_VENDOR_TO_VIEW_POLICY": "برای مشاهده سیاست فروشنده را انتخاب کنید",
   "POLICY_FOR_VENDOR": "سیاست برای فروشنده",
   "EDIT_POLICY": "ویرایش سیاست",
   "APPLY_FILTERS": "اعمال فیلترها",
   "RESET": "بازنشانی",
 
   "bus": {
+    "imageSizeLimit": "حجم تصویر باید کمتر از 1 مگابایت باشد",
     "driverRequired": "انتخاب راننده الزامی است",
     "vendorRequired": "انتخاب فروشنده الزامی است",
     "nameRequired": "نام اتوبوس الزامی است",
@@ -252,13 +254,21 @@
     "pricePositive": "قیمت بلیط باید عدد مثبت باشد",
     "imageRequired": "تصویر اتوبوس الزامی است",
     "successTitle": "موفقیت!",
-    "addedSuccessfully": "اتوبوس با موفقیت افزوده شد.",
+    "addedSuccessfully": "اتوبوس با موفقیت اضافه شد.",
     "updatedSuccessfully": "اتوبوس با موفقیت بروزرسانی شد.",
-    "noChangesMade": "هیچ تغییری ایجاد نشد.",
+    "noChangesMade": "هیچ تغییری اعمال نشد.",
     "nothingToUpdate": "جزئیات اتوبوس از قبل به‌روز بود.",
-    "notAdded": "اتوبوس افزوده نشد.",
+    "notAdded": "اتوبوس اضافه نشد.",
     "noActionTaken": "هیچ اقدامی انجام نشد",
-    "checkForm": "لطفاً فرم را بررسی کرده و دوباره امتحان کنید."
+    "checkForm": "لطفا فرم را بررسی کرده و دوباره امتحان کنید.",
+    "berthTypeRequired": "نوع تخت الزامی است",
+    "berthTypeInvalid": "نوع تخت نامعتبر است",
+    "rowsRequired": "تعداد ردیف‌ها الزامی است",
+    "rowsPositive": "ردیف‌ها باید عدد مثبت باشد",
+    "rowsInteger": "ردیف‌ها باید عدد صحیح باشد",
+    "columnsRequired": "تعداد ستون‌ها الزامی است",
+    "columnsPositive": "ستون‌ها باید عدد مثبت باشد",
+    "columnsInteger": "ستون‌ها باید عدد صحیح باشد"
   },
   "user": {
     "firstNameRequired": "نام الزامی است",
@@ -294,7 +304,7 @@
     "startDateRequired": "تاریخ شروع الزامی است",
     "endDateRequired": "تاریخ پایان الزامی است",
     "statusRequired": "وضعیت الزامی است",
-    "invalidScopeConfig": "پیکربندی حوزه نامعتبر",
+    "invalidScopeConfig": "پیکربندی حوزه نامعتبر است",
     "vendorRequired": "برای حوزه فروشنده، فروشنده الزامی است",
     "routeRequired": "برای حوزه مسیر، مسیر الزامی است",
     "busRequired": "برای حوزه اتوبوس، اتوبوس الزامی است",
@@ -303,7 +313,7 @@
   "country": {
     "englishNameRequired": "نام انگلیسی الزامی است",
     "codeRequired": "کد کشور الزامی است",
-    "codeInvalid": "کد کشور باید دقیقاً 3 حرف بزرگ باشد"
+    "codeInvalid": "کد کشور باید دقیقا 3 حرف بزرگ باشد"
   },
   "province": {
     "englishNameRequired": "نام انگلیسی الزامی است",
@@ -320,10 +330,10 @@
   },
   "route": {
     "origin": {
-      "countryRequired": "کشور مبدأ الزامی است",
-      "provinceRequired": "استان مبدأ الزامی است",
-      "cityRequired": "شهر مبدأ الزامی است",
-      "stationRequired": "ایستگاه مبدأ الزامی است"
+      "countryRequired": "کشور مبدا الزامی است",
+      "provinceRequired": "استان مبدا الزامی است",
+      "cityRequired": "شهر مبدا الزامی است",
+      "stationRequired": "ایستگاه مبدا الزامی است"
     },
     "destination": {
       "countryRequired": "کشور مقصد الزامی است",
@@ -370,8 +380,8 @@
   },
   "transaction": {
     "userRequired": "کاربر الزامی است",
-    "amountRequired": "مقدار الزامی است",
-    "amountPositive": "مقدار باید مثبت باشد",
+    "amountRequired": "مبلغ الزامی است",
+    "amountPositive": "مبلغ باید مثبت باشد",
     "feeRequired": "کارمزد الزامی است",
     "feeMin": "کارمزد باید بزرگتر یا مساوی 0 باشد",
     "totalRequired": "جمع الزامی است",
@@ -390,7 +400,7 @@
     "mobileRequired": "شماره موبایل الزامی است",
     "firstNameRequired": "نام الزامی است",
     "lastNameRequired": "نام خانوادگی الزامی است",
-    "atLeastOneSeat": "لطفاً حداقل یک صندلی انتخاب کنید",
+    "atLeastOneSeat": "لطفا حداقل یک صندلی انتخاب کنید",
     "passengerFirstNameRequired": "نام مسافر الزامی است",
     "passengerLastNameRequired": "نام خانوادگی مسافر الزامی است",
     "passengerPhoneRequired": "تلفن مسافر الزامی است",
@@ -418,17 +428,31 @@
     "fullPayment": "پرداخت کامل",
     "partialPayment": "پرداخت جزئی",
     "totalAmount": "مبلغ کل",
+    "partialAmount": "مبلغ جزئی",
     "selectSeats": "انتخاب صندلی‌ها",
     "selected": "انتخاب شده",
     "booked": "رزرو شده",
     "available": "موجود",
     "creating": "در حال ایجاد رزرو...",
-    "createBooking": "ایجاد رزرو"
+    "createBooking": "ایجاد رزرو",
+    "remainingAmount": "مبلغ باقیمانده",
+    "fixedAmount": "مبلغ ثابت",
+    "perSeat": "به ازای هر صندلی",
+    "paymentAmount": "مبلغ پرداخت",
+    "paid": "پرداخت شده",
+    "cancel": "لغو",
+    "traveler": "مسافر",
+    "operator": "اپراتور",
+    "seatNumber": "شماره صندلی",
+    "customer": "مشتری",
+    "vendor/agent/busOperator": "فروشنده/نماینده/اپراتور اتوبوس"
   },
   "common": {
     "download": "دانلود",
+    "print": "چاپ",
+    "processing": "در حال پردازش",
     "ok": "تایید",
-    "errorOccurred": "خطایی رخ داد!",
-    "somethingWentWrong": "مشکلی پیش آمد. لطفاً دوباره امتحان کنید."
+    "errorOccurred": "خطا رخ داد!",
+    "somethingWentWrong": "مشکلی پیش آمد. لطفا دوباره امتحان کنید."
   }
 }

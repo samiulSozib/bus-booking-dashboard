@@ -183,7 +183,7 @@ export default function BookingList() {
             )}
 
             {/* Table Header and Search/Filter */}
-            <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="page-header-info-bar flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                         {t("BOOKING_LIST")}
@@ -264,11 +264,11 @@ export default function BookingList() {
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                     {t("ACTION")}
                                 </TableCell>
-                                  {(type.role==="admin")&&(
+                                  {/* {(type.role==="admin")&&(
                                 <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                     {t("DOWNLOAD")}
                                 </TableCell>
-                              )}
+                              )} */}
                             </TableRow>
                         </TableHeader>
 
@@ -330,7 +330,7 @@ export default function BookingList() {
                                             
                                         </div>
                                     </TableCell>
-                                    {(type.role==="admin")&&(
+                                    {/* {(type.role==="admin")&&(
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                                       <button
                                                  onClick={() => handleDownload(booking.id)}
@@ -339,7 +339,7 @@ export default function BookingList() {
                                                  Download
                                              </button>
                                     </TableCell>
-                                  )}
+                                  )} */}
                                 </TableRow>
                             ))}
                         </TableBody>

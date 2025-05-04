@@ -165,48 +165,39 @@ const discountSlice = createSlice({
 
       // Create Discount
       .addCase(createDiscount.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(createDiscount.fulfilled, (state, action) => {
-        state.loading = false;
         state.discounts.push(action.payload);
         state.pagination.total += 1;
       })
       .addCase(createDiscount.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Update Discount
       .addCase(updateDiscount.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(updateDiscount.fulfilled, (state, action) => {
-        state.loading = false;
         state.discounts = state.discounts.map((discount) =>
           discount.id === action.payload.id ? action.payload : discount
         );
       })
       .addCase(updateDiscount.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Delete Discount
       .addCase(deleteDiscount.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(deleteDiscount.fulfilled, (state, action) => {
-        state.loading = false;
         state.discounts = state.discounts.filter(
           (discount) => discount.id !== action.payload
         );
       })
       .addCase(deleteDiscount.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       });
   },

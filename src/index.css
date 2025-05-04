@@ -577,3 +577,12 @@ span.flatpickr-weekday,
   @apply bg-white text-black border border-red-300 rounded-full px-6 py-2 mt-3;
   border-width: 2px !important; /* Override SweetAlert2 */
 }
+
+
+.page-header-info-bar{
+  background-color: theme('colors.gray.200');
+  border-radius: 10px;
+  padding: 5px 10px 5px 10px;
+  text-align: center;
+}
+

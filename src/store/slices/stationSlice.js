@@ -374,58 +374,46 @@ const stationSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(showStation.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(showStation.fulfilled, (state, action) => {
-        state.loading = false;
         state.selectedStation = action.payload;
         state.error = null;
       })
       .addCase(showStation.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
       .addCase(addStation.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(addStation.fulfilled, (state, action) => {
-        state.loading = false;
         state.stations.push(action.payload);
         state.error = null;
         state.pagination.total += 1;
       })
       .addCase(addStation.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
       .addCase(editStation.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(editStation.fulfilled, (state, action) => {
-        state.loading = false;
         state.stations = state.stations.map((station) =>
           station.id === action.payload.id ? action.payload : station
         );
         state.error = null;
       })
       .addCase(editStation.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
       .addCase(deleteStation.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(deleteStation.fulfilled, (state, action) => {
-        state.loading = false;
         state.stations = state.stations.filter((station) => station.id !== action.payload);
         state.error = null;
       })
       .addCase(deleteStation.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       });
   },

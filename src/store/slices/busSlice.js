@@ -221,26 +221,21 @@ const busSlice = createSlice({
     builder
       // Add Bus
       .addCase(addBus.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(addBus.fulfilled, (state, action) => {
-        state.loading = false;
         state.buses.push(action.payload); // Add the new bus to the list
         state.pagination.total += 1;
       })
       .addCase(addBus.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Edit Bus
       .addCase(editBus.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(editBus.fulfilled, (state, action) => {
-        state.loading = false;
         const index = state.buses.findIndex((bus) => bus.id === action.payload.id);
         if (index !== -1) {
           // Update the bus data
@@ -253,34 +248,28 @@ const busSlice = createSlice({
         }
       })
       .addCase(editBus.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Add Seats
       .addCase(addSeats.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(addSeats.fulfilled, (state, action) => {
-        state.loading = false;
         const index = state.buses.findIndex((bus) => bus.id === action.payload.busId);
         if (index !== -1) {
           state.buses[index].seats = action.payload.seats; // Update seats in the bus
         }
       })
       .addCase(addSeats.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Update Seat
       .addCase(updateSeat.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(updateSeat.fulfilled, (state, action) => {
-        state.loading = false;
         const index = state.buses.findIndex((bus) => bus.id === action.payload.busId);
         if (index !== -1) {
           const seatIndex = state.buses[index].seats.findIndex(
@@ -292,7 +281,6 @@ const busSlice = createSlice({
         }
       })
       .addCase(updateSeat.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
@@ -313,15 +301,12 @@ const busSlice = createSlice({
 
       // Fetch Bus by ID
       .addCase(fetchBusById.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(fetchBusById.fulfilled, (state, action) => {
-        state.loading = false;
         state.bus = action.payload; // Set the current bus
       })
       .addCase(fetchBusById.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       });
   },

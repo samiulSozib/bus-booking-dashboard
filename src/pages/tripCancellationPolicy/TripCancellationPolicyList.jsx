@@ -330,7 +330,7 @@ export default function TripCancellationPolicyList() {
             )}
 
             {/* Vendor Selection and Action Buttons */}
-            <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="page-header-info-bar flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
                 {/* Header */}
                 <div className="flex flex-row gap-2 items-center">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">

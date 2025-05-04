@@ -83,15 +83,12 @@ const adminWalletSlice = createSlice({
 
       // Show Wallet
       .addCase(showWallet.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(showWallet.fulfilled, (state, action) => {
-        state.loading = false;
         state.selectedWallet = action.payload;
       })
       .addCase(showWallet.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       });
   },

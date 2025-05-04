@@ -221,56 +221,44 @@ const userSlice = createSlice({
             })
 
             .addCase(showUser.pending, (state) => {
-                state.loading = true;
                 state.error = null;
             })
             .addCase(showUser.fulfilled, (state, action) => {
-                state.loading = false;
                 state.selectedUser = action.payload;
             })
             .addCase(showUser.rejected, (state, action) => {
-                state.loading = false;
                 state.error = action.payload;
             })
 
             .addCase(addUser.pending, (state) => {
-                state.loading = true;
                 state.error = null;
             })
             .addCase(addUser.fulfilled, (state, action) => {
-                state.loading = false;
                 state.users.push(action.payload);
             })
             .addCase(addUser.rejected, (state, action) => {
-                state.loading = false;
                 state.error = action.payload;
             })
 
             .addCase(editUser.pending, (state) => {
-                state.loading = true;
                 state.error = null;
             })
             .addCase(editUser.fulfilled, (state, action) => {
-                state.loading = false;
                 state.users = state.users.map((user) =>
                     user.id === action.payload.id ? action.payload : user
                 );
             })
             .addCase(editUser.rejected, (state, action) => {
-                state.loading = false;
                 state.error = action.payload;
             })
 
             .addCase(deleteUser.pending, (state) => {
-                state.loading = true;
                 state.error = null;
             })
             .addCase(deleteUser.fulfilled, (state, action) => {
-                state.loading = false;
                 state.users = state.users.filter((user) => user.id !== action.payload);
             })
             .addCase(deleteUser.rejected, (state, action) => {
-                state.loading = false;
                 state.error = action.payload;
             });
     },

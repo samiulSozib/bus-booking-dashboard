@@ -158,48 +158,39 @@ const walletTransactionSlice = createSlice({
 
       // Create Transaction
       .addCase(createWalletTransaction.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(createWalletTransaction.fulfilled, (state, action) => {
-        state.loading = false;
         state.transactions.unshift(action.payload);
         state.pagination.total += 1;
       })
       .addCase(createWalletTransaction.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Update Transaction
       .addCase(updateWalletTransaction.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(updateWalletTransaction.fulfilled, (state, action) => {
-        state.loading = false;
         state.transactions = state.transactions.map((transaction) =>
           transaction.id === action.payload.id ? action.payload : transaction
         );
       })
       .addCase(updateWalletTransaction.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
 
       // Delete Transaction
       .addCase(deleteWalletTransaction.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(deleteWalletTransaction.fulfilled, (state, action) => {
-        state.loading = false;
         state.transactions = state.transactions.filter(
           (transaction) => transaction.id !== action.payload
         );
       })
       .addCase(deleteWalletTransaction.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       });
   },

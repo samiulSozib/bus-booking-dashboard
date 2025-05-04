@@ -25,12 +25,12 @@ import { ReactComponent as AngleDownIcon } from "./angle-down.svg?react";
 import { ReactComponent as PencilIcon } from "./pencil.svg?react";
 import { ReactComponent as CheckLineIcon } from "./check-line.svg?react";
 import { ReactComponent as CloseLineIcon } from "./close-line.svg?react";
-import { ReactComponent as ChevronDownIcon } from "./chevron-down.svg?react";
+import { ReactComponent as ChevronDownIcon } from "./sidebarIcon/ChevronDownIcon.svg?react";
 import { ReactComponent as ChevronUpIcon } from "./chevron-up.svg?react";
 import { ReactComponent as PaperPlaneIcon } from "./paper-plane.svg?react";
 import { ReactComponent as LockIcon } from "./lock.svg?react";
 import { ReactComponent as EnvelopeIcon } from "./envelope.svg?react";
-import { ReactComponent as UserIcon } from "./user-line.svg?react";
+import { ReactComponent as UserIcon } from "./sidebarIcon/UserIcon.svg?react";
 import { ReactComponent as CalenderIcon } from "./calender-line.svg?react";
 import { ReactComponent as EyeIcon } from "./eye.svg?react";
 import { ReactComponent as EyeCloseIcon } from "./eye-close.svg?react";
@@ -47,17 +47,17 @@ import { ReactComponent as BoxCubeIcon } from "./box-cube.svg?react";
 import { ReactComponent as PlugInIcon } from "./plug-in.svg?react";
 import { ReactComponent as DocsIcon } from "./docs.svg?react";
 import { ReactComponent as MailIcon } from "./mail-line.svg?react";
-import { ReactComponent as HorizontaLDots } from "./horizontal-dots.svg?react";
+import { ReactComponent as HorizontaLDots } from "./sidebarIcon/HorizontalDots.svg?react";
 import { ReactComponent as ChatIcon } from "./chat.svg?react";
 import { ReactComponent as MoreDotIcon } from "./moredot.svg?react";
 import { ReactComponent as AlertHexaIcon } from "./alert-hexa.svg?react";
 import { ReactComponent as ErrorHexaIcon } from "./info-hexa.svg?react";
-import { ReactComponent as Dashboard } from "./ic_dashboard.svg?react";
+import { ReactComponent as Dashboard } from "./sidebarIcon/Dashboard.svg?react";
 import { ReactComponent as Cart } from "./ic_cart.svg?react";
 import { ReactComponent as ECommerce } from "./ic_ecommerce.svg?react";
 import { ReactComponent as Banking } from "./ic_banking.svg?react";
 import { ReactComponent as Invoice } from "./ic_invoice.svg?react";
-import { ReactComponent as User_Group } from "./ic_user_group.svg?react";
+import { ReactComponent as User_Group } from "./sidebarIcon/User_Group.svg?react";
 import { ReactComponent as Internet } from "./internet.svg?react";
 import { ReactComponent as Mobile } from "./mobile.svg?react";
 import { ReactComponent as Conversation } from "./conversation_package.svg?react";
@@ -76,16 +76,16 @@ import {ReactComponent as View} from './view-disable-svgrepo-com.svg?react'
 import {ReactComponent as FunnelIcon} from './funnel.svg?react'
 import {ReactComponent as SearchIcon} from './search-svgrepo-com.svg?react'
 
-import {ReactComponent as Direction} from './direction.svg?react'
-import {ReactComponent as Station} from './station.svg?react'
-import {ReactComponent as Discount} from './discount.svg?react'
-import {ReactComponent as Trip} from './trip.svg?react'
-import {ReactComponent as Wallet} from './wallet.svg?react'
-import {ReactComponent as Bus} from './bus.svg?react'
-import {ReactComponent as Location} from './location.svg?react'
-import {ReactComponent as Ticket} from "./ticket.svg?react"
+import {ReactComponent as Direction} from './sidebarIcon/Direction.svg?react'
+import {ReactComponent as Station} from './sidebarIcon/Station.svg?react'
+import {ReactComponent as Discount} from './sidebarIcon/Discount.svg?react'
+import {ReactComponent as Trip} from './sidebarIcon/Trip.svg?react'
+import {ReactComponent as Wallet} from './sidebarIcon/Wallet.svg?react'
+import {ReactComponent as Bus} from './sidebarIcon/Bus.svg?react'
+import {ReactComponent as Location} from './sidebarIcon/Location.svg?react'
+import {ReactComponent as Ticket} from "./sidebarIcon/Ticket.svg?react"
 import {ReactComponent as Booking} from "./booking.svg?react"
-import {ReactComponent as Settings} from "./settings.svg?react"
+import {ReactComponent as Settings} from "./sidebarIcon/Settings.svg?react"
 import {ReactComponent as TicketBus} from "./ticket-bus.svg?react"
 
 

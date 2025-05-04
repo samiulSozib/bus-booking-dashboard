@@ -444,64 +444,52 @@ const routesSlice = createSlice({
 
         // Show Route
         builder.addCase(showRoute.pending, (state) => {
-            state.loading = true;
             state.error = null;
         });
         builder.addCase(showRoute.fulfilled, (state, action) => {
-            state.loading = false;
             state.selectedRoute = action.payload;
             state.error = null;
         });
         builder.addCase(showRoute.rejected, (state, action) => {
-            state.loading = false;
             state.error = action.payload;
         });
 
         // Add Route
         builder.addCase(addRoute.pending, (state) => {
-            state.loading = true;
             state.error = null;
         });
         builder.addCase(addRoute.fulfilled, (state, action) => {
-            state.loading = false;
             state.routes.push(action.payload);
             state.error = null;
             state.pagination.total += 1;
         });
         builder.addCase(addRoute.rejected, (state, action) => {
-            state.loading = false;
             state.error = action.payload;
         });
 
         // Edit Route
         builder.addCase(editRoute.pending, (state) => {
-            state.loading = true;
             state.error = null;
         });
         builder.addCase(editRoute.fulfilled, (state, action) => {
-            state.loading = false;
             state.routes = state.routes.map((route) =>
                 route.id === action.payload.id ? action.payload : route
             );
             state.error = null;
         });
         builder.addCase(editRoute.rejected, (state, action) => {
-            state.loading = false;
             state.error = action.payload;
         });
 
         // Delete Route
         builder.addCase(deleteRoute.pending, (state) => {
-            state.loading = true;
             state.error = null;
         });
         builder.addCase(deleteRoute.fulfilled, (state, action) => {
-            state.loading = false;
             state.routes = state.routes.filter((route) => route.id !== action.payload);
             state.error = null;
         });
         builder.addCase(deleteRoute.rejected, (state, action) => {
-            state.loading = false;
             state.error = action.payload;
         });
     },

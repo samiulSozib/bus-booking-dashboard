@@ -126,27 +126,27 @@ const citySlice = createSlice({
             .addCase(fetchCities.fulfilled, (state, action) => { state.loading = false; state.cities = action.payload.items;state.pagination=action.payload.pagination })
             .addCase(fetchCities.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
             
-            .addCase(showCity.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(showCity.fulfilled, (state, action) => { state.loading = false; state.selectedCity = action.payload; })
-            .addCase(showCity.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+            .addCase(showCity.pending, (state) => { state.error = null; })
+            .addCase(showCity.fulfilled, (state, action) => {state.selectedCity = action.payload; })
+            .addCase(showCity.rejected, (state, action) => {state.error = action.payload; })
 
-            .addCase(addCity.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(addCity.fulfilled, (state, action) => { state.loading = false; state.cities.push(action.payload);state.pagination.total += 1; })
-            .addCase(addCity.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+            .addCase(addCity.pending, (state) => {state.error = null; })
+            .addCase(addCity.fulfilled, (state, action) => {state.cities.push(action.payload);state.pagination.total += 1; })
+            .addCase(addCity.rejected, (state, action) => {state.error = action.payload; })
 
-            .addCase(editCity.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(editCity.pending, (state) => {state.error = null; })
             .addCase(editCity.fulfilled, (state, action) => {
-                state.loading = false;
+                
                 state.cities = state.cities.map(city => city.id === action.payload.id ? action.payload : city);
             })
-            .addCase(editCity.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+            .addCase(editCity.rejected, (state, action) => {state.error = action.payload; })
 
-            .addCase(deleteCity.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(deleteCity.pending, (state) => { state.error = null; })
             .addCase(deleteCity.fulfilled, (state, action) => {
-                state.loading = false;
+                
                 state.cities = state.cities.filter(city => city.id !== action.payload);
             })
-            .addCase(deleteCity.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+            .addCase(deleteCity.rejected, (state, action) => { state.error = action.payload; });
     }
 });
 

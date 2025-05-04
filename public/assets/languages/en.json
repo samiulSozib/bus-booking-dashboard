@@ -451,6 +451,8 @@
   },
   "common": {
     "download":"Download",
+    "print":"Print",
+    "processing":"Processing",
     "ok": "OK",
     "errorOccurred": "An error occurred!",
     "somethingWentWrong": "Something went wrong. Please try again."
