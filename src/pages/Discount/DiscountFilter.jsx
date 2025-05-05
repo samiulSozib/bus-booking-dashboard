@@ -5,14 +5,16 @@ import { fetchBuses } from "../../store/slices/busSlice";
 import { useTranslation } from "react-i18next";
 import { CloseIcon } from "../../icons";
 import { fetchUsers } from "../../store/slices/userSlice";
-import { formatForDisplayDiscount, formatForInputDiscount } from "../../utils/utils";
+import { formatForDisplayDiscount, formatForInputDiscount, userType } from "../../utils/utils";
 
 const DiscountFilter = ({ isOpen, onClose, onApplyFilters }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
-    const { users } = useSelector((state) => state.users);
+    const { vendorList } = useSelector((state) => state.users);
     const { routes } = useSelector((state) => state.routes);
     const { buses } = useSelector((state) => state.buses);
+
+    const type=userType()
 
     // Filter states
     const [filters, setFilters] = useState({
@@ -82,12 +84,12 @@ const DiscountFilter = ({ isOpen, onClose, onApplyFilters }) => {
     const handleVendorSelect = (vendor) => {
         setFilters((prevFilters) => ({
             ...prevFilters,
-            vendorId: vendor.vendor.id,
+            vendorId: vendor.id,
         }));
 
         setSearchTags((prevSearchTags) => ({
             ...prevSearchTags,
-            vendor: vendor.first_name,
+            vendor: vendor.name,
         }));
 
         toggleDropdown("showVendor", false);
@@ -174,7 +176,8 @@ const DiscountFilter = ({ isOpen, onClose, onApplyFilters }) => {
                 </div>
 
                 <div className="p-4">
-                    {/* Vendor Filter */}
+                    {/* vendor filter */}
+                    {(type?.role==="admin")&&(
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-1">{t("VENDOR")}</label>
                         <div className="relative">
@@ -192,23 +195,24 @@ const DiscountFilter = ({ isOpen, onClose, onApplyFilters }) => {
                             />
                             {dropdowns.showVendor && (
                                 <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
-                                    {users
-                                .filter((user) => 
-                                    user.first_name.includes(searchTags.vendor)
+                                    {vendorList
+                                .filter((vendor) => 
+                                    vendor?.vendor.name.includes(searchTags.vendor)
                                 )
                                 .map((vendor) => (
                                     <div
-                                        key={vendor.id}
-                                        onClick={() => handleVendorSelect(vendor)}
+                                        key={vendor.vendor.id}
+                                        onClick={() => handleVendorSelect(vendor?.vendor)}
                                         className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                     >
-                                        {vendor.first_name}
+                                        {vendor?.vendor.name}
                                     </div>
                                 ))}
                                 </div>
                             )}
                         </div>
                     </div>
+                    )}
 
                     {/* Route Filter */}
                     <div className="mb-4">

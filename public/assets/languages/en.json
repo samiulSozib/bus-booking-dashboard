@@ -456,6 +456,14 @@
     "ok": "OK",
     "errorOccurred": "An error occurred!",
     "somethingWentWrong": "Something went wrong. Please try again."
-  }
+  },
+  "from_date":"From Date",
+  "to_date":"To Date",
+  "FILTERS":"Filters",
+  "ALL":"All",
+  "PAID":"Paid",
+  "UNPAID":"Unpaid",
+  "PARTIAL_PAID":"Partial Paid",
+  "CANCELLED":"Cancelled"
   
 }

@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { userType } from "../../utils/utils";
 import { BusTicket } from "./BusTicket";
+import BookingFilter from "./BookingFilter";
 
 export default function BookingList() {
     const dispatch = useDispatch();
@@ -33,30 +34,23 @@ export default function BookingList() {
     const [currentBookingId, setCurrentBookingId] = useState(null);
     const [errors, setErrors] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedStatus, setSelectedStatus] = useState("");
+    
+
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const [filters, setFilters] = useState({
-        status: "",
-        from_date: "",
-        to_date: "",
-        customer_mobile: ""
-    });
+    const [activeFilters, setActiveFilters] = useState({});
     const { t } = useTranslation();
     const navigate=useNavigate()
     const type=userType()
 
+    const handleApplyFilters = (filters) => {
+        setActiveFilters(filters);
+        setCurrentPage(1); 
+    };
+
     useEffect(() => {
-        const params = new URLSearchParams();
-        
-        if (searchTerm) params.append('search', searchTerm);
-        if (filters.status) params.append('status', filters.status);
-        if (filters.from_date) params.append('from_date', filters.from_date);
-        if (filters.to_date) params.append('to_date', filters.to_date);
-        if (filters.customer_mobile) params.append('customer_mobile', filters.customer_mobile);
-        
-        params.append('page', currentPage);
-        
-        dispatch(fetchBookings(params.toString()));
-    }, [dispatch, searchTerm, filters, currentPage]);
+        dispatch(fetchBookings({page:currentPage,filters:activeFilters,status:selectedStatus}));
+    }, [dispatch, currentPage,activeFilters,selectedStatus]);
 
     const handleViewDetails = (bookingId) => {
         dispatch(getBookingDetails(bookingId));
@@ -136,10 +130,7 @@ export default function BookingList() {
           });
       };
 
-    const handleApplyFilters = () => {
-        setIsFilterOpen(false);
-        setCurrentPage(1); // Reset to first page when filters change
-    };
+  
 
     const handleResetFilters = () => {
         setFilters({
@@ -190,18 +181,18 @@ export default function BookingList() {
                     </h3>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <SearchIcon/>
-                        </div>
-                        <input
-                            type="text"
-                            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            placeholder={t("SEARCH_BOOKINGS")}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+                    
+                <select
+                    className="rounded-md"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                >
+                    <option value="">{t('ALL')}</option>
+                    <option value="paid">{t('PAID')}</option>
+                    <option value="unpaid">{t('UNPAID')}</option>
+                    <option value="partial_paid">{t('PARTIAL_PAID')}</option>
+                    <option value="cancelled">{t('CANCELLED')}</option>
+                </select>
 
                     {/* Filter Button and Dropdown */}
                     <div className="relative">
@@ -355,6 +346,12 @@ export default function BookingList() {
                     onPageChange={(page) => setCurrentPage(page)}
                 />
             )}
+
+            <BookingFilter 
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                onApplyFilters={handleApplyFilters}
+            />
         </div>
     );
 }

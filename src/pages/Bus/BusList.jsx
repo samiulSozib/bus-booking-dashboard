@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchBusById, fetchBuses } from '../../store/slices/busSlice';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../components/ui/table';
-import { Edit, SearchIcon, View } from '../../icons';
+import { Edit, FunnelIcon, SearchIcon, View } from '../../icons';
 import { useTranslation } from 'react-i18next';
 import Pagination from "../../components/pagination/pagination";
+import BusFilter from './BusFilter';
 
 const BusList = () => {
     const [searchTag, setSearchTag] = useState("");
@@ -15,13 +16,21 @@ const BusList = () => {
     const {t}=useTranslation()
     const [currentPage, setCurrentPage] = useState(1);
 
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [activeFilters, setActiveFilters] = useState({});
+
 
     useEffect(() => {
-        dispatch(fetchBuses({searchTag,page:currentPage}));
-    }, [dispatch,currentPage, searchTag]);
+        dispatch(fetchBuses({searchTag,page:currentPage,filters:activeFilters}));
+    }, [dispatch,currentPage, searchTag,activeFilters]);
 
     const handleEdit = (busId) => {
         navigate(`/add-bus/${busId}`); // Navigate to edit page with busId
+    };
+
+    const handleApplyFilters = (filters) => {
+        setActiveFilters(filters);
+        setCurrentPage(1); 
     };
 
     return (
@@ -46,7 +55,16 @@ const BusList = () => {
                         value={searchTag}
                         onChange={(e) => setSearchTag(e.target.value)}
                     />
+                    
                 </div>
+                    <button
+                        onClick={() => setIsFilterOpen(!isFilterOpen)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                    >
+                        <FunnelIcon className="h-5 w-5" />
+                        {t("FILTER")}
+                    </button>
+
                     <button
                         onClick={() => navigate('/add-bus')}
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -55,6 +73,8 @@ const BusList = () => {
                     </button>
                 </div>
             </div>
+
+            
 
             {/* Bus Table */}
             <div className="max-w-full overflow-x-auto">
@@ -128,6 +148,13 @@ const BusList = () => {
                 totalPages={pagination.last_page}
                 onPageChange={(page) => setCurrentPage(page)}
             />
+
+            <BusFilter 
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+                onApplyFilters={handleApplyFilters}
+            />
+
         </div>
     );
 };

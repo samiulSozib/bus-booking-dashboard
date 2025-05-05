@@ -284,7 +284,7 @@ export const fetchRoutes = createAsyncThunk(
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
         
-        //console.log(filterQuery)
+        console.log(filterQuery)
       // Build full URL
       const url = `${base_url}/${type.role}/routes/list?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`;
   

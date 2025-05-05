@@ -8,11 +8,19 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Bookings
 export const fetchBookings = createAsyncThunk(
   "bookings/fetchBookings",
-  async (searchParams = "", { rejectWithValue }) => {
+  async ({searchTag = "",page=1,filters={},status=""}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const type = userType();
-      const response = await axios.get(`${base_url}/${type.role}/bookings?${searchParams}`, {
+
+      const filterQuery = Object.entries(filters)
+      .filter(([_, value]) => value !== null && value !== undefined && value !== "")
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+
+      console.log(filterQuery)
+
+      const response = await axios.get(`${base_url}/${type.role}/bookings?page=${page}&search=${searchTag}&status=${status}${filterQuery ? `&${filterQuery}` : ''}`, {
         headers: {
           Authorization: `${token}`,
         },

@@ -143,3 +143,11 @@ export function userType(){
   const profile = localStorage.getItem("profile");
   return profile ? JSON.parse(profile) : null;
 }
+
+export function formatToYMD(datetime) {
+  if (!datetime) return '';
+  
+  // Handle both "YYYY-MM-DDTHH:mm:ss" and "YYYY-MM-DD HH:mm:ss"
+  const datePart = datetime.split('T')[0] || datetime.split(' ')[0];
+  return datePart;
+}

@@ -157,10 +157,13 @@ export const updateSeat = createAsyncThunk(
 // Fetch all buses
 export const fetchBuses = createAsyncThunk(
   'bus/fetchBuses',
-  async ({searchTag="",vendor_id="",page=1}, { rejectWithValue }) => {
+  async ({searchTag="",vendor_id="",page=1,filters={}}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const type=user_type()
+      if(filters["vendor-id"]){
+        vendor_id=filters["vendor-id"]
+      }
       //console.log("vendor-id",vendor_id)
       const response = await axios.get(`${base_url}/${type.role}/buses?search=${searchTag}&vendor-id=${vendor_id}&page=${page}`,{headers:{Authorization: `${token}`}});
       //console.log(searchTag)
