@@ -12,14 +12,15 @@ export const fetchTripCancellationPolicy = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type=userType()
-      const response = await axios.get(
-        `${base_url}/${type.role}/trip-cancellation-policies/${vendor_id}/show`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const url = type.role === "vendor"
+        ? `${base_url}/${type.role}/trip-cancellation-policies/show`
+        : `${base_url}/${type.role}/trip-cancellation-policies/${vendor_id}/show`;
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -32,10 +33,14 @@ export const createOrUpdateTripCancellationPolicy = createAsyncThunk(
   'tripCancellationPolicy/createOrUpdate',
   async ({ vendor_id, penalty_steps }, { rejectWithValue }) => {
     try {
+      console.log(vendor_id)
+      console.log(penalty_steps)
       const token = getAuthToken();
       const formData = new FormData();
       const type=userType()
-      formData.append('vendor_id', vendor_id);
+      if (type.role !== "vendor") {
+        formData.append('vendor_id', vendor_id);
+      }
       formData.append('penalty_steps', JSON.stringify(penalty_steps));
 
       const response = await axios.post(
@@ -50,7 +55,6 @@ export const createOrUpdateTripCancellationPolicy = createAsyncThunk(
       );
       return response.data.body.item;
     } catch (error) {
-      //console.log(error)
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }

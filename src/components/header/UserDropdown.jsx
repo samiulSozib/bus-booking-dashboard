@@ -79,7 +79,7 @@ export default function UserDropdown() {
       <Dropdown
   isOpen={isOpen}
   onClose={closeDropdown}
-  className={`absolute mt-[17px] w-[150px] flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark ${
+  className={`absolute mt-[1px] w-[150px] flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark ${
     i18n.dir() === "rtl" 
       ? "left-0 rtl:left-auto rtl:right-0" 
       : "right-0"

@@ -19,7 +19,7 @@ export const fetchUsers = createAsyncThunk(
         const response = await axios.get(url, {
           headers: { Authorization: `${token}` },
         });
-        console.log(response)
+        //console.log(response)
         return {
           items: response.data.body.items,
           pagination: response.data.body.data,
