@@ -7,22 +7,58 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Provinces
 export const fetchProvinces = createAsyncThunk(
     "provinces/fetchProvinces",
-    async ({ countryId, searchTag="",page=1 }, { rejectWithValue }) => {
+    async ({ countryId, searchTag = "", page = 1 }, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            if (!countryId) return rejectWithValue("Invalid country id");
-            const response = await axios.get(`${base_url}/web/location/${countryId}/provinces?search=${searchTag}&page=${page}`, {
+
+            // Build the query string manually
+            let query = `?search=${encodeURIComponent(searchTag)}&page=${page}`;
+            if (countryId) {
+                query += `&country=${countryId}`;
+            }
+            console.log(countryId)
+            const response = await axios.get(`${base_url}/web/location/provinces${query}`, {
                 headers: {
                     Authorization: `${token}`,
                     "Content-Type": "application/json",
                 },
             });
-            return {items:response.data.body.items,pagination:response.data.body.data};
+
+            return {
+                items: response.data.body.items,
+                pagination: response.data.body.data,
+            };
         } catch (error) {
             return rejectWithValue(error.message);
         }
     }
 );
+
+
+// Web Province List (No Pagination)
+export const fetchWebProvincesList = createAsyncThunk(
+    "provinces/fetchWebProvincesList",
+    async ({searchTag,page=1}, { rejectWithValue }) => {
+      try {
+        const token = getAuthToken();
+  
+        const response = await axios.get(
+          `${base_url}/admin/location/af/provinces/list?searchTag=${searchTag}&page=${page}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log(response)
+        return {items:response.data.body.items,pagination:response.data.body.data};
+      } catch (error) {
+        return rejectWithValue(error.message);
+      }
+    }
+  );
+  
 
 // Show Province
 export const showProvince = createAsyncThunk(
@@ -64,6 +100,7 @@ export const addProvince = createAsyncThunk(
             const newData={id:response.data.body.item.id,name:response.data.body.item.name.en,code:response.data.body.item.code}
             return newData;
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -102,13 +139,16 @@ export const deleteProvince = createAsyncThunk(
     async (provinceId, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            await axios.delete(`${base_url}/admin/location/provinces/${provinceId}`, {
+            const response=await axios.delete(`${base_url}/admin/location/provinces/${provinceId}/delete`, {
                 headers: {
                     Authorization: `${token}`,
                 },
             });
+            console.log(response)
             return provinceId;
+            
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error.message);
         }
     }
@@ -119,6 +159,7 @@ const provinceSlice = createSlice({
     initialState: {
         loading: false,
         provinces: [],
+        webProvinces:[],
         selectedProvince: null,
         error: null,
         pagination: {
@@ -143,6 +184,21 @@ const provinceSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            
+            .addCase(fetchWebProvincesList.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchWebProvincesList.fulfilled, (state, action) => {
+                state.loading = false;
+                state.webProvinces = action.payload.items;
+                state.pagination = action.payload.pagination;
+            })
+            .addCase(fetchWebProvincesList.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            
             .addCase(showProvince.fulfilled, (state, action) => {
                 state.selectedProvince = action.payload;
             })

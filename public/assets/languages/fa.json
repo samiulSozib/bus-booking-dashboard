@@ -19,23 +19,19 @@
   "GENERAL": "عمومی",
   "PROFILE": "پروفایل",
   "VENDOR": "فروشنده",
-
   "COUNTRY_LIST": "لیست کشورها",
   "ADD_COUNTRY": "افزودن کشور",
   "EDIT_COUNTRY": "ویرایش کشور",
   "COUNTRY_NAME": "نام کشور",
   "COUNTRY_CODE": "کد کشور",
-
   "PROVINCE_LIST": "لیست استان‌ها",
   "ADD_PROVINCE": "افزودن استان",
   "PROVINCE_NAME": "نام استان",
   "PROVINCE_CODE": "کد استان",
-
   "CITY_LIST": "لیست شهرها",
   "ADD_CITY": "افزودن شهر",
   "CITY_NAME": "نام شهر",
   "CITY_CODE": "کد شهر",
-
   "DISCOUNT_LIST": "لیست تخفیف‌ها",
   "ADD_DISCOUNT": "افزودن تخفیف",
   "EDIT_DISCOUNT": "ویرایش تخفیف",
@@ -45,7 +41,6 @@
   "START_DATE": "تاریخ شروع",
   "END_DATE": "تاریخ پایان",
   "STATUS": "وضعیت",
-
   "STATION_LIST": "لیست ایستگاه‌ها",
   "ADD_STATION": "افزودن ایستگاه",
   "EDIT_STATION": "ویرایش ایستگاه",
@@ -53,7 +48,6 @@
   "STATION_CODE": "کد ایستگاه",
   "STATION_LAT": "عرض جغرافیایی ایستگاه",
   "STATION_LONG": "طول جغرافیایی ایستگاه",
-
   "ROUTE_LIST": "لیست مسیرها",
   "ADD_ROUTE": "افزودن مسیر",
   "EDIT_ROUTE": "ویرایش مسیر",
@@ -61,7 +55,6 @@
   "ORIGIN": "مبدا",
   "DESTINATION": "مقصد",
   "DISTANCE": "فاصله",
-
   "TRIP_LIST": "لیست سفرها",
   "ADD_TRIP": "افزودن سفر",
   "EDIT_TRIP": "ویرایش سفر",
@@ -74,7 +67,6 @@
   "ALLOW_PARTIAL_PAYMENT": "پرداخت جزئی مجاز",
   "PARTIAL_PAYMENT_TYPE": "نوع پرداخت جزئی",
   "MIN_PARTIAL_PAYMENT": "حداقل پرداخت جزئی",
-
   "TRANSACTION_LIST": "لیست تراکنش‌ها",
   "ADD_TRANSACTION": "افزودن تراکنش",
   "EDIT_TRANSACTION": "ویرایش تراکنش",
@@ -84,7 +76,6 @@
   "TRANSACTION": "تراکنش",
   "REASON": "دلیل",
   "DESCRIPTION": "توضیحات",
-
   "BUS_LIST": "لیست اتوبوس‌ها",
   "ADD_BUS": "افزودن اتوبوس",
   "EDIT_BUS": "ویرایش اتوبوس",
@@ -110,14 +101,12 @@
   "SELECT_SEAT_CLASS": "انتخاب کلاس صندلی",
   "IS_RECLINER?": "تکیه‌دار است؟",
   "IS_SLEEPER?": "خوابیده است؟",
-
   "DRIVER_LIST": "لیست رانندگان",
   "ADD_DRIVER": "افزودن راننده",
   "FIRST_NAME": "نام",
   "LAST_NAME": "نام خانوادگی",
   "MOBILE": "موبایل",
   "EDIT_DRIVER": "ویرایش راننده",
-
   "USER_LIST": "لیست کاربران",
   "ADD_USER": "افزودن کاربر",
   "EDIT_USER": "ویرایش کاربر",
@@ -140,14 +129,12 @@
   "COMMISSION_AMOUNT": "مقدار کمیسیون",
   "COMMISSION_TYPE": "نوع کمیسیون",
   "SELECT_COMMISSION_TYPE": "انتخاب نوع کمیسیون",
-
   "BALANCE": "موجودی",
   "USER_TYPE": "نوع کاربر",
   "CURRENCY": "ارز",
   "UPDATED_DATE": "تاریخ بروزرسانی",
   "MANAGE_SEATS": "مدیریت صندلی‌ها",
   "EDIT_SEATS": "ویرایش صندلی‌ها",
-
   "ADD_BOOKING": "افزودن رزرو",
   "TICKET_COUNT": "تعداد بلیط",
   "BOOKED_AT": "رزرو شده در",
@@ -160,7 +147,6 @@
   "PASSENGER": "مسافر",
   "SEAT": "صندلی",
   "PRINT_TICKET": "چاپ بلیط",
-
   "YES": "بله",
   "NO": "خیر",
   "ID": "شناسه",
@@ -202,7 +188,6 @@
   "LOGIN_SUCCESS": "ورود موفقیت‌آمیز",
   "CONTACT_US": "تماس با ما",
   "LOGIN_FAIL": "ورود ناموفق",
-
   "customers_count": "تعداد مشتریان",
   "agents_count": "تعداد نمایندگان",
   "vendors_count": "تعداد فروشندگان",
@@ -222,7 +207,6 @@
   "customers_total_balance": "موجودی کل مشتریان",
   "agents_total_balance": "موجودی کل نمایندگان",
   "vendors_total_balance": "موجودی کل فروشندگان",
-
   "BOOKING": "رزرو",
   "TRIP_CANCELLATION_POLICY": "سیاست لغو سفر",
   "PENALTY_STEPS": "مراحل جریمه",
@@ -237,7 +221,6 @@
   "EDIT_POLICY": "ویرایش سیاست",
   "APPLY_FILTERS": "اعمال فیلترها",
   "RESET": "بازنشانی",
-
   "bus": {
     "imageSizeLimit": "حجم تصویر باید کمتر از 1 مگابایت باشد",
     "driverRequired": "انتخاب راننده الزامی است",
@@ -454,5 +437,19 @@
     "ok": "تایید",
     "errorOccurred": "خطا رخ داد!",
     "somethingWentWrong": "مشکلی پیش آمد. لطفا دوباره امتحان کنید."
-  }
+  },
+  "from_date": "از تاریخ",
+  "to_date": "تا تاریخ",
+  "FILTERS": "فیلترها",
+  "ALL": "همه",
+  "PAID": "پرداخت‌شده",
+  "UNPAID": "پرداخت‌نشده",
+  "PARTIAL_PAID": "نیمه‌پرداخت‌شده",
+  "CANCELLED": "لغو شده",
+  "DELETE_CONFIRMATION": "آیا مطمئن هستید؟",
+  "DELETE_ITEM_CONFIRMATION_TEXT": "شما قادر به بازگرداندن این مورد نخواهید بود!",
+  "YES_DELETE": "بله، حذفش کن!",
+  "DELETED": "حذف شد!",
+  "ITEM_DELETED_SUCCESSFULLY": "مورد با موفقیت حذف شد.",
+  "FAILED_TO_DELETE_ITEM": "حذف انجام نشد. لطفاً دوباره تلاش کنید."
 }

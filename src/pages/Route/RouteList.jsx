@@ -43,7 +43,6 @@
 //         .required(t('route.distance.required'))
 //         .min(0, t('route.distance.min')),
 //     });
-  
 
 // export default function RouteList() {
 //     // Create refs for each dropdown
@@ -62,43 +61,43 @@
 //       toggleDropdown("showOriginCountry", false);
 //     }
 //   });
-  
+
 //   useOutsideClick(originProvinceRef, () => {
 //     if (dropdowns.showOriginProvince) {
 //       toggleDropdown("showOriginProvince", false);
 //     }
 //   });
-  
+
 //   useOutsideClick(originCityRef, () => {
 //     if (dropdowns.showOriginCity) {
 //       toggleDropdown("showOriginCity", false);
 //     }
 //   });
-  
+
 //   useOutsideClick(originStationRef, () => {
 //     if (dropdowns.showOriginStation) {
 //       toggleDropdown("showOriginStation", false);
 //     }
 //   });
-  
+
 //   useOutsideClick(destinationCountryRef, () => {
 //     if (dropdowns.showDestinationCountry) {
 //       toggleDropdown("showDestinationCountry", false);
 //     }
 //   });
-  
+
 //   useOutsideClick(destinationProvinceRef, () => {
 //     if (dropdowns.showDestinationProvince) {
 //       toggleDropdown("showDestinationProvince", false);
 //     }
 //   });
-  
+
 //   useOutsideClick(destinationCityRef, () => {
 //     if (dropdowns.showDestinationCity) {
 //       toggleDropdown("showDestinationCity", false);
 //     }
 //   });
-  
+
 //   useOutsideClick(destinationStationRef, () => {
 //     if (dropdowns.showDestinationStation) {
 //       toggleDropdown("showDestinationStation", false);
@@ -115,10 +114,8 @@
 //     const [currentPage, setCurrentPage] = useState(1);
 //     const role=userType()
 
-
 //     const [isFilterOpen, setIsFilterOpen] = useState(false);
 //     const [activeFilters, setActiveFilters] = useState({});
-
 
 //     // State for table filtering
 //     const [searchTag, setSearchTag] = useState("");
@@ -128,7 +125,6 @@
 //     const [isEditMode, setIsEditMode] = useState(false);
 //     const [currentRouteId, setCurrentRouteId] = useState(null);
 //     const [formErrors,setFormErrors]=useState({})
-
 
 //     // Origin and Destination States
 //     const [origin, setOrigin] = useState({
@@ -174,10 +170,10 @@
 
 //     const handleApplyFilters = (filters) => {
 //         setActiveFilters(filters);
-//         setCurrentPage(1); 
+//         setCurrentPage(1);
 //     };
 
-//     // Fetch routes 
+//     // Fetch routes
 //     useEffect(() => {
 //         dispatch(fetchRoutes({searchTag,page:currentPage,filters:activeFilters}));
 //     }, [dispatch,currentPage, searchTag,activeFilters]);
@@ -266,7 +262,7 @@
 //     // Handle add/edit route form submission
 //     const handleSubmit = async (e) => {
 //         e.preventDefault();
-    
+
 //         const formData = {
 //             origin: {
 //                 countryId: origin.countryId,
@@ -283,11 +279,11 @@
 //             name:routeName,
 //             distance: parseFloat(distance), // Convert to number
 //         };
-    
+
 //         try {
 //             // Validate form data
 //             await getValidationSchema(t).validate(formData, { abortEarly: false });
-    
+
 //             if (isEditMode) {
 //                 const editAction=await dispatch(editRoute({ id: currentRouteId, formData }))
 //                 if(editRoute.fulfilled.match(editAction)){
@@ -310,9 +306,9 @@
 //                 }else{
 //                     throw new Error(addAction.payload || "Failed to add Route.");
 //                 }
-                
+
 //             }
-    
+
 //             // Reset modal state
 //             resetModal();
 //         } catch (err) {
@@ -331,8 +327,7 @@
 //                     }
 //                 });
 //                 setFormErrors(errors);
-    
-                
+
 //             } else {
 //                 // API or other errors
 //                 Swal.fire({
@@ -547,7 +542,7 @@
 //                         {t("ADD_ROUTE")}
 //                     </button>
 //                     )}
-                    
+
 //                 </div>
 //             </div>
 
@@ -578,7 +573,7 @@
 //                                     {t("ACTION")}
 //                                     </TableCell>
 //                                 )}
-                                
+
 //                             </TableRow>
 //                         </TableHeader>
 
@@ -610,11 +605,11 @@
 //                                                 className="w-6 h-6 cursor-pointer"
 //                                                 onClick={() => handleEditRoute(route.id)}
 //                                             />
-                                            
+
 //                                         </div>
 //                                     </TableCell>
 //                                     )}
-                                    
+
 //                                 </TableRow>
 //                             ))}
 //                         </TableBody>
@@ -990,7 +985,7 @@
 //                                     </div>
 //                                 )}
 //                             </div>
-                            
+
 //                         </div>
 
 //                         {/* Distance */}
@@ -1004,13 +999,13 @@
 //                                     value={routeName}
 //                                     onChange={(e) => setRouteName(e.target.value)}
 //                                     className="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                    
+
 //                                 />
 //                                 {formErrors?.name && (
 //                                     <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
 //                                 )}
 //                             </div>
-                            
+
 //                             <div className="flex-1">
 //                                 <label className="block text-sm font-medium text-gray-700">
 //                                 {t("DISTANCE")} (km) *
@@ -1020,13 +1015,13 @@
 //                                     value={distance}
 //                                     onChange={(e) => setDistance(e.target.value)}
 //                                     className="mt-1 w-full block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                    
+
 //                                 />
 //                                 {formErrors?.distance && (
 //                                     <p className="text-red-500 text-sm mt-1">{formErrors.distance}</p>
 //                                 )}
 //                             </div>
-                            
+
 //                         </div>
 
 //                         {/* Buttons */}
@@ -1049,65 +1044,72 @@
 //                 </div>
 //                 </div>
 //             )}
-            
+
 //             <RouteFilter
 //                 isOpen={isFilterOpen}
 //                 onClose={() => setIsFilterOpen(false)}
 //                 onApplyFilters={handleApplyFilters}
 //             />
-            
+
 //         </div>
 
-        
-
-        
 //     );
 // }
 
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchRoutes, showRoute, addRoute, editRoute } from '../../store/slices/routeSlice';
-import { useTranslation } from 'react-i18next';
-import { SearchIcon, FunnelIcon } from '../../icons';
-import RouteTable from './RouteTable';
-import RouteForm from './RouteForm';
-import RouteFilter from './RouteFilter';
-import Pagination from '../../components/pagination/pagination';
-import * as Yup from 'yup';
-import Swal from 'sweetalert2';
-import { userType } from '../../utils/utils';
-import useDebounce from '../../hooks/useDebounce';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchRoutes,
+  showRoute,
+  addRoute,
+  editRoute,
+  deleteRoute,
+} from "../../store/slices/routeSlice";
+import { useTranslation } from "react-i18next";
+import { SearchIcon, FunnelIcon } from "../../icons";
+import RouteTable from "./RouteTable";
+import RouteForm from "./RouteForm";
+import RouteFilter from "./RouteFilter";
+import Pagination from "../../components/pagination/pagination";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
+import { userType } from "../../utils/utils";
+import useDebounce from "../../hooks/useDebounce";
 
 const getValidationSchema = (t) =>
   Yup.object().shape({
     origin: Yup.object().shape({
-      countryId: Yup.string().required(t('route.origin.countryRequired')),
-      provinceId: Yup.string().required(t('route.origin.provinceRequired')),
-      cityId: Yup.string().required(t('route.origin.cityRequired')),
-      stationId: Yup.string().required(t('route.origin.stationRequired')),
+      countryId: Yup.string().required(t("route.origin.countryRequired")),
+      provinceId: Yup.string().required(t("route.origin.provinceRequired")),
+      cityId: Yup.string().required(t("route.origin.cityRequired")),
+      stationId: Yup.string().required(t("route.origin.stationRequired")),
     }),
     destination: Yup.object().shape({
-      countryId: Yup.string().required(t('route.destination.countryRequired')),
-      provinceId: Yup.string().required(t('route.destination.provinceRequired')),
-      cityId: Yup.string().required(t('route.destination.cityRequired')),
-      stationId: Yup.string().required(t('route.destination.stationRequired')),
+      countryId: Yup.string().required(t("route.destination.countryRequired")),
+      provinceId: Yup.string().required(
+        t("route.destination.provinceRequired")
+      ),
+      cityId: Yup.string().required(t("route.destination.cityRequired")),
+      stationId: Yup.string().required(t("route.destination.stationRequired")),
     }),
     name: Yup.string()
-      .typeError(t('route.name.typeError'))
-      .required(t('route.name.required')),
+      .typeError(t("route.name.typeError"))
+      .required(t("route.name.required")),
     distance: Yup.number()
-      .typeError(t('route.distance.typeError'))
-      .required(t('route.distance.required'))
-      .min(0, t('route.distance.min')),
+      .typeError(t("route.distance.typeError"))
+      .required(t("route.distance.required"))
+      .min(0, t("route.distance.min")),
   });
 
 const RouteList = () => {
   const dispatch = useDispatch();
-  const { routes, selectedRoute, loading, pagination } = useSelector((state) => state.routes);
+  const { routes, selectedRoute, loading, pagination } = useSelector(
+    (state) => state.routes
+  );
   const { t } = useTranslation();
   const role = userType();
 
-  const [searchTag, setSearchTag] = useState('');
+  const [searchTag, setSearchTag] = useState("");
   const debouncedSearchTag = useDebounce(searchTag, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -1119,11 +1121,13 @@ const RouteList = () => {
 
   // Fetch routes with debounced search and filters
   useEffect(() => {
-    dispatch(fetchRoutes({ 
-      searchTag: debouncedSearchTag, 
-      page: currentPage, 
-      filters: activeFilters 
-    }));
+    dispatch(
+      fetchRoutes({
+        searchTag: debouncedSearchTag,
+        page: currentPage,
+        filters: activeFilters,
+      })
+    );
   }, [dispatch, debouncedSearchTag, currentPage, activeFilters]);
 
   const handleEditRoute = (routeId) => {
@@ -1139,29 +1143,31 @@ const RouteList = () => {
       setFormErrors({});
 
       if (isEditMode) {
-        const resultAction = await dispatch(editRoute({ 
-          id: currentRouteId, 
-          formData 
-        }));
+        const resultAction = await dispatch(
+          editRoute({
+            id: currentRouteId,
+            formData,
+          })
+        );
         if (editRoute.fulfilled.match(resultAction)) {
           Swal.fire({
-            icon: 'success',
-            title: t('success'),
-            text: t('route.updateSuccess'),
+            icon: "success",
+            title: t("success"),
+            text: t("route.updateSuccess"),
           });
         } else {
-          throw new Error(resultAction.payload || t('route.updateFailed'));
+          throw new Error(resultAction.payload || t("route.updateFailed"));
         }
       } else {
         const resultAction = await dispatch(addRoute(formData));
         if (addRoute.fulfilled.match(resultAction)) {
           Swal.fire({
-            icon: 'success',
-            title: t('success'),
-            text: t('route.addSuccess'),
+            icon: "success",
+            title: t("success"),
+            text: t("route.addSuccess"),
           });
         } else {
-          throw new Error(resultAction.payload || t('route.addFailed'));
+          throw new Error(resultAction.payload || t("route.addFailed"));
         }
       }
       setIsModalOpen(false);
@@ -1169,7 +1175,7 @@ const RouteList = () => {
       if (error instanceof Yup.ValidationError) {
         const newErrors = {};
         error.inner.forEach((err) => {
-          const path = err.path.split('.');
+          const path = err.path.split(".");
           if (path.length === 2) {
             if (!newErrors[path[0]]) newErrors[path[0]] = {};
             newErrors[path[0]][path[1]] = err.message;
@@ -1180,12 +1186,43 @@ const RouteList = () => {
         setFormErrors(newErrors);
       } else {
         Swal.fire({
-          icon: 'error',
-          title: t('error'),
-          text: error.message || t('route.operationFailed'),
+          icon: "error",
+          title: t("error"),
+          text: error.message || t("route.operationFailed"),
         });
       }
     }
+  };
+
+  const handleDelete = (routeId) => {
+    Swal.fire({
+      title: t("DELETE_CONFIRMATION"),
+      text: t("DELETE_ITEM_CONFIRMATION_TEXT"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("YES_DELETE"),
+      cancelButtonText: t("CANCEL"),
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const deleteAction = await dispatch(deleteRoute(routeId));
+          if (deleteRoute.fulfilled.match(deleteAction)) {
+            Swal.fire(t("DELETED"), t("ITEM_DELETED_SUCCESSFULLY"), "success");
+          }
+          // Refresh the countries list
+          dispatch(fetchRoutes({ searchTag: searchTag, page: currentPage }));
+        } catch (error) {
+          console.log(error);
+          Swal.fire(
+            t("ERROR"),
+            error.message || t("FAILED_TO_DELETE_ITEM"),
+            "error"
+          );
+        }
+      }
+    });
   };
 
   const handleApplyFilters = (filters) => {
@@ -1245,11 +1282,12 @@ const RouteList = () => {
       </div>
 
       {/* Route Table */}
-      <RouteTable 
-        routes={routes} 
-        loading={loading} 
-        onEdit={handleEditRoute} 
+      <RouteTable
+        routes={routes}
+        loading={loading}
+        onEdit={handleEditRoute}
         role={role.role}
+        onDelete={handleDelete}
       />
 
       {/* Pagination */}

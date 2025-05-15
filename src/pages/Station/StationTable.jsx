@@ -6,10 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table';
-import { Edit } from '../../icons';
+import { Delete, Edit } from '../../icons';
 import { useTranslation } from 'react-i18next';
 
-const StationTable = ({ stations, loading, onEdit }) => {
+const StationTable = ({ stations, loading, onEdit, onDelete}) => {
   const { t } = useTranslation();
 
   if (loading) {
@@ -57,6 +57,10 @@ const StationTable = ({ stations, loading, onEdit }) => {
                   <Edit
                     className="w-6 h-6 cursor-pointer"
                     onClick={() => onEdit(station.id)}
+                  />
+                  <Delete
+                      className="w-6 h-6 cursor-pointer text-red-500"
+                      onClick={() => onDelete(station.id)}
                   />
                 </div>
               </TableCell>

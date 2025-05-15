@@ -399,7 +399,7 @@ export const deleteRoute = createAsyncThunk(
     async (routeId, { rejectWithValue }) => {
         const token = getAuthToken();
         try {
-            await axios.delete(`${base_url}/admin/routes/${routeId}`, {
+            await axios.delete(`${base_url}/admin/routes/${routeId}/delete`, {
                 headers: {
                     Authorization: `${token}`,
                 },

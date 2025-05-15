@@ -11,7 +11,7 @@ import {
     TableRow,
 } from "../../../components/ui/table";
 import { Delete, Edit, View, FunnelIcon, SearchIcon } from "../../../icons"; // Add FunnelIcon
-import { addCountry, editCountry, fetchCountries, showCountry } from "../../../store/slices/countrySlice";
+import { addCountry, deleteCountry, editCountry, fetchCountries, showCountry } from "../../../store/slices/countrySlice";
 import Pagination from "../../../components/pagination/pagination";
 import { useTranslation } from "react-i18next";
 
@@ -126,6 +126,40 @@ export default function CountryList() {
                 });
             }
         }
+    };
+
+    const handleDelete = (countryId) => {
+        Swal.fire({
+            title: t('DELETE_CONFIRMATION'),
+            text: t('DELETE_ITEM_CONFIRMATION_TEXT'),
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: t('YES_DELETE'),
+            cancelButtonText: t('CANCEL')
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const deleteAction=await dispatch(deleteCountry(countryId));
+                    if(deleteCountry.fulfilled.match(deleteAction)){
+                    Swal.fire(
+                        t('DELETED'),
+                        t('ITEM_DELETED_SUCCESSFULLY'),
+                        'success'
+                    );
+                    }
+                    // Refresh the countries list
+                    dispatch(fetchCountries({searchTag: searchTag, page: currentPage}));
+                } catch (error) {
+                    Swal.fire(
+                        t('ERROR'),
+                        error.message || t('FAILED_TO_DELETE_ITEM'),
+                        'error'
+                    );
+                }
+            }
+        });
     };
 
     const handleEdit = (countryId) => {
@@ -381,6 +415,10 @@ export default function CountryList() {
                                             <Edit
                                                 className="w-6 h-6 cursor-pointer"
                                                 onClick={() => handleEdit(country.id)}
+                                            />
+                                            <Delete
+                                                className="w-6 h-6 cursor-pointer text-red-500"
+                                                onClick={() => handleDelete(country.id)}
                                             />
                                         </div>
                                     </TableCell>

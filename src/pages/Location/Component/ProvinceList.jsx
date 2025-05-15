@@ -11,7 +11,7 @@ import {
 } from "../../../components/ui/table";
 import { Delete, Edit, Search, SearchIcon, View } from "../../../icons";
 import { fetchCountries } from "../../../store/slices/countrySlice";
-import { addProvince, editProvince, fetchProvinces, showProvince } from "../../../store/slices/provinceSlice";
+import { addProvince, deleteProvince, editProvince, fetchProvinces, showProvince } from "../../../store/slices/provinceSlice";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../../components/pagination/pagination";
 import useOutsideClick from "../../../hooks/useOutSideClick";
@@ -48,6 +48,8 @@ export default function ProvinceList() {
     const [currentProvinceId, setCurrentProvinceId] = useState(null);
     const [selectedCountryId, setSelectedCountryId] = useState(null);
 
+    const [modalSelectedCountryId,setModalSelectedCountryId]=useState(null)
+
     const [provinceName, setProvinceName] = useState({ en: "", ps: "", fa: "" });
     const [provinceCode, setProvinceCode] = useState("");
     const [errors, setErrors] = useState({});
@@ -73,10 +75,14 @@ export default function ProvinceList() {
         if (selectedProvince && isEditing) {
             setProvinceName({ en: selectedProvince.name.en, ps: selectedProvince.name.ps, fa: selectedProvince.name.fa });
             setProvinceCode(selectedProvince.code);
-            setSelectedCountryId(selectedProvince.country.id);
+            setModalSelectedCountryId(selectedProvince.country.id);
             setCountrySearchTag(selectedProvince.country.name)
         }
     }, [selectedProvince]);
+
+    useEffect(()=>{
+        console.log(provinces)
+    },[dispatch,provinces])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -84,7 +90,7 @@ export default function ProvinceList() {
         const provinceData = {
             provinceName,
             provinceCode,
-            countryId: selectedCountryId,
+            countryId: modalSelectedCountryId,
         };
 
         try {
@@ -144,6 +150,42 @@ export default function ProvinceList() {
         }
     };
 
+    const handleDelete = (provinceId) => {
+            Swal.fire({
+                title: t('DELETE_CONFIRMATION'),
+                text: t('DELETE_ITEM_CONFIRMATION_TEXT'),
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: t('YES_DELETE'),
+                cancelButtonText: t('CANCEL')
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const deleteAction=await dispatch(deleteProvince(provinceId));
+                        if(deleteProvince.fulfilled.match(deleteAction)){
+                        Swal.fire(
+                            t('DELETED'),
+                            t('ITEM_DELETED_SUCCESSFULLY'),
+                            'success'
+                        );
+                        }
+                        // Refresh the countries list
+                        dispatch(fetchProvinces({searchTag: searchTag, page: currentPage}));
+                    } catch (error) {
+                        console.log(error)
+                        Swal.fire(
+                            
+                            t('ERROR'),
+                            error.message || t('FAILED_TO_DELETE_ITEM'),
+                            'error'
+                        );
+                    }
+                }
+            });
+        };
+
     const handleEdit = (provinceId) => {
         dispatch(showProvince(provinceId));
         setIsEditing(true);
@@ -153,6 +195,12 @@ export default function ProvinceList() {
 
     const handleCountrySelect = (country) => {
         setSelectedCountryId(country.id);
+        setCountrySearchTag(country.name); // Set the selected country name in the search input
+        setShowCountryDropdown(false); // Hide the dropdown after selection
+    };
+
+    const handleModalCountrySelect = (country) => {
+        setModalSelectedCountryId(country.id);
         setCountrySearchTag(country.name); // Set the selected country name in the search input
         setShowCountryDropdown(false); // Hide the dropdown after selection
     };
@@ -251,7 +299,7 @@ export default function ProvinceList() {
                                                 .map((country) => (
                                                     <div
                                                         key={country.id}
-                                                        onClick={() => handleCountrySelect(country)}
+                                                        onClick={() => handleModalCountrySelect(country)}
                                                         className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                                     >
                                                         {country.name}
@@ -419,8 +467,10 @@ export default function ProvinceList() {
                                                 className="w-6 h-6 cursor-pointer"
                                                 onClick={() => handleEdit(province.id)}
                                             />
-                                            {/* <Delete className="w-6 h-6" />
-                                            <View className="w-6 h-6" /> */}
+                                            <Delete
+                                                className="w-6 h-6 cursor-pointer text-red-500"
+                                                onClick={() => handleDelete(province.id)}
+                                            />
                                         </div>
                                     </TableCell>
                                 </TableRow>

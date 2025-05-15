@@ -65,7 +65,7 @@ export const addCountry = createAsyncThunk(
             const newData={id:response.data.body.item.id,name:response.data.body.item.name.en,code:response.data.body.item.code}
             return newData;
         } catch (error) {
-            //console.log(error)
+            console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -103,7 +103,7 @@ export const deleteCountry = createAsyncThunk(
     async (countryId, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            await axios.delete(`${base_url}/admin/location/countries/${countryId}`, {
+            await axios.delete(`${base_url}/admin/location/countries/${countryId}/delete`, {
                 headers: {
                     Authorization: `${token}`,
                 },

@@ -291,6 +291,7 @@ export const addStation = createAsyncThunk(
       });
       return response.data.body.item;
     } catch (error) {
+      console.log(error)
       return rejectWithValue(error.message);
     }
   }
@@ -331,7 +332,7 @@ export const deleteStation = createAsyncThunk(
   async (stationId, { rejectWithValue }) => {
     const token = getAuthToken();
     try {
-      await axios.delete(`${base_url}/admin/stations/${stationId}`, {
+      await axios.delete(`${base_url}/admin/stations/${stationId}/delete`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

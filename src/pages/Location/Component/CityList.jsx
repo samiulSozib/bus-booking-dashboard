@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "../../../components/ui/table";
 import { Delete, Edit, SearchIcon, View } from "../../../icons";
-import { addCity, editCity, fetchCities, showCity } from "../../../store/slices/citySlice";
+import { addCity, deleteCity, editCity, fetchCities, fetchWebCitiesList, showCity } from "../../../store/slices/citySlice";
 import { fetchCountries } from "../../../store/slices/countrySlice";
 import { fetchProvinces } from "../../../store/slices/provinceSlice";
 import Swal from "sweetalert2";
@@ -90,9 +90,9 @@ export default function CityList() {
 
     // Fetch cities when a province is selected (for table filtering)
     useEffect(() => {
-        if (selectedProvinceId) {
+        //if (selectedProvinceId) {
             dispatch(fetchCities({provinceId:selectedProvinceId, searchTag,page:currentPage}));
-        }
+        //}
     }, [dispatch,currentPage, selectedProvinceId, searchTag]);
 
     //
@@ -196,6 +196,42 @@ export default function CityList() {
                     }
             }
         };
+
+        const handleDelete = (cityId) => {
+                    Swal.fire({
+                        title: t('DELETE_CONFIRMATION'),
+                        text: t('DELETE_ITEM_CONFIRMATION_TEXT'),
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: t('YES_DELETE'),
+                        cancelButtonText: t('CANCEL')
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const deleteAction=await dispatch(deleteCity(cityId));
+                                if(deleteCity.fulfilled.match(deleteAction)){
+                                Swal.fire(
+                                    t('DELETED'),
+                                    t('ITEM_DELETED_SUCCESSFULLY'),
+                                    'success'
+                                );
+                                }
+                                // Refresh the countries list
+                                dispatch(fetchCities({searchTag: searchTag, page: currentPage}));
+                            } catch (error) {
+                                console.log(error)
+                                Swal.fire(
+                                    
+                                    t('ERROR'),
+                                    error.message || t('FAILED_TO_DELETE_ITEM'),
+                                    'error'
+                                );
+                            }
+                        }
+                    });
+                };
 
     // Reset modal state
     const resetModal = () => {
@@ -374,8 +410,10 @@ export default function CityList() {
                                             className="w-6 h-6 cursor-pointer"
                                             onClick={() => handleEditCity(city.id)}
                                         />
-                                        {/* <Delete className="w-6 h-6" />
-                                        <View className="w-6 h-6" /> */}
+                                        <Delete
+                                                className="w-6 h-6 cursor-pointer text-red-500"
+                                                onClick={() => handleDelete(city.id)}
+                                            />
                                     </div>
                                 </TableCell>
                             </TableRow>

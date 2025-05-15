@@ -10,9 +10,13 @@ export const fetchCities = createAsyncThunk(
     async ({ provinceId, searchTag="",page=1 }, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            if (!provinceId) return rejectWithValue("Invalid provinceId");
+            //if (!provinceId) return rejectWithValue("Invalid provinceId");
+            let query = `?search=${encodeURIComponent(searchTag)}&page=${page}`;
+            if (provinceId) {
+                query += `&province=${provinceId}`;
+            }
             const response = await axios.get(
-                `${base_url}/web/location/${provinceId}/cities/list?search=${searchTag}&page=${page}`,
+                `${base_url}/web/location/cities${query}`,
                 { headers: { Authorization: `${token}` } }
             );
             //console.log(response)
@@ -23,6 +27,31 @@ export const fetchCities = createAsyncThunk(
         }
     }
 );
+
+
+// Web cities List (No Pagination)
+export const fetchWebCitiesList = createAsyncThunk(
+    "provinces/fetchWebProvincesList",
+    async ({searchTag}, { rejectWithValue }) => {
+      try {
+        const token = getAuthToken();  
+        const response = await axios.get(
+          `${base_url}/admin/location/af/cities?searchTag=${searchTag}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log(response)
+        return response.data.body.items; // assuming it returns just an array of items
+      } catch (error) {
+        console.log(error)
+        return rejectWithValue(error.message);
+      }
+    }
+  );
 
 // Show City
 export const showCity = createAsyncThunk(
@@ -59,7 +88,7 @@ export const addCity = createAsyncThunk(
             const newData={id:response.data.body.item.id,name:response.data.body.item.name.en,code:response.data.body.item.code}
             return newData;
         } catch (error) {
-            //console.log(error)
+            console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }
@@ -95,7 +124,7 @@ export const deleteCity = createAsyncThunk(
     async (cityId, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            await axios.delete(`${base_url}/admin/location/cities/${cityId}`, {
+            await axios.delete(`${base_url}/admin/location/cities/${cityId}/delete`, {
                 headers: { Authorization: `${token}` }
             });
             return cityId;
@@ -110,7 +139,8 @@ const citySlice = createSlice({
     name: "cities",
     initialState: { 
         loading: false, 
-        cities: [], 
+        cities: [],
+        webCities:[],
         selectedCity: null, 
         error: null, 
         pagination: {
@@ -125,6 +155,20 @@ const citySlice = createSlice({
             .addCase(fetchCities.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchCities.fulfilled, (state, action) => { state.loading = false; state.cities = action.payload.items;state.pagination=action.payload.pagination })
             .addCase(fetchCities.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+
+            .addCase(fetchWebCitiesList.pending, (state) => {
+                            state.loading = true;
+                            state.error = null;
+                        })
+                        .addCase(fetchWebCitiesList.fulfilled, (state, action) => {
+                            state.loading = false;
+                            state.webCities = action.payload;
+                        })
+                        .addCase(fetchWebCitiesList.rejected, (state, action) => {
+                            state.loading = false;
+                            state.error = action.payload;
+                        })
+
             
             .addCase(showCity.pending, (state) => { state.error = null; })
             .addCase(showCity.fulfilled, (state, action) => {state.selectedCity = action.payload; })

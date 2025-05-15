@@ -636,7 +636,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchStations, showStation, addStation, editStation } from '../../store/slices/stationSlice';
+import { fetchStations, showStation, addStation, editStation, deleteStation } from '../../store/slices/stationSlice';
 import { useTranslation } from 'react-i18next';
 import { SearchIcon, FunnelIcon } from '../../icons';
 import StationTable from './StationTable';
@@ -746,6 +746,42 @@ const StationList = () => {
     }
   };
 
+      const handleDelete = (stationId) => {
+              Swal.fire({
+                  title: t('DELETE_CONFIRMATION'),
+                  text: t('DELETE_ITEM_CONFIRMATION_TEXT'),
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#3085d6',
+                  cancelButtonColor: '#d33',
+                  confirmButtonText: t('YES_DELETE'),
+                  cancelButtonText: t('CANCEL')
+              }).then(async (result) => {
+                  if (result.isConfirmed) {
+                      try {
+                          const deleteAction=await dispatch(deleteStation(stationId));
+                          if(deleteStation.fulfilled.match(deleteAction)){
+                          Swal.fire(
+                              t('DELETED'),
+                              t('ITEM_DELETED_SUCCESSFULLY'),
+                              'success'
+                          );
+                          }
+                          // Refresh the countries list
+                          dispatch(fetchStations({searchTag: searchTag, page: currentPage}));
+                      } catch (error) {
+                          console.log(error)
+                          Swal.fire(
+                              
+                              t('ERROR'),
+                              error.message || t('FAILED_TO_DELETE_ITEM'),
+                              'error'
+                          );
+                      }
+                  }
+              });
+          };
+
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
     setCurrentPage(1);
@@ -815,6 +851,7 @@ const StationList = () => {
         stations={stations} 
         loading={loading} 
         onEdit={handleEditStation} 
+        onDelete={handleDelete}
       />
 
       {/* Pagination */}

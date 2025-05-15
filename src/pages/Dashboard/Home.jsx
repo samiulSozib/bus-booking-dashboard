@@ -13,6 +13,7 @@ import {
   User_Group,
 } from "../../icons";
 import { userType } from "../../utils/utils";
+import { fetchWebCitiesList } from "../../store/slices/citySlice";
 
 export default function Home() {
   const role=userType()
