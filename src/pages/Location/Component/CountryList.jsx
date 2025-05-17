@@ -25,7 +25,7 @@ const getCountrySchema = (t) =>
       }),
       countryCode: Yup.string()
         .required(t('country.codeRequired'))
-        .matches(/^[A-Z]{3}$/, t('country.codeInvalid')),
+        // .matches(/^[A-Z]{3}$/, t('country.codeInvalid')),
     });
   
 

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchBusById, fetchBuses } from '../../store/slices/busSlice';
+import { deleteBus, fetchBusById, fetchBuses } from '../../store/slices/busSlice';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../components/ui/table';
-import { Edit, FunnelIcon, SearchIcon, View } from '../../icons';
+import { Delete, Edit, FunnelIcon, SearchIcon, View } from '../../icons';
 import { useTranslation } from 'react-i18next';
 import Pagination from "../../components/pagination/pagination";
 import BusFilter from './BusFilter';
+import Swal from 'sweetalert2';
 
 const BusList = () => {
     const [searchTag, setSearchTag] = useState("");
@@ -32,6 +33,38 @@ const BusList = () => {
         setActiveFilters(filters);
         setCurrentPage(1); 
     };
+
+      // Handle delete trip
+          const handleDelete = (busId) => {
+            Swal.fire({
+              title: t("DELETE_CONFIRMATION"),
+              text: t("DELETE_ITEM_CONFIRMATION_TEXT"),
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: t("YES_DELETE"),
+              cancelButtonText: t("CANCEL"),
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                try {
+                  const deleteAction = await dispatch(deleteBus(busId));
+                  if (deleteBus.fulfilled.match(deleteAction)) {
+                    Swal.fire(t("DELETED"), t("ITEM_DELETED_SUCCESSFULLY"), "success");
+                  }
+                  // Refresh the countries list
+                  dispatch(fetchBuses({ searchTag: searchTag, page: currentPage }));
+                } catch (error) {
+                  console.log(error);
+                  Swal.fire(
+                    t("ERROR"),
+                    error.message || t("FAILED_TO_DELETE_ITEM"),
+                    "error"
+                  );
+                }
+              }
+            });
+          };
 
     return (
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
@@ -134,7 +167,10 @@ const BusList = () => {
                                                 className="w-6 h-6 cursor-pointer"
                                                 onClick={() => handleEdit(bus.id)}
                                             />
-                                            <View className="w-6 h-6" />
+                                            <Delete
+                                                className="w-6 h-6 cursor-pointer text-red-500"
+                                                onClick={() => handleDelete(bus.id)}
+                                            />
                                         </div>
                                     </TableCell>
                                 </TableRow>

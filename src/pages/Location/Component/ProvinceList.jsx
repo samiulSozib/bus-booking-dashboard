@@ -26,8 +26,8 @@ const getProvinceSchema = (t) =>
         fa: Yup.string().optional(),
       }),
       provinceCode: Yup.string()
-        .required(t('province.codeRequired'))
-        .matches(/^[A-Z]{2,3}$/, t('province.codeInvalid')),
+        .required(t('province.codeRequired')),
+        // .matches(/^[A-Z]{2,3}$/,t('province.codeInvalid')),
       countryId: Yup.string().required(t('province.countryRequired')),
     });
   

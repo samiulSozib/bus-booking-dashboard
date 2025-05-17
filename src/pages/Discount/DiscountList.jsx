@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -8,11 +8,11 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { Delete, Edit, FunnelIcon } from "../../icons";
-import { 
-  fetchDiscounts, 
-  createDiscount, 
-  updateDiscount, 
-  deleteDiscount 
+import {
+  fetchDiscounts,
+  createDiscount,
+  updateDiscount,
+  deleteDiscount,
 } from "../../store/slices/discountSlice";
 import { fetchUsers } from "../../store/slices/userSlice";
 import { fetchRoutes } from "../../store/slices/routeSlice";
@@ -20,67 +20,70 @@ import { fetchBuses } from "../../store/slices/busSlice";
 import { fetchTrips } from "../../store/slices/tripSlice";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
-import { formatForDisplayDiscount, formatForInput, formatForInputDiscount } from "../../utils/utils";
+import {
+  formatForDisplayDiscount,
+  formatForInput,
+  formatForInputDiscount,
+} from "../../utils/utils";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import DiscountFilter from "./DiscountFilter";
 import useOutsideClick from "../../hooks/useOutSideClick";
 
-
-
 // Yup validation schema
 // Corrected Yup validation schema
 const getDiscountSchema = (t) =>
-  Yup.object().shape({
-    scope: Yup.string()
-      .oneOf(["global", "vendor", "route", "trip", "bus"])
-      .required(t('discount.scopeRequired')),
-    discount_amount: Yup.number()
-      .positive(t('discount.positiveAmount'))
-      .required(t('discount.amountRequired')),
-    discount_type: Yup.string()
-      .oneOf(["fixed", "percentage"])
-      .required(t('discount.typeRequired')),
-    start_date: Yup.string().required(t('discount.startDateRequired')),
-    end_date: Yup.string().required(t('discount.endDateRequired')),
-    status: Yup.string()
-      .oneOf(["active", "inactive", "expired"])
-      .required(t('discount.statusRequired')),
-  }).test(
-    'scope-requirements',
-    t('discount.invalidScopeConfig'),
-    function(value) {
-      const { scope } = value || {};
+  Yup.object()
+    .shape({
+      scope: Yup.string()
+        .oneOf(["global", "vendor", "route", "trip", "bus"])
+        .required(t("discount.scopeRequired")),
+      discount_amount: Yup.number()
+        .positive(t("discount.positiveAmount"))
+        .required(t("discount.amountRequired")),
+      discount_type: Yup.string()
+        .oneOf(["fixed", "percentage"])
+        .required(t("discount.typeRequired")),
+      start_date: Yup.string().required(t("discount.startDateRequired")),
+      end_date: Yup.string().required(t("discount.endDateRequired")),
+      status: Yup.string()
+        .oneOf(["active", "inactive", "expired"])
+        .required(t("discount.statusRequired")),
+    })
+    .test(
+      "scope-requirements",
+      t("discount.invalidScopeConfig"),
+      function (value) {
+        const { scope } = value || {};
 
-      if (scope === 'vendor' && !value.vendor_id) {
-        return this.createError({
-          path: 'vendor_id',
-          message: t('discount.vendorRequired')
-        });
-      }
-      if (scope === 'route' && !value.route_id) {
-        return this.createError({
-          path: 'route_id',
-          message: t('discount.routeRequired')
-        });
-      }
-      if (scope === 'bus' && !value.bus_id) {
-        return this.createError({
-          path: 'bus_id',
-          message: t('discount.busRequired')
-        });
-      }
-      if (scope === 'trip' && !value.trip_id) {
-        return this.createError({
-          path: 'trip_id',
-          message: t('discount.tripRequired')
-        });
-      }
+        if (scope === "vendor" && !value.vendor_id) {
+          return this.createError({
+            path: "vendor_id",
+            message: t("discount.vendorRequired"),
+          });
+        }
+        if (scope === "route" && !value.route_id) {
+          return this.createError({
+            path: "route_id",
+            message: t("discount.routeRequired"),
+          });
+        }
+        if (scope === "bus" && !value.bus_id) {
+          return this.createError({
+            path: "bus_id",
+            message: t("discount.busRequired"),
+          });
+        }
+        if (scope === "trip" && !value.trip_id) {
+          return this.createError({
+            path: "trip_id",
+            message: t("discount.tripRequired"),
+          });
+        }
 
-      return true;
-    }
-  );
-
+        return true;
+      }
+    );
 
 export default function DiscountList() {
   // Create refs for each dropdown
@@ -89,7 +92,7 @@ export default function DiscountList() {
   const busDropdownRef = useRef(null);
   const tripDropdownRef = useRef(null);
 
-    // Close dropdowns when clicking outside
+  // Close dropdowns when clicking outside
   useOutsideClick(vendorDropdownRef, () => {
     if (showModalVendorDropdown) {
       setShowModalVendorDropdown(false);
@@ -114,14 +117,15 @@ export default function DiscountList() {
     }
   });
 
-
   const dispatch = useDispatch();
-  const { discounts, loading, error,pagination } = useSelector((state) => state.discounts);
-  const { users } = useSelector((state) => state.users);
+  const { discounts, loading, error, pagination } = useSelector(
+    (state) => state.discounts
+  );
+  const { vendorList } = useSelector((state) => state.users);
   const { routes } = useSelector((state) => state.routes);
   const { buses } = useSelector((state) => state.buses);
   const { trips } = useSelector((state) => state.trips);
-  const {t}=useTranslation()
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -130,7 +134,7 @@ export default function DiscountList() {
   // State for table filtering
   const [searchTag, setSearchTag] = useState("");
   const [selectedScope, setSelectedScope] = useState("");
-  
+
   // State for Add/Edit Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -139,11 +143,11 @@ export default function DiscountList() {
   const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
   const [modalRouteSearchTag, setModalRouteSearchTag] = useState("");
   const [modalBusSearchTag, setModalBusSearchTag] = useState("");
-  const [modalTripSearchTag, setModalTripSearchTag]=useState("")
+  const [modalTripSearchTag, setModalTripSearchTag] = useState("");
   const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
   const [showModalRouteDropdown, setShowModalRouteDropdown] = useState(false);
   const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
-  const [showModalTripDropdown,setShowModalTripDropdown]=useState(false)
+  const [showModalTripDropdown, setShowModalTripDropdown] = useState(false);
 
   const [formData, setFormData] = useState({
     scope: "global",
@@ -155,31 +159,38 @@ export default function DiscountList() {
     discount_type: "fixed",
     start_date: "",
     end_date: "",
-    status: "active"
+    status: "active",
   });
   const [errors, setErrors] = useState({});
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
-    setCurrentPage(1); 
-};
+    setCurrentPage(1);
+  };
 
   // Fetch initial data
   useEffect(() => {
-    dispatch(fetchDiscounts({page:currentPage,filters:activeFilters,searchTag}));
-  }, [dispatch,currentPage,activeFilters,searchTag]);
+    dispatch(
+      fetchDiscounts({ page: currentPage, filters: activeFilters, searchTag })
+    );
+  }, [dispatch, currentPage, activeFilters, searchTag]);
 
   useEffect(() => {
-    dispatch(fetchUsers({searchTag:modalVendorSearchTag,role:"vendor"}))
+    dispatch(fetchUsers({ searchTag: modalVendorSearchTag, role: "vendor" }));
     dispatch(fetchBuses({ searchTag: modalBusSearchTag }));
-    dispatch(fetchRoutes({searchTag:modalRouteSearchTag}));
-    dispatch(fetchTrips({searchTag:modalTripSearchTag}));
-  }, [dispatch,modalVendorSearchTag,modalBusSearchTag,modalRouteSearchTag,modalTripSearchTag]);
+    dispatch(fetchRoutes({ searchTag: modalRouteSearchTag }));
+    dispatch(fetchTrips({ searchTag: modalTripSearchTag }));
+  }, [
+    dispatch,
+    modalVendorSearchTag,
+    modalBusSearchTag,
+    modalRouteSearchTag,
+    modalTripSearchTag,
+  ]);
 
-  useEffect(()=>{
-    console.log(trips)
-  },[dispatch])
-  
+  useEffect(() => {
+    console.log(trips);
+  }, [dispatch]);
 
   // Handle scope change - reset related IDs when scope changes
   const handleScopeChange = (scope) => {
@@ -189,48 +200,48 @@ export default function DiscountList() {
       vendor_id: null,
       route_id: null,
       bus_id: null,
-      trip_id: null
+      trip_id: null,
     });
   };
 
-      // Handle vendor selection in modal
-      const handleModalVendorSelect = (vendor) => {
-        setFormData({
-          ...formData,
-          vendor_id: vendor.id,
-        });
-        setModalVendorSearchTag(vendor.first_name);
-        setShowModalVendorDropdown(false);
-    };
+  // Handle vendor selection in modal
+  const handleModalVendorSelect = (vendor) => {
+    setFormData({
+      ...formData,
+      vendor_id: vendor.id,
+    });
+    setModalVendorSearchTag(vendor.first_name);
+    setShowModalVendorDropdown(false);
+  };
 
-    // Handle route selection in modal
-    const handleModalRouteSelect = (route) => {
-      setFormData({
-        ...formData,
-        route_id: route.id,
-      });
-        setModalRouteSearchTag(route.name);
-        setShowModalRouteDropdown(false);
-    };
+  // Handle route selection in modal
+  const handleModalRouteSelect = (route) => {
+    setFormData({
+      ...formData,
+      route_id: route.id,
+    });
+    setModalRouteSearchTag(route.name);
+    setShowModalRouteDropdown(false);
+  };
 
-    // Handle bus selection in modal
-    const handleModalBusSelect = (bus) => {
-        setFormData({
-          ...formData,
-          bus_id: bus.id,
-        });
-        setModalBusSearchTag(bus.name);
-        setShowModalBusDropdown(false);
-    };
+  // Handle bus selection in modal
+  const handleModalBusSelect = (bus) => {
+    setFormData({
+      ...formData,
+      bus_id: bus.id,
+    });
+    setModalBusSearchTag(bus.name);
+    setShowModalBusDropdown(false);
+  };
 
-    // Handle trip selection in modal
-    const handleModalTripSelect = (trip) => {
-      setFormData({
-        ...formData,
-        trip_id: trip.id,
-      });
-      setModalTripSearchTag(trip?.route.name);
-      setShowModalTripDropdown(false);
+  // Handle trip selection in modal
+  const handleModalTripSelect = (trip) => {
+    setFormData({
+      ...formData,
+      trip_id: trip.id,
+    });
+    setModalTripSearchTag(trip?.route.name);
+    setShowModalTripDropdown(false);
   };
 
   // Open modal for editing
@@ -245,7 +256,7 @@ export default function DiscountList() {
       discount_type: discount?.discount_type,
       start_date: discount?.start_date,
       end_date: discount?.end_date,
-      status: discount?.status
+      status: discount?.status,
     });
     setCurrentDiscountId(discount.id);
     setIsEditMode(true);
@@ -255,29 +266,31 @@ export default function DiscountList() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       await getDiscountSchema(t).validate(formData, { abortEarly: false });
-      
+
       const payload = {
         ...formData,
         // Only include ID fields if they're relevant to the scope
-        ...(formData.scope !== 'vendor' && { vendor_id: undefined }),
-        ...(formData.scope !== 'route' && { route_id: undefined }),
-        ...(formData.scope !== 'bus' && { bus_id: undefined }),
-        ...(formData.scope !== 'trip' && { trip_id: undefined })
+        ...(formData.scope !== "vendor" && { vendor_id: undefined }),
+        ...(formData.scope !== "route" && { route_id: undefined }),
+        ...(formData.scope !== "bus" && { bus_id: undefined }),
+        ...(formData.scope !== "trip" && { trip_id: undefined }),
       };
       // console.log(payload)
       //return
 
       if (isEditMode) {
-        await dispatch(updateDiscount({ id: currentDiscountId, discountData: payload })).unwrap();
+        await dispatch(
+          updateDiscount({ id: currentDiscountId, discountData: payload })
+        ).unwrap();
         Swal.fire("Success!", "Discount updated successfully.", "success");
       } else {
         await dispatch(createDiscount(payload)).unwrap();
         Swal.fire("Success!", "Discount created successfully.", "success");
       }
-      
+
       setIsModalOpen(false);
       resetForm();
     } catch (error) {
@@ -295,25 +308,33 @@ export default function DiscountList() {
   };
 
   // Handle delete discount
-  const handleDeleteDiscount = (id) => {
+  const handleDelete = (discountId) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: t("DELETE_CONFIRMATION"),
+      text: t("DELETE_ITEM_CONFIRMATION_TEXT"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
+      confirmButtonText: t("YES_DELETE"),
+      cancelButtonText: t("CANCEL"),
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        dispatch(deleteDiscount(id))
-          .unwrap()
-          .then(() => {
-            Swal.fire("Deleted!", "Discount has been deleted.", "success");
-          })
-          .catch((error) => {
-            Swal.fire("Error", error.message || "Failed to delete", "error");
-          });
+        try {
+          const deleteAction = await dispatch(deleteDiscount(discountId));
+          if (deleteDiscount.fulfilled.match(deleteAction)) {
+            Swal.fire(t("DELETED"), t("ITEM_DELETED_SUCCESSFULLY"), "success");
+          }
+          // Refresh the countries list
+          dispatch(fetchDiscounts({ searchTag: searchTag, page: currentPage }));
+        } catch (error) {
+          console.log(error);
+          Swal.fire(
+            t("ERROR"),
+            error.message || t("FAILED_TO_DELETE_ITEM"),
+            "error"
+          );
+        }
       }
     });
   };
@@ -330,7 +351,7 @@ export default function DiscountList() {
       discount_type: "fixed",
       start_date: "",
       end_date: "",
-      status: "active"
+      status: "active",
     });
     setErrors({});
     setCurrentDiscountId(null);
@@ -338,29 +359,34 @@ export default function DiscountList() {
   };
 
   // Filter discounts based on search and scope
-  const filteredDiscounts = discounts.filter(discount => {
-    const matchesSearch = discount.id.toString().includes(searchTag.toLowerCase()) || 
-                         discount.discount_amount.toString().includes(searchTag.toLowerCase());
-    const matchesScope = selectedScope ? discount.scope === selectedScope : true;
+  const filteredDiscounts = discounts.filter((discount) => {
+    const matchesSearch =
+      discount.id.toString().includes(searchTag.toLowerCase()) ||
+      discount.discount_amount.toString().includes(searchTag.toLowerCase());
+    const matchesScope = selectedScope
+      ? discount.scope === selectedScope
+      : true;
     return matchesSearch && matchesScope;
   });
 
   // Get entity name by ID and type
   const getEntityName = (id, type) => {
     if (!id) return "N/A";
-    
-    switch(type) {
-      case 'vendor':
-        const vendor = vendors.find(v => v.id === id);
-        return vendor ? `${vendor.first_name} ${vendor.last_name}` : "Unknown Vendor";
-      case 'route':
-        const route = routes.find(r => r.id === id);
+
+    switch (type) {
+      case "vendor":
+        const vendor = vendors.find((v) => v.id === id);
+        return vendor
+          ? `${vendor.first_name} ${vendor.last_name}`
+          : "Unknown Vendor";
+      case "route":
+        const route = routes.find((r) => r.id === id);
         return route ? route.name : "Unknown Route";
-      case 'bus':
-        const bus = buses.find(b => b.id === id);
+      case "bus":
+        const bus = buses.find((b) => b.id === id);
         return bus ? bus.name : "Unknown Bus";
-      case 'trip':
-        const trip = trips.find(t => t.id === id);
+      case "trip":
+        const trip = trips.find((t) => t.id === id);
         return trip ? `Trip #${trip.id}` : "Unknown Trip";
       default:
         return "Global";
@@ -406,11 +432,11 @@ export default function DiscountList() {
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-end sm:justify-between">
         <p></p>
         <button
-            onClick={() => setIsFilterOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+          onClick={() => setIsFilterOpen(true)}
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
         >
-            <FunnelIcon className="w-5 h-5" />
-            {t("FILTER")}
+          <FunnelIcon className="w-5 h-5" />
+          {t("FILTER")}
         </button>
       </div>
 
@@ -426,25 +452,67 @@ export default function DiscountList() {
           <Table>
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ID")}</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("SCOPE")}</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("AMOUNT")}</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("TYPE")}</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("START_DATE")}</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("END_DATE")}</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("STATUS")}</TableCell>
-                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">{t("ACTION")}</TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("ID")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("SCOPE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("AMOUNT")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("TYPE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("START_DATE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("END_DATE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("STATUS")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("ACTION")}
+                </TableCell>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredDiscounts.map((discount) => (
                 <TableRow key={discount.id}>
                   <TableCell>#{discount.id}</TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">{discount.scope}</TableCell>
-                  
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {discount.scope}
+                  </TableCell>
+
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {discount.discount_amount}
-                    {discount.discount_type === 'percentage' ? '%' : '$'}
+                    {discount.discount_type === "percentage" ? "%" : "$"}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {discount.discount_type}
@@ -456,21 +524,29 @@ export default function DiscountList() {
                     {new Date(discount.end_date).toLocaleString()}
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      discount.status === 'active' ? 'bg-green-100 text-green-800' :
-                      discount.status === 'expired' ? 'bg-gray-100 text-gray-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        discount.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : discount.status === "expired"
+                          ? "bg-gray-100 text-gray-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
                       {discount.status}
                     </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Edit 
-                        className="w-5 h-5 cursor-pointer text-blue-500" 
+                      <Edit
+                        className="w-5 h-5 cursor-pointer text-blue-500"
                         onClick={() => handleEditDiscount(discount)}
                       />
-                      
+
+                      <Delete
+                        className="w-6 h-6 cursor-pointer text-red-500"
+                        onClick={() => handleDelete(discount.id)}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -481,9 +557,9 @@ export default function DiscountList() {
       </div>
 
       <Pagination
-          currentPage={pagination.current_page}
-          totalPages={pagination.last_page}
-          onPageChange={(page) => setCurrentPage(page)}
+        currentPage={pagination.current_page}
+        totalPages={pagination.last_page}
+        onPageChange={(page) => setCurrentPage(page)}
       />
 
       {/* Add/Edit Discount Modal */}
@@ -497,7 +573,7 @@ export default function DiscountList() {
               {/* Scope */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("SCOPE")}  *
+                  {t("SCOPE")} *
                 </label>
                 <select
                   value={formData.scope}
@@ -516,121 +592,126 @@ export default function DiscountList() {
               </div>
 
               {/* Conditional Entity Selection */}
-              {formData.scope === 'vendor' && (
+              {formData.scope === "vendor" && (
                 <div className="mb-4" ref={vendorDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("VENDOR")} *
+                    {t("VENDOR")} *
                   </label>
                   <div className="relative">
                     <input
-                        type="text"
-                        placeholder={t("SEARCH_VENDOR")}
-                        value={modalVendorSearchTag}
-                        onChange={(e) => {
-                            setModalVendorSearchTag(e.target.value);
-                            setShowModalVendorDropdown(true);
-                        }}
-                        onFocus={() => setShowModalVendorDropdown(true)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      type="text"
+                      placeholder={t("SEARCH_VENDOR")}
+                      value={modalVendorSearchTag}
+                      onChange={(e) => {
+                        setModalVendorSearchTag(e.target.value);
+                        setShowModalVendorDropdown(true);
+                      }}
+                      onFocus={() => setShowModalVendorDropdown(true)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                     {showModalVendorDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {users
-                                .filter((user) => 
-                                    user.first_name.toLowerCase().includes(modalVendorSearchTag.toLowerCase())
-                                )
-                                .map((vendor) => (
-                                    <div
-                                        key={vendor.id}
-                                        onClick={() => handleModalVendorSelect(vendor)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                    >
-                                        {vendor.first_name}
-                                    </div>
-                                ))}
-                        </div>
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {vendorList
+                          .filter((vendor) =>
+                            vendor.first_name
+                              .toLowerCase()
+                              .includes(modalVendorSearchTag.toLowerCase())
+                          )
+                          .map((vendor) => (
+                            <div
+                              key={vendor.vendor.id}
+                              onClick={() => handleModalVendorSelect(vendor.vendor)}
+                              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            >
+                              {vendor.first_name}
+                            </div>
+                          ))}
+                      </div>
                     )}
                   </div>
-                                    
+
                   {errors.vendor_id && (
-                    <p className="text-red-500 text-sm mt-1">{errors.vendor_id}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.vendor_id}
+                    </p>
                   )}
                 </div>
               )}
 
-              {formData.scope === 'route' && (
+              {formData.scope === "route" && (
                 <div className="mb-4" ref={routeDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("ROUTES")} *
+                    {t("ROUTES")} *
                   </label>
                   <div className="relative">
                     <input
-                        type="text"
-                        placeholder={t("SEARCH_ROUTE")}
-                        value={modalRouteSearchTag}
-                        onChange={(e) => {
-                            setModalRouteSearchTag(e.target.value);
-                            setShowModalRouteDropdown(true);
-                        }}
-                        onFocus={() => setShowModalRouteDropdown(true)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      type="text"
+                      placeholder={t("SEARCH_ROUTE")}
+                      value={modalRouteSearchTag}
+                      onChange={(e) => {
+                        setModalRouteSearchTag(e.target.value);
+                        setShowModalRouteDropdown(true);
+                      }}
+                      onFocus={() => setShowModalRouteDropdown(true)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                     {showModalRouteDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {routes
-                                .filter((route) =>
-                                    route.name.toLowerCase().includes(modalRouteSearchTag.toLowerCase())
-                                )
-                                .map((route) => (
-                                    <div
-                                        key={route.id}
-                                        onClick={() => handleModalRouteSelect(route)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                    >
-                                        {route.name}
-                                    </div>
-                                ))}
-                        </div>
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {routes
+                          .filter((route) =>
+                            route.name
+                              .toLowerCase()
+                              .includes(modalRouteSearchTag.toLowerCase())
+                          )
+                          .map((route) => (
+                            <div
+                              key={route.id}
+                              onClick={() => handleModalRouteSelect(route)}
+                              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            >
+                              {route.name}
+                            </div>
+                          ))}
+                      </div>
                     )}
-                </div>
+                  </div>
                   {errors.route_id && (
-                    <p className="text-red-500 text-sm mt-1">{errors.route_id}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.route_id}
+                    </p>
                   )}
                 </div>
               )}
 
-              {formData.scope === 'bus' && (
+              {formData.scope === "bus" && (
                 <div className="mb-4" ref={busDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("BUS")} *
+                    {t("BUS")} *
                   </label>
                   <div className="relative">
                     <input
-                        type="text"
-                        placeholder={t("SEARCH_BUS")}
-                        value={modalBusSearchTag}
-                        onChange={(e) => {
-                            
-                            setModalBusSearchTag(e.target.value);
-                            setShowModalBusDropdown(true);
-                        }}
-                        onFocus={() => setShowModalBusDropdown(true)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      type="text"
+                      placeholder={t("SEARCH_BUS")}
+                      value={modalBusSearchTag}
+                      onChange={(e) => {
+                        setModalBusSearchTag(e.target.value);
+                        setShowModalBusDropdown(true);
+                      }}
+                      onFocus={() => setShowModalBusDropdown(true)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                     {showModalBusDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {buses
-                                
-                                .map((bus) => (
-                                    <div
-                                        key={bus.id}
-                                        onClick={() => handleModalBusSelect(bus)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                    >
-                                        {bus.name}
-                                    </div>
-                                ))}
-                        </div>
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {buses.map((bus) => (
+                          <div
+                            key={bus.id}
+                            onClick={() => handleModalBusSelect(bus)}
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                          >
+                            {bus.name}
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                   {errors.bus_id && (
@@ -639,42 +720,41 @@ export default function DiscountList() {
                 </div>
               )}
 
-              {formData.scope === 'trip' && (
+              {formData.scope === "trip" && (
                 <div className="mb-4" ref={tripDropdownRef}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("TRIPS")} *
+                    {t("TRIPS")} *
                   </label>
                   <div className="relative">
                     <input
-                        type="text"
-                        placeholder={t("SEARCH_TRIP")}
-                        value={modalTripSearchTag}
-                        onChange={(e) => {
-                            
-                            setModalTripSearchTag(e.target.value);
-                            setShowModalTripDropdown(true);
-                        }}
-                        onFocus={() => setShowModalTripDropdown(true)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      type="text"
+                      placeholder={t("SEARCH_TRIP")}
+                      value={modalTripSearchTag}
+                      onChange={(e) => {
+                        setModalTripSearchTag(e.target.value);
+                        setShowModalTripDropdown(true);
+                      }}
+                      onFocus={() => setShowModalTripDropdown(true)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                     {showModalTripDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {trips
-                                
-                                .map((trip) => (
-                                    <div
-                                        key={trip.id}
-                                        onClick={() => handleModalTripSelect(trip)}
-                                        className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                    >
-                                       {trip?.route.name}--{trip?.bus.name}
-                                    </div>
-                                ))}
-                        </div>
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                        {trips.map((trip) => (
+                          <div
+                            key={trip.id}
+                            onClick={() => handleModalTripSelect(trip)}
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                          >
+                            {trip?.route.name}--{trip?.bus.name}
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                   {errors.trip_id && (
-                    <p className="text-red-500 text-sm mt-1">{errors.trip_id}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.trip_id}
+                    </p>
                   )}
                 </div>
               )}
@@ -682,63 +762,86 @@ export default function DiscountList() {
               {/* Discount Amount */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("AMOUNT")} *
+                  {t("AMOUNT")} *
                 </label>
                 <input
                   type="number"
                   value={formData.discount_amount}
-                  onChange={(e) => setFormData({...formData, discount_amount: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      discount_amount: e.target.value,
+                    })
+                  }
                   className="w-full rounded-md border-gray-300 shadow-sm"
-                  step={formData.discount_type === 'percentage' ? '0.1' : '1'}
+                  step={formData.discount_type === "percentage" ? "0.1" : "1"}
                 />
                 {errors.discount_amount && (
-                  <p className="text-red-500 text-sm mt-1">{errors.discount_amount}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.discount_amount}
+                  </p>
                 )}
               </div>
 
               {/* Discount Type */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("TYPE")} *
+                  {t("TYPE")} *
                 </label>
                 <select
                   value={formData.discount_type}
-                  onChange={(e) => setFormData({...formData, discount_type: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, discount_type: e.target.value })
+                  }
                   className="w-full rounded-md border-gray-300 shadow-sm"
                 >
                   <option value="fixed">Fixed Amount</option>
                   <option value="percentage">Percentage</option>
                 </select>
                 {errors.discount_type && (
-                  <p className="text-red-500 text-sm mt-1">{errors.discount_type}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.discount_type}
+                  </p>
                 )}
               </div>
 
               {/* Start Date */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("START_DATE")} *
+                  {t("START_DATE")} *
                 </label>
                 <input
                   type="datetime-local"
                   value={formatForDisplayDiscount(formData.start_date)}
-                  onChange={(e) => setFormData({...formData, start_date:formatForInputDiscount(e.target.value)})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      start_date: formatForInputDiscount(e.target.value),
+                    })
+                  }
                   className="w-full rounded-md border-gray-300 shadow-sm"
                 />
                 {errors.start_date && (
-                  <p className="text-red-500 text-sm mt-1">{errors.start_date}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.start_date}
+                  </p>
                 )}
               </div>
 
               {/* End Date */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("END_DATE")} *
+                  {t("END_DATE")} *
                 </label>
                 <input
                   type="datetime-local"
                   value={formatForDisplayDiscount(formData.end_date)}
-                  onChange={(e) => setFormData({...formData, end_date: formatForInputDiscount(e.target.value)})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      end_date: formatForInputDiscount(e.target.value),
+                    })
+                  }
                   className="w-full rounded-md border-gray-300 shadow-sm"
                 />
                 {errors.end_date && (
@@ -749,11 +852,13 @@ export default function DiscountList() {
               {/* Status */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("STATUS")} *
+                  {t("STATUS")} *
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value })
+                  }
                   className="w-full rounded-md border-gray-300 shadow-sm"
                 >
                   <option value="active">Active</option>
@@ -789,12 +894,11 @@ export default function DiscountList() {
         </div>
       )}
 
-    <DiscountFilter
-      isOpen={isFilterOpen}
-      onClose={() => setIsFilterOpen(false)}
-      onApplyFilters={handleApplyFilters}
-  />
-
+      <DiscountFilter
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+      />
     </div>
   );
 }

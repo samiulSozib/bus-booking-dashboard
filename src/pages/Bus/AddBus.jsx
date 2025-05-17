@@ -847,7 +847,7 @@ const AddBus = () => {
                             {formData.berth_type === 'lower' ? t("CONFIGURE_LOWER_BERTH") : t("CONFIGURE_UPPER_BERTH") }
                         </h3>
                         <div className="flex flex-row gap-2">
-                            <div>
+                            <div style={{width:'250px'}}>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("BERTH_TYPE")}</label>
                                 <select
                                     name="berth_type"

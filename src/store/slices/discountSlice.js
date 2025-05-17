@@ -121,7 +121,7 @@ export const deleteDiscount = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      await axios.delete(`${base_url}/admin/discounts/${id}`, {
+      await axios.delete(`${base_url}/admin/discounts/${id}/delete`, {
         headers: {
           Authorization: `${token}`,
         },

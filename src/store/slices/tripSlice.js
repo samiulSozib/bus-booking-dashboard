@@ -173,13 +173,16 @@ export const deleteTrip = createAsyncThunk(
     async (tripId, { rejectWithValue }) => {
         try {
             const token = getAuthToken();
-            await axios.delete(`${base_url}/vendor/trips/${tripId}`, {
+            const type=user_type()
+            const response=await axios.delete(`${base_url}/${type.role}/trips/${tripId}/delete`, {
                 headers: {
                     Authorization: `${token}`,
                 },
             });
+            console.log(response)
             return tripId;
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error.message);
         }
     }

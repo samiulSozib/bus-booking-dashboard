@@ -8,7 +8,7 @@ import {
     TableRow,
 } from "../../components/ui/table";
 import { Delete, Edit, FunnelIcon, View } from "../../icons";
-import { addTrip, editTrip, fetchTrips, showTrip, updateTripSeatPrices } from "../../store/slices/tripSlice";
+import { addTrip, deleteTrip, editTrip, fetchTrips, showTrip, updateTripSeatPrices } from "../../store/slices/tripSlice";
 import { fetchBuses } from "../../store/slices/busSlice";
 import { fetchRoutes } from "../../store/slices/routeSlice";
 import { fetchUsers } from "../../store/slices/userSlice";
@@ -550,6 +550,37 @@ export default function TripList() {
         );
     };
     
+     // Handle delete trip
+      const handleDelete = (tripId) => {
+        Swal.fire({
+          title: t("DELETE_CONFIRMATION"),
+          text: t("DELETE_ITEM_CONFIRMATION_TEXT"),
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: t("YES_DELETE"),
+          cancelButtonText: t("CANCEL"),
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              const deleteAction = await dispatch(deleteTrip(tripId));
+              if (deleteTrip.fulfilled.match(deleteAction)) {
+                Swal.fire(t("DELETED"), t("ITEM_DELETED_SUCCESSFULLY"), "success");
+              }
+              // Refresh the countries list
+              dispatch(fetchTrips({ searchTag: searchTag, page: currentPage }));
+            } catch (error) {
+              console.log(error);
+              Swal.fire(
+                t("ERROR"),
+                error.message || t("FAILED_TO_DELETE_ITEM"),
+                "error"
+              );
+            }
+          }
+        });
+      };
     
 
 
@@ -680,8 +711,10 @@ export default function TripList() {
                                                 className="w-6 h-6 cursor-pointer"
                                                 onClick={() => handleEditTrip(trip.id)}
                                             />
-                                            {/* <Delete className="w-6 h-6" />
-                                            <View className="w-6 h-6" /> */}
+                                            <Delete
+                                                className="w-6 h-6 cursor-pointer text-red-500"
+                                                onClick={() => handleDelete(trip.id)}
+                                            />
                                         </div>
                                     </TableCell>
                                 </TableRow>

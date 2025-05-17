@@ -197,6 +197,26 @@ export const fetchBusById = createAsyncThunk(
   }
 );
 
+// Delete a bus
+export const deleteBus = createAsyncThunk(
+  'bus/deleteBus',
+  async (busId, { rejectWithValue }) => {
+    try {
+      const token = getAuthToken();
+      const type = user_type();
+      const response = await axios.delete(`${base_url}/${type.role}/buses/${busId}/delete`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      return busId; // Return the ID of the deleted bus
+    } catch (error) {
+      return rejectWithValue(error?.response?.statusText || "Failed to delete bus");
+    }
+  }
+);
+
+
 // Initial State
 const initialState = {
   buses: [], // Array of all buses
@@ -311,7 +331,19 @@ const busSlice = createSlice({
       })
       .addCase(fetchBusById.rejected, (state, action) => {
         state.error = action.payload;
-      });
+      })
+
+      // Delete Bus
+      .addCase(deleteBus.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(deleteBus.fulfilled, (state, action) => {
+        state.buses = state.buses.filter((bus) => bus.id !== action.payload);
+      })
+      .addCase(deleteBus.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
   },
 });
 
