@@ -380,7 +380,7 @@ export default function ProvinceList() {
             <hr />
 
             <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-end mt-1">
-                <div className="relative">
+                <div className="relative" ref={dropdownRef}>
                     <div className="relative flex-1">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <SearchIcon/>
@@ -391,6 +391,10 @@ export default function ProvinceList() {
                         value={countrySearchTag}
                         onChange={(e) => {
                             setCountrySearchTag(e.target.value);
+                            if (e.target.value === "") {
+                                setSelectedCountryId(null); // Clear country filter when search is empty
+                                setCurrentPage(1); // Reset to first page
+                            }
                             setShowCountryDropdown(true); // Show dropdown when typing
                         }}
                         onFocus={() => setShowCountryDropdown(true)} // Show dropdown when input is focused

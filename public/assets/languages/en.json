@@ -451,5 +451,16 @@
   "YES_DELETE": "Yes, delete it!",
   "DELETED": "Deleted!",
   "ITEM_DELETED_SUCCESSFULLY": "Item has been deleted successfully.",
-  "FAILED_TO_DELETE_ITEM": "Failed to delete. Please try again."
+  "FAILED_TO_DELETE_ITEM": "Failed to delete. Please try again.",
+
+
+
+
+
+
+
+
+
+  "EDIT_CITY":"Edit City",
+  "EDIT_PROVINCE":"Edit Province"
 }

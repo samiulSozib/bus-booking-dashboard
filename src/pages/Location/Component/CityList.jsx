@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Table,
     TableBody,
@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 import * as Yup from 'yup';
 import Pagination from "../../../components/pagination/pagination";
 import { useTranslation } from "react-i18next";
+import useOutsideClick from "../../../hooks/useOutSideClick";
 
 
 // Yup validation schema
@@ -34,6 +35,10 @@ const getCitySchema = (t) =>
   
 
 export default function CityList() {
+
+    const countryDropdownRef = useRef(null);
+    const provinceDropdownRef = useRef(null);
+
     const dispatch = useDispatch();
     const { countries } = useSelector((state) => state.countries);
     const { provinces } = useSelector((state) => state.provinces);
@@ -65,6 +70,14 @@ export default function CityList() {
     const [modalSelectedProvinceId, setModalSelectedProvinceId] = useState(null);
     const [showModalCountryDropdown, setShowModalCountryDropdown] = useState(false);
     const [showModalProvinceDropdown, setShowModalProvinceDropdown] = useState(false);
+
+    useOutsideClick(countryDropdownRef, () => {
+        setShowCountryDropdown(false);
+    });
+
+     useOutsideClick(provinceDropdownRef, () => {
+        setShowProvinceDropdown(false);
+    });
 
 
     // Fetch countries on component mount
@@ -291,7 +304,7 @@ export default function CityList() {
             {/* Table Filtering Section */}
             <div className="flex flex-row items-center justify-end gap-3 mb-4">
                 {/* Country Dropdown */}
-                <div className="relative">
+                <div className="relative" ref={countryDropdownRef}>
                     <div className="relative flex-1">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <SearchIcon/>
@@ -329,7 +342,7 @@ export default function CityList() {
 
                 {/* Province Dropdown (only shown if a country is selected) */}
                 {selectedCountryId && (
-                    <div className="relative">
+                    <div className="relative"  ref={provinceDropdownRef}>
                             <div className="relative flex-1">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <SearchIcon/>
@@ -340,6 +353,10 @@ export default function CityList() {
                                 value={provinceSearchTag}
                                 onChange={(e) => {
                                     setProvinceSearchTag(e.target.value);
+                                    if (e.target.value === "") {
+                                        setSelectedProvinceId(null); // Clear country filter when search is empty
+                                        setCurrentPage(1); // Reset to first page
+                                    }
                                     setShowProvinceDropdown(true);
                                 }}
                                 onFocus={() => setShowProvinceDropdown(true)}

@@ -5,6 +5,7 @@ import { fetchProvinces } from '../../store/slices/provinceSlice';
 import { fetchCities } from '../../store/slices/citySlice';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
+import useOutsideClick from '../../hooks/useOutSideClick';
 
 const StationForm = ({
   isOpen,
@@ -13,6 +14,7 @@ const StationForm = ({
   isEditMode,
   initialData,
   errors,
+  setErrors,
   formData,
   searchTags,
   setFormData,
@@ -24,9 +26,7 @@ const StationForm = ({
   const { provinces } = useSelector((state) => state.provinces);
   const { cities } = useSelector((state) => state.cities);
 
-  const countryDropdownRef = useRef(null);
-  const provinceDropdownRef = useRef(null);
-  const cityDropdownRef = useRef(null);
+
 
 
 
@@ -154,8 +154,35 @@ const StationForm = ({
       province: '',
       city: '',
     });
+    setErrors({})
+    setDropdowns({showCountry:false,showProvince:false,showCity:false})
     onClose();
   };
+
+const dropdownRefs = {
+  country: useRef(null),
+  province: useRef(null),
+  city: useRef(null)
+};
+
+// Update the useOutsideClick hooks
+useOutsideClick(dropdownRefs.country, () => {
+  if (dropdowns.showCountry) {
+    setDropdowns(prev => ({ ...prev, showCountry: false }));
+  }
+});
+
+useOutsideClick(dropdownRefs.province, () => {
+  if (dropdowns.showProvince) {
+    setDropdowns(prev => ({ ...prev, showProvince: false }));
+  }
+});
+
+useOutsideClick(dropdownRefs.city, () => {
+  if (dropdowns.showCity) {
+    setDropdowns(prev => ({ ...prev, showCity: false }));
+  }
+});
 
   if (!isOpen) return null;
 
@@ -172,7 +199,7 @@ const StationForm = ({
               <label className="block text-sm font-medium text-gray-700">
                 {t('COUNTRY')} *
               </label>
-              <div className="relative" ref={countryDropdownRef}>
+              <div className="relative" ref={dropdownRefs.country}>
                 <input
                   type="text"
                   placeholder="Search country..."
@@ -213,7 +240,7 @@ const StationForm = ({
                 <label className="block text-sm font-medium text-gray-700">
                   {t('PROVINCE')} *
                 </label>
-                <div className="relative" ref={provinceDropdownRef}>
+                <div className="relative" ref={dropdownRefs.province}>
                   <input
                     type="text"
                     placeholder="Search province..."
@@ -247,7 +274,7 @@ const StationForm = ({
                   <p className="text-red-500 text-sm mt-1">{errors.provinceId}</p>
                 )}
               </div>
-            )}
+            )} 
 
             {/* City Dropdown */}
             {formData.provinceId && (
@@ -255,7 +282,7 @@ const StationForm = ({
                 <label className="block text-sm font-medium text-gray-700">
                   {t('CITY')} *
                 </label>
-                <div className="relative" ref={cityDropdownRef}>
+                <div className="relative" ref={dropdownRefs.city}>
                   <input
                     type="text"
                     placeholder="Search city..."

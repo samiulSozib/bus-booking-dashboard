@@ -17,7 +17,7 @@ export default function AuthLayout({
             <div className="flex flex-col items-center max-w-xs">
               <Link to="/" className="block mb-4">
                 <img
-                  src="https://png.pngtree.com/png-clipart/20240812/original/pngtree-travel-bus-png-image_15761865.png"
+                  src="https://5.imimg.com/data5/PL/WQ/MY-9572834/volvo-bus-tickets-services-250x250.png"
                   alt="Logo"
                   className="rounded-md w-[350px] h-[350px]"
                 />
@@ -27,9 +27,9 @@ export default function AuthLayout({
             </div>
           </div>
         </div>
-        <div className="fixed z-50 hidden bottom-6 right-6 sm:block">
+        {/* <div className="fixed z-50 hidden bottom-6 right-6 sm:block">
           <ThemeTogglerTwo />
-        </div>
+        </div> */}
       </div>
     </div>
   );

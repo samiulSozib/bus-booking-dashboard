@@ -411,7 +411,7 @@ export default function CountryList() {
                                         {country.code}
                                     </TableCell>
                                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                                        <div className="flex flex-row items-center justify-start gap-2">
+                                        <div className="flex flex-row items-center justify-start gap-3">
                                             <Edit
                                                 className="w-6 h-6 cursor-pointer"
                                                 onClick={() => handleEdit(country.id)}

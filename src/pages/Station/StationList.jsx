@@ -869,6 +869,7 @@ const StationList = () => {
         isEditMode={isEditMode}
         initialData={selectedStation}
         errors={errors}
+        setErrors={setErrors}
         formData={formData}
         setFormData={setFormData}
         searchTags={searchTags}
