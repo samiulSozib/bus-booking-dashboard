@@ -19,6 +19,9 @@ const languageDirectionMap = {
   hi: 'ltr',
 };
 
+const savedLang = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null;
+
+
 i18n
   .use(initReactI18next)
   .init({
@@ -30,8 +33,8 @@ i18n
       fa: { translation: fa},
       ps: { translation: ps}
     },
-    lng: "en", 
-    fallbackLng: "en",
+    lng: savedLang|| "fa", 
+    fallbackLng: "fa",
     interpolation: {
       escapeValue: false,
     },

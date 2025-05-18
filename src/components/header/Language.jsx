@@ -38,6 +38,7 @@ export default function Language() {
 
   function handleLanguageChange(lang) {
     i18n.changeLanguage(lang);
+    localStorage.setItem('i18nextLng', lang);
     setIsOpen(false);
   }
 
