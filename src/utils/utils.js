@@ -109,12 +109,33 @@ export function formatForInput(displayTime) {
   return displayTime.replace(' ', 'T');
 }
 
+// export function formatForDisplayDiscount(datetime) {
+//   if (!datetime) return '';
+//   // Convert from "Y-m-d H:i:s" to datetime-local format (YYYY-MM-DDTHH:MM)
+//   const [date, time] = datetime.split(' ');
+//   return date + 'T' + time;
+// }
+
+
 export function formatForDisplayDiscount(datetime) {
   if (!datetime) return '';
-  // Convert from "Y-m-d H:i:s" to datetime-local format (YYYY-MM-DDTHH:MM)
-  const [date, time] = datetime.split(' ');
-  return date + 'T' + time;
+
+  // If the string has both date and time
+  if (datetime.includes(' ')) {
+    const [date, time] = datetime.split(' ');
+    return date + 'T' + time;
+  }
+
+  // If only date (e.g., "2025-04-10"), append default time "00:00"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(datetime)) {
+    return `${datetime} 00:00:00`;
+  }
+
+  // Fallback
+  return datetime;
 }
+
+
 export function formatForInputDiscount(displayTime) {
   if (!displayTime) return '';
   

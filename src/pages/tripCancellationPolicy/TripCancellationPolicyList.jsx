@@ -19,24 +19,24 @@ import { useTranslation } from "react-i18next";
 import { userType } from "../../utils/utils";
 
 // Validation schema
-const policySchema = (type) =>
+const policySchema = (type,t) =>
     Yup.object().shape({
       ...(type.role !== "vendor" && {
-        vendor_id: Yup.number().required("Vendor is required"),
+        vendor_id: Yup.number().required(t('vendor_is_required')),
       }),
       penalty_steps: Yup.array()
         .of(
           Yup.object().shape({
             hours: Yup.number()
-              .required("Hours is required")
-              .integer("Hours must be an integer"),
+              .required(t('hours_is_required'))
+              .integer(t('hour_must_be_an_integer')),
             percentage: Yup.number()
-              .required("Percentage is required")
-              .min(0, "Percentage must be at least 0")
-              .max(100, "Percentage cannot exceed 100"),
+              .required(t('percentage_is_required'))
+              .min(0, t('percentage_must_be_at_least_0'))
+              .max(100, t('percentage_cannot_exceed_100')),
           })
         )
-        .required("At least one penalty step is required"),
+        .required(t('at_least_one_penalty_step_is_required')),
     });
   
 
@@ -111,14 +111,14 @@ export default function TripCancellationPolicyList() {
         console.log(policyData)
 
         try {
-            await policySchema(type).validate(policyData, { abortEarly: false });
+            await policySchema(type,t).validate(policyData, { abortEarly: false });
 
             await dispatch(createOrUpdateTripCancellationPolicy(policyData)).unwrap();
 
             Swal.fire({
                 icon: "success",
-                title: "Success",
-                text: isEditMode ? "Policy updated successfully!" : "Policy created successfully!",
+                title: t('success'),
+                text: isEditMode ? t('policyUpdateSuccessfully') : t('policyCreatedSuccessfully'),
             });
 
             setIsModalOpen(false);
@@ -145,8 +145,8 @@ export default function TripCancellationPolicyList() {
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "Error",
-                    text: error.message || "Failed to save policy. Please try again.",
+                    title: t('error'),
+                    text: error.message || t('failedToSavePolicy'),
                 });
             }
         }

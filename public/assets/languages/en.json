@@ -452,15 +452,48 @@
   "DELETED": "Deleted!",
   "ITEM_DELETED_SUCCESSFULLY": "Item has been deleted successfully.",
   "FAILED_TO_DELETE_ITEM": "Failed to delete. Please try again.",
-
-
-
-
-
-
-
-
-
-  "EDIT_CITY":"Edit City",
-  "EDIT_PROVINCE":"Edit Province"
+  "EDIT_CITY": "Edit City",
+  "EDIT_PROVINCE": "Edit Province",
+  "ALL_SCOPES": "All Scopes",
+  "GLOBAL": "Global",
+  "ROUTE": "Route",
+  "TRIP": "Trip",
+  "FIXED_AMOUNT": "Fixed Amount",
+  "PERCENTAGE": "Percentage",
+  "ACTIVE": "Active",
+  "INACTIVE": "Inactive",
+  "EXPIRED": "Expired",
+  "bookingSuccess": "Booking was successful",
+  "bookingFailed": "Booking failed",
+  "discountUpdateSuccess": "Discount updated successfully",
+  "discountAddSuccess": "Discount added successfully",
+  "failed": "Operation failed",
+  "driverUpdateSuccess": "Driver updated successfully",
+  "driverAddSuccess": "Driver added successfully",
+  "failedToAddUpdateDriver": "Failed to add or update driver",
+  "cityUpdateSuccess": "City updated successfully",
+  "cityAddSuccess": "City added successfully",
+  "failedToAddEditCity": "Failed to add or edit city",
+  "tripUpdateSuccessfully": "Trip updated successfully",
+  "tripAddedSuccessfully": "Trip added successfully",
+  "tripAddUpdateFail": "Failed to add or update trip",
+  "policyUpdateSuccessfully": "Policy updated successfully",
+  "policyCreatedSuccessfully": "Policy created successfully",
+  "failedToSavePolicy": "Failed to save policy",
+  "userUpdateSuccessfully": "User updated successfully",
+  "failedToUpdateUser": "Failed to update user",
+  "userAddedSuccessfully": "User added successfully",
+  "failedToAddUser": "Failed to add user",
+  "failedToAddUpdateUser": "Failed to add or update user",
+  "transactionUpdatedSuccessfully": "Transaction updated successfully",
+  "transactionAddedSuccess": "Transaction added successfully",
+  "failedToAddUpdateTransaction": "Failed to add or update transaction",
+  "balance_is": "Balance is",
+  "vendor_is_required": "Vendor is required",
+  "hours_is_required": "Hours are required",
+  "hour_must_be_an_integer": "Hour must be an integer",
+  "percentage_is_required": "Percentage is required",
+  "percentage_must_be_at_least_0": "Percentage must be at least 0",
+  "percentage_cannot_exceed_100": "Percentage cannot exceed 100",
+  "at_least_one_penalty_step_is_required": "At least one penalty step is required"
 }

@@ -275,8 +275,8 @@ useEffect(() => {
 
         if (createBooking.fulfilled.match(resultAction)) {
             Swal.fire({
-                title: 'Booking Successful',
-                text: 'Your booking has been successfully created!',
+                title: t('success'),
+                text: t('bookingSuccess'),
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then(() => {
@@ -294,8 +294,8 @@ useEffect(() => {
             } else {
                 // Show error dialog
                 Swal.fire({
-                    title: 'Booking Failed',
-                    text: error.message || 'An error occurred while processing your booking',
+                    title: t('error'),
+                    text: error.message || t('bookingFailed'),
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });

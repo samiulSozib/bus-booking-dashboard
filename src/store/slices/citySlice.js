@@ -113,6 +113,7 @@ export const editCity = createAsyncThunk(
             const newData={id:response.data.body.item.id,name:response.data.body.item.name.en,code:response.data.body.item.code}
             return newData;
         } catch (error) {
+            console.log(error)
             return rejectWithValue(error?.response?.statusText);
         }
     }

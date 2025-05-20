@@ -392,7 +392,7 @@ const AppSidebar = () => {
                   !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
                 }`}
               >
-                {isExpanded || isHovered || isMobileOpen ? "General" : <HorizontaLDots />}
+                {isExpanded || isHovered || isMobileOpen ? t('GENERAL') : <HorizontaLDots />}
               </h2>
               {renderMenuItems(filteredOthersItems, "others")}
             </div>

@@ -13,6 +13,7 @@ import {
   createDiscount,
   updateDiscount,
   deleteDiscount,
+  showDiscount,
 } from "../../store/slices/discountSlice";
 import { fetchUsers } from "../../store/slices/userSlice";
 import { fetchRoutes } from "../../store/slices/routeSlice";
@@ -118,9 +119,8 @@ export default function DiscountList() {
   });
 
   const dispatch = useDispatch();
-  const { discounts, loading, error, pagination } = useSelector(
-    (state) => state.discounts
-  );
+  const { discounts, selectedDiscount, loading, error, pagination } =
+    useSelector((state) => state.discounts);
   const { vendorList } = useSelector((state) => state.users);
   const { routes } = useSelector((state) => state.routes);
   const { buses } = useSelector((state) => state.buses);
@@ -189,8 +189,42 @@ export default function DiscountList() {
   ]);
 
   useEffect(() => {
+    console.log(buses);
+    console.log(vendorList);
+    console.log(routes);
     console.log(trips);
   }, [dispatch]);
+
+  useEffect(() => {
+    if (selectedDiscount) {
+      setFormData({
+        scope: selectedDiscount?.scope,
+        vendor_id: selectedDiscount?.vendor?.id || null,
+        route_id: selectedDiscount?.route?.id || null,
+        bus_id: selectedDiscount?.bus?.id || null,
+        trip_id: selectedDiscount?.trip_id || null,
+        discount_amount: selectedDiscount?.discount_amount,
+        discount_type: selectedDiscount?.discount_type,
+        start_date: formatForDisplayDiscount(selectedDiscount?.start_date),
+        end_date: formatForDisplayDiscount(selectedDiscount?.end_date),
+        status: selectedDiscount?.status,
+      });
+    }
+    if (selectedDiscount?.vendor) {
+      setModalVendorSearchTag(selectedDiscount?.vendor?.name);
+    }
+    if (selectedDiscount?.route) {
+      setModalRouteSearchTag(selectedDiscount?.route?.name);
+    }
+    if (selectedDiscount?.bus) {
+      setModalBusSearchTag(selectedDiscount?.bus?.name);
+    }
+    if (selectedDiscount?.trip) {
+      setModalTripSearchTag(
+        `${selectedDiscount?.trip?.route?.name}--${selectedDiscount?.trip?.bus?.name}`
+      );
+    }
+  }, [selectedDiscount]);
 
   // Handle scope change - reset related IDs when scope changes
   const handleScopeChange = (scope) => {
@@ -210,7 +244,7 @@ export default function DiscountList() {
       ...formData,
       vendor_id: vendor.id,
     });
-    setModalVendorSearchTag(vendor.first_name);
+    setModalVendorSearchTag(vendor.name);
     setShowModalVendorDropdown(false);
   };
 
@@ -245,20 +279,21 @@ export default function DiscountList() {
   };
 
   // Open modal for editing
-  const handleEditDiscount = (discount) => {
-    setFormData({
-      scope: discount?.scope,
-      vendor_id: discount?.vendor_id || null,
-      route_id: discount?.route_id || null,
-      bus_id: discount?.bus_id || null,
-      trip_id: discount?.trip_id || null,
-      discount_amount: discount?.discount_amount,
-      discount_type: discount?.discount_type,
-      start_date: discount?.start_date,
-      end_date: discount?.end_date,
-      status: discount?.status,
-    });
-    setCurrentDiscountId(discount.id);
+  const handleEditDiscount = (discountId) => {
+    // setFormData({
+    //   scope: discount?.scope,
+    //   vendor_id: discount?.vendor_id || null,
+    //   route_id: discount?.route_id || null,
+    //   bus_id: discount?.bus_id || null,
+    //   trip_id: discount?.trip_id || null,
+    //   discount_amount: discount?.discount_amount,
+    //   discount_type: discount?.discount_type,
+    //   start_date: discount?.start_date,
+    //   end_date: discount?.end_date,
+    //   status: discount?.status,
+    // });
+    dispatch(showDiscount(discountId));
+    setCurrentDiscountId(discountId);
     setIsEditMode(true);
     setIsModalOpen(true);
   };
@@ -282,13 +317,19 @@ export default function DiscountList() {
       //return
 
       if (isEditMode) {
-        await dispatch(
+        const resultAction=await dispatch(
           updateDiscount({ id: currentDiscountId, discountData: payload })
-        ).unwrap();
-        Swal.fire("Success!", "Discount updated successfully.", "success");
+        )
+        if(updateDiscount.fulfilled.match(resultAction)){
+          Swal.fire(t('success'), t('discountUpdateSuccess'), "success");
+        }
+        
       } else {
-        await dispatch(createDiscount(payload)).unwrap();
-        Swal.fire("Success!", "Discount created successfully.", "success");
+        const resultAction= await dispatch(createDiscount(payload))
+        if(createDiscount.fulfilled.match(resultAction)){
+          Swal.fire(t('success'), t('discountAddSuccess'), "success");
+        }
+        
       }
 
       setIsModalOpen(false);
@@ -302,7 +343,7 @@ export default function DiscountList() {
         setErrors(newErrors);
       } else {
         //console.log(error)
-        Swal.fire("Error", error.message || "An error occurred", "error");
+        Swal.fire(t('error'), error.message || t('failed'), "error");
       }
     }
   };
@@ -353,6 +394,10 @@ export default function DiscountList() {
       end_date: "",
       status: "active",
     });
+    setModalBusSearchTag("");
+    setModalRouteSearchTag("");
+    setModalTripSearchTag("");
+    setModalVendorSearchTag("");
     setErrors({});
     setCurrentDiscountId(null);
     setIsEditMode(false);
@@ -413,12 +458,12 @@ export default function DiscountList() {
             value={selectedScope}
             onChange={(e) => setSelectedScope(e.target.value)}
           >
-            <option value="">All Scopes</option>
-            <option value="global">Global</option>
-            <option value="vendor">Vendor</option>
-            <option value="route">Route</option>
-            <option value="bus">Bus</option>
-            <option value="trip">Trip</option>
+            <option value="">{t("ALL_SCOPES")}</option>
+            <option value="global">{t("GLOBAL")}</option>
+            <option value="vendor">{t("VENDOR")}</option>
+            <option value="route">{t("ROUTE")}</option>
+            <option value="bus">{t("BUS")}</option>
+            <option value="trip">{t("TRIP")}</option>
           </select>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -536,17 +581,20 @@ export default function DiscountList() {
                       {discount.status}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Edit
-                        className="w-5 h-5 cursor-pointer text-blue-500"
-                        onClick={() => handleEditDiscount(discount)}
-                      />
-
-                      <Delete
-                        className="w-6 h-6 cursor-pointer text-red-500"
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <div className="flex flex-row items-center justify-start gap-2">
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                        onClick={() => handleEditDiscount(discount.id)}
+                      >
+                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                      </div>
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
                         onClick={() => handleDelete(discount.id)}
-                      />
+                      >
+                        <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -580,11 +628,11 @@ export default function DiscountList() {
                   onChange={(e) => handleScopeChange(e.target.value)}
                   className="w-full rounded-md border-gray-300 shadow-sm"
                 >
-                  <option value="global">Global</option>
-                  <option value="vendor">Vendor</option>
-                  <option value="route">Route</option>
-                  <option value="bus">Bus</option>
-                  <option value="trip">Trip</option>
+                  <option value="global">{t("GLOBAL")}</option>
+                  <option value="vendor">{t("VENDOR")}</option>
+                  <option value="route">{t("ROUTE")}</option>
+                  <option value="bus">{t("BUS")}</option>
+                  <option value="trip">{t("TRIP")}</option>
                 </select>
                 {errors.scope && (
                   <p className="text-red-500 text-sm mt-1">{errors.scope}</p>
@@ -613,17 +661,19 @@ export default function DiscountList() {
                       <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                         {vendorList
                           .filter((vendor) =>
-                            vendor.first_name
+                            vendor.vendor.name
                               .toLowerCase()
                               .includes(modalVendorSearchTag.toLowerCase())
                           )
                           .map((vendor) => (
                             <div
                               key={vendor.vendor.id}
-                              onClick={() => handleModalVendorSelect(vendor.vendor)}
+                              onClick={() =>
+                                handleModalVendorSelect(vendor.vendor)
+                              }
                               className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                             >
-                              {vendor.first_name}
+                              {vendor.vendor.name}
                             </div>
                           ))}
                       </div>
@@ -795,8 +845,8 @@ export default function DiscountList() {
                   }
                   className="w-full rounded-md border-gray-300 shadow-sm"
                 >
-                  <option value="fixed">Fixed Amount</option>
-                  <option value="percentage">Percentage</option>
+                  <option value="fixed">{t("FIXED_AMOUNT")}</option>
+                  <option value="percentage">{t("PERCENTAGE")}</option>
                 </select>
                 {errors.discount_type && (
                   <p className="text-red-500 text-sm mt-1">
@@ -861,9 +911,9 @@ export default function DiscountList() {
                   }
                   className="w-full rounded-md border-gray-300 shadow-sm"
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="expired">Expired</option>
+                  <option value="active">{t("ACTIVE")}</option>
+                  <option value="inactive">{t("INACTIVE")}</option>
+                  <option value="expired">{t("EXPIRED")}</option>
                 </select>
                 {errors.status && (
                   <p className="text-red-500 text-sm mt-1">{errors.status}</p>

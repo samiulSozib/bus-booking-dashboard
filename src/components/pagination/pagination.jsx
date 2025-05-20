@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const Pagination = ({ currentPage, totalPages, onPageChange, isRTL = false }) => {
+    const {t}=useTranslation()
     const handlePrevious = () => {
         if (currentPage > 1) {
             onPageChange(currentPage - 1);
@@ -126,7 +128,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, isRTL = false }) =>
                                 isRTL ? "rounded-r-md rounded-l-none" : ""
                             }`}
                         >
-                            <span className="sr-only">Previous</span>
+                            <span className="sr-only">{t('PREVIOUS')}</span>
                             {/* Chevron icon (flipped for RTL) */}
                             <svg
                                 className="h-5 w-5"
@@ -151,7 +153,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, isRTL = false }) =>
                                 isRTL ? "rounded-l-md rounded-r-none" : ""
                             }`}
                         >
-                            <span className="sr-only">Next</span>
+                            <span className="sr-only">{t('NEXT')}</span>
                             {/* Chevron icon (flipped for RTL) */}
                             <svg
                                 className="h-5 w-5"

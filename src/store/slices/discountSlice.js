@@ -7,24 +7,54 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Async Thunks
 export const fetchDiscounts = createAsyncThunk(
   "discounts/fetchDiscounts",
-  async ({searchTag = "",page=1,filters={}}, { rejectWithValue }) => {
+  async ({ searchTag = "", page = 1, filters = {} }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
 
       const filterQuery = Object.entries(filters)
-      .filter(([_, value]) => value !== null && value !== undefined && value !== "")
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
-      
-      const response = await axios.get(`${base_url}/admin/discounts?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      return {items:response.data.body.items,pagination:response.data.body.data};
+        .filter(
+          ([_, value]) => value !== null && value !== undefined && value !== ""
+        )
+        .map(
+          ([key, value]) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+        )
+        .join("&");
+
+      const response = await axios.get(
+        `${base_url}/admin/discounts?search=${searchTag}&page=${page}${
+          filterQuery ? `&${filterQuery}` : ""
+        }`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      return {
+        items: response.data.body.items,
+        pagination: response.data.body.data,
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
+  }
+);
+
+export const showDiscount = createAsyncThunk(
+  "discounts/showDiscount",
+  async (discountId) => {
+    const token = getAuthToken();
+    const response = await axios.get(
+      `${base_url}/admin/discounts/${discountId}/show`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data.body.item;
   }
 );
 
@@ -57,12 +87,16 @@ export const createDiscount = createAsyncThunk(
         formData.append("bus_id", discountData.bus_id);
       }
 
-      const response = await axios.post(`${base_url}/admin/discounts`, formData, {
-        headers: {
-          Authorization: `${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        `${base_url}/admin/discounts`,
+        formData,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -77,7 +111,7 @@ export const updateDiscount = createAsyncThunk(
       const token = getAuthToken();
       const formData = new FormData();
 
-      formData.append("id",id)
+      formData.append("id", id);
 
       formData.append("scope", discountData.scope);
       formData.append("discount_amount", discountData.discount_amount);
@@ -138,12 +172,13 @@ const discountSlice = createSlice({
   initialState: {
     loading: false,
     discounts: [],
+    selectedDiscount: null,
     error: null,
     pagination: {
       current_page: 1,
       last_page: 1,
-      total: 0
-  }
+      total: 0,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -156,10 +191,21 @@ const discountSlice = createSlice({
       .addCase(fetchDiscounts.fulfilled, (state, action) => {
         state.loading = false;
         state.discounts = action.payload.items;
-        state.pagination=action.payload.pagination;
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchDiscounts.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(showDiscount.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(showDiscount.fulfilled, (state, action) => {
+        state.selectedDiscount = action.payload;
+        state.error = null;
+      })
+      .addCase(showDiscount.rejected, (state, action) => {
         state.error = action.payload;
       })
 
