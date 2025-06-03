@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import BusFilter from "./BusFilter";
 import Swal from "sweetalert2";
+import { userType } from "../../utils/utils";
 
 const BusList = () => {
   const [searchTag, setSearchTag] = useState("");
@@ -29,6 +30,7 @@ const BusList = () => {
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
+  const user_type = userType();
 
   useEffect(() => {
     dispatch(
@@ -139,11 +141,39 @@ const BusList = () => {
                 >
                   {t("BUS_NAME")}
                 </TableCell>
+
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("FACILITIES")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("RATING")}
+                </TableCell>
+                {user_type.role == "admin" && (
+                  <TableCell
+                    isHeader
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  >
+                    {t("VENDOR")}
+                  </TableCell>
+                )}
+
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("TICKET_PRICE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("SEATS")}
                 </TableCell>
                 <TableCell
                   isHeader
@@ -183,7 +213,21 @@ const BusList = () => {
                     {bus.name}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {bus.facilities}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {bus.rating}
+                  </TableCell>
+                  {user_type.role == "admin" && (
+                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {bus?.vendor?.name}
+                    </TableCell>
+                  )}
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {bus.ticket_price}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {bus.seats?.seats?.length}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {bus.status}

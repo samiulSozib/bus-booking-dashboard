@@ -16,6 +16,9 @@ import tripCancellationPolicyReducer from "./slices/tripCancellationPolicy"
 import adminWalletReducer from "./slices/adminWalletSlice.js"
 import vendorWalletReducer from "./slices/vendorWalletSlice.js"
 import bookingReducer from "./slices/bookingSlice.js"
+import telecomOperatorReducer from './slices/telecomOperatorSlice.js'
+import settingsReducer from './slices/settingsSlice.js'
+import rechargeReducer from './slices/rechargeSlice.js'
 
 const store = configureStore({
     reducer: {
@@ -35,7 +38,10 @@ const store = configureStore({
         tripCancellationPolicy:tripCancellationPolicyReducer,
         adminWallet:adminWalletReducer,
         vendorWallet:vendorWalletReducer,
-        bookings:bookingReducer
+        bookings:bookingReducer,
+        telecomOperators:telecomOperatorReducer,
+        settings:settingsReducer,
+        recharges:rechargeReducer
     },
 });
 

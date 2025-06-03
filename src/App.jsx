@@ -33,6 +33,8 @@ import TripCancellationPolicy from "./pages/tripCancellationPolicy/TripCancellat
 import AdminWallet from "./pages/adminWallet/AdminWallet";
 import VendorWallet from "./pages/vendorWaller/vendorWallet";
 import AddBooking from "./pages/Booking/AddBooking";
+import TelecomOperators from "./pages/TelecomOperators/TelecomOperators";
+import Settings from "./pages/Settings/Settings";
 
 export default function App() {
   return (
@@ -60,6 +62,8 @@ export default function App() {
             <Route index path="/trip-cancellation-policy" element={<ProtectedRoute><TripCancellationPolicy/></ProtectedRoute>}/>
             <Route index path="/admin-wallet" element={<ProtectedRoute><AdminWallet/></ProtectedRoute>}/>
             <Route index path="/vendor-wallet" element={<ProtectedRoute><VendorWallet/></ProtectedRoute>}/>
+            <Route index path="/telecom-operators" element={<ProtectedRoute><TelecomOperators/></ProtectedRoute>}/>
+            <Route index path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
 
 
 

@@ -286,7 +286,7 @@ export const fetchRoutes = createAsyncThunk(
         
         console.log(filterQuery)
       // Build full URL
-      const url = `${base_url}/${type.role}/routes/list?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`;
+      const url = `${base_url}/${type.role}/routes?search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`;
   
       try {
         const response = await axios.get(url, {

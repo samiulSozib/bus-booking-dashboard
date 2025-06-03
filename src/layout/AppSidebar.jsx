@@ -127,7 +127,19 @@ const AppSidebar = () => {
       name: "TRIP_CANCELLATION_POLICY",
       path: "/trip-cancellation-policy",
       roles: ["admin","vendor"]
-    }
+    },
+    {
+      icon: <User_Group />,
+      name: "TELECOM_OPERATOR",
+      path: "/telecom-operators",
+      roles: ["admin"]
+    },
+    {
+      icon: <Settings />,
+      name: "SETTINGS",
+      path: "/settings",
+      roles: ["admin"]
+    },
   ], []);
 
   const othersItems = useMemo(() => [

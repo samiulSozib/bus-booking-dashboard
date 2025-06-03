@@ -326,13 +326,14 @@
 
 
 // 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCountries } from '../../store/slices/countrySlice';
 import { fetchProvinces } from '../../store/slices/provinceSlice';
 import { fetchCities } from '../../store/slices/citySlice';
 import { useTranslation } from 'react-i18next';
 import { CloseIcon } from '../../icons';
+import useOutsideClick from '../../hooks/useOutSideClick';
 
 const StationFilter = ({ isOpen, onClose, onApplyFilters }) => {
   const { t } = useTranslation();
@@ -370,10 +371,10 @@ const StationFilter = ({ isOpen, onClose, onApplyFilters }) => {
   }, [dispatch, filters.originCountryId, searchTags.originProvince]);
 
   useEffect(() => {
-    if (filters.originProvinceId) {
-      dispatch(fetchCities({ provinceId: filters.originProvinceId }));
-    }
-  }, [dispatch, filters.originProvinceId]);
+    //if (filters.originProvinceId) {
+      dispatch(fetchCities({ searchTag:searchTags.originCity }));
+    //}
+  }, [dispatch, searchTags.originCity]);
 
   const toggleDropdown = (dropdownKey, isOpen) => {
     setDropdowns((prevDropdowns) => ({
@@ -469,6 +470,16 @@ const StationFilter = ({ isOpen, onClose, onApplyFilters }) => {
     onClose();
   };
 
+  const dropdownRefs = {
+    city: useRef(null)
+  };
+
+  useOutsideClick(dropdownRefs.city, () => {
+    if (dropdowns.showOriginCity) {
+      setDropdowns(prev => ({ ...prev, showOriginCity: false }));
+    }
+  });
+
   if (!isOpen) return null;
 
   return (
@@ -488,7 +499,7 @@ const StationFilter = ({ isOpen, onClose, onApplyFilters }) => {
             <h4 className="font-medium text-gray-700 mb-3">{t('ORIGIN')}</h4>
             
             {/* Origin Country */}
-            <div className="mb-3">
+            {/* <div className="mb-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">{t('COUNTRY')}</label>
               <div className="relative">
                 <input
@@ -520,10 +531,10 @@ const StationFilter = ({ isOpen, onClose, onApplyFilters }) => {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Origin Province */}
-            {filters.originCountryId && (
+            {/* {filters.originCountryId && (
               <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('PROVINCE')}</label>
                 <div className="relative">
@@ -557,13 +568,13 @@ const StationFilter = ({ isOpen, onClose, onApplyFilters }) => {
                   )}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Origin City */}
-            {filters.originProvinceId && (
+            {/* {filters.originProvinceId && ( */}
               <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('CITY')}</label>
-                <div className="relative">
+                <div className="relative" ref={dropdownRefs.city}>
                   <input
                     type="text"
                     placeholder={t('SEARCH_CITY')}
@@ -594,7 +605,7 @@ const StationFilter = ({ isOpen, onClose, onApplyFilters }) => {
                   )}
                 </div>
               </div>
-            )}
+            {/* )} */}
           </div>
 
           {/* Action Buttons */}

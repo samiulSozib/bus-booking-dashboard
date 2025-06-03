@@ -610,13 +610,24 @@ const RouteFilter = ({ isOpen, onClose, onApplyFilters }) => {
     showDestinationStation: false,
   });
 
-  // Refs for dropdowns
-  const originStationRef = useRef(null);
-  const destinationStationRef = useRef(null);
 
-  // Close dropdowns when clicking outside
-  useOutsideClick(originStationRef, () => toggleDropdown("showOriginStation", false));
-  useOutsideClick(destinationStationRef, () => toggleDropdown("showDestinationStation", false));
+    const dropdownRefs = {
+      originStation: useRef(null),
+      destinationStation:useRef(null)
+    };
+
+      useOutsideClick(dropdownRefs.originStation, () => {
+        if (dropdowns.showOriginStation) {
+          setDropdowns(prev => ({ ...prev, showOriginStation: false }));
+        }
+      });
+
+      useOutsideClick(dropdownRefs.destinationStation, () => {
+        if (dropdowns.showDestinationStation) {
+          setDropdowns(prev => ({ ...prev, showDestinationStation: false }));
+        }
+      });
+
 
   // Fetch stations for origin city
   useEffect(() => {
@@ -724,9 +735,9 @@ const RouteFilter = ({ isOpen, onClose, onApplyFilters }) => {
             <h4 className="font-medium text-gray-700 mb-3">{t("ORIGIN")}</h4>
             
             {/* Origin Station */}
-            <div className="mb-3" ref={originStationRef}>
+            <div className="mb-3" ref={dropdownRefs.originStation}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t("STATION")}</label>
-              <div className="relative">
+              <div className="relative" ref={dropdownRefs.originStation}>
                 <input
                   type="text"
                   placeholder={t("SEARCH_STATION")}
@@ -766,9 +777,9 @@ const RouteFilter = ({ isOpen, onClose, onApplyFilters }) => {
             <h4 className="font-medium text-gray-700 mb-3">{t("DESTINATION")}</h4>
 
             {/* Destination Station */}
-            <div className="mb-3" ref={destinationStationRef}>
+            <div className="mb-3" ref={dropdownRefs.destinationStation}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t("STATION")}</label>
-              <div className="relative">
+              <div className="relative" ref={dropdownRefs.destinationStation}>
                 <input
                   type="text"
                   placeholder={t("SEARCH_STATION")}

@@ -112,25 +112,29 @@ export default function ProvinceList() {
 
       if (isEditing) {
         // Edit province
-        await dispatch(
+        const editAction = await dispatch(
           editProvince({
             provinceId: currentProvinceId,
             updatedData: provinceData,
           })
-        ).unwrap();
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Province updated successfully!",
-        });
+        );
+        if (editProvince.fulfilled.match(editAction)) {
+          Swal.fire({
+            icon: "success",
+            title: t("success"),
+            text: t("provinceEditSuccess"),
+          });
+        }
       } else {
         // Add province
-        await dispatch(addProvince(provinceData)).unwrap();
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Province added successfully!",
-        });
+        const addAction = await dispatch(addProvince(provinceData));
+        if (addProvince.fulfilled.match(addAction)) {
+          Swal.fire({
+            icon: "success",
+            title: t("success"),
+            text: t("provinceAddSuccess"),
+          });
+        }
       }
 
       // Reset form and close modal
@@ -161,8 +165,8 @@ export default function ProvinceList() {
         // API or other errors
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: error || "Failed to add/update province. Please try again.",
+          title: t("error"),
+          text: error || t("failedToAddEditProvince"),
         });
       }
     }

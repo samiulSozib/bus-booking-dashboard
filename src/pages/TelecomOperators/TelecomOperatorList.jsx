@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
-import useOutsideClick from "../../../hooks/useOutSideClick";
+import useOutsideClick from "../../hooks/useOutSideClick";
 import Swal from "sweetalert2";
 import {
   Table,
@@ -9,185 +9,186 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table";
-import { Delete, Edit, View, FunnelIcon, SearchIcon } from "../../../icons"; // Add FunnelIcon
+} from "../../components/ui/table";
+import { Delete, Edit, View, FunnelIcon, SearchIcon } from "../../icons"; // Add FunnelIcon
 import {
   addCountry,
   deleteCountry,
   editCountry,
   fetchCountries,
   showCountry,
-} from "../../../store/slices/countrySlice";
-import Pagination from "../../../components/pagination/pagination";
+} from "../../store/slices/countrySlice";
+import Pagination from "../../components/pagination/pagination";
 import { useTranslation } from "react-i18next";
+import {
+  addTelecomOperator,
+  deleteTelecomOperator,
+  editTelecomOperator,
+  fetchTelecomOperators,
+  showTelecomOperator,
+} from "../../store/slices/telecomOperatorSlice";
 
 // Validation schema
-const getCountrySchema = (t) =>
+const getOperatorSchema = (t) =>
   Yup.object().shape({
-    countryName: Yup.object().shape({
-      en: Yup.string().required(t("country.englishNameRequired")),
-      ps: Yup.string().optional(),
-      fa: Yup.string().optional(),
-    }),
-    countryCode: Yup.string().required(t("country.codeRequired")),
-    // .matches(/^[A-Z]{3}$/, t('country.codeInvalid')),
+    operator: Yup.string()
+      .required(t("OPERATOR_NAME_REQUIRED"))
+      .oneOf(["salaam", "etisalat", "roshan", "mtn", "awcc"], t("OPERATOR_NAME_INVALID")),
+    prefix: Yup.string()
+      .required(t("OPERATOR_PREFIX_REQUIRED"))
+      .matches(/^\+?\d{1,5}$/, t("OPERATOR_PREFIX_INVALID")),
   });
 
-export default function CountryList() {
+export default function TelecomOperatorList() {
   const dropdownRef = useRef(null);
   useOutsideClick(dropdownRef, () => {
     //setShowModalBusDropdown(false);
   });
 
   const dispatch = useDispatch();
-  const { countries, selectedCountry, loading, pagination } = useSelector(
-    (state) => state.countries
+
+  const { operators, selectedOperator, loading, pagination } = useSelector(
+    (state) => state.telecomOperators
   );
 
   const [searchTag, setSearchTag] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentCountryId, setCurrentCountryId] = useState(null);
-  const [countryName, setCountryName] = useState({ en: "", ps: "", fa: "" });
-  const [countryCode, setCountryCode] = useState("");
+  const [currentOperatorId, setCurrentOperatorId] = useState(null);
+  const [operator, setOperator] = useState("");
+  const [prefix, setPrefix] = useState("");
   const [errors, setErrors] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(10);
   const [isFilterOpen, setIsFilterOpen] = useState(false); // State for filter dropdown
   // const [filters, setFilters] = useState({ searchTag: "", code: "" }); // State for filters
   const [filters, setFilters] = useState({}); // State for filters
   const { t } = useTranslation();
 
-  useEffect(() => {
-    dispatch(fetchCountries({ searchTag: searchTag, page: currentPage }));
-  }, [dispatch, searchTag, currentPage]);
+  const OPERATORS = [
+    { value: "salaam", label: "Salaam" },
+    { value: "etisalat", label: "Etisalat" },
+    { value: "roshan", label: "Roshan" },
+    { value: "mtn", label: "MTN" },
+    { value: "awcc", label: "AWCC" },
+  ];
 
   useEffect(() => {
-    if (selectedCountry && isEditing) {
-      setCountryName({
-        en: selectedCountry.name.en,
-        ps: selectedCountry.name.ps,
-        fa: selectedCountry.name.fa,
-      });
-      setCountryCode(selectedCountry.code);
-    }
-  }, [selectedCountry]);
+    dispatch(fetchTelecomOperators({ page: currentPage }));
+  }, [dispatch, currentPage]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // useEffect(() => {
+  //   if (selectedOperator && isEditing) {
+  //     setOperator(selectedOperator.operator)
+  //     setPrefix(selectedOperator.prefix);
+  //   }
+  // }, [selectedOperator]);
 
-    const countryData = {
-      countryName,
-      countryCode,
-    };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      // Validate form data using Yup
-      await getCountrySchema(t).validate(countryData, { abortEarly: false });
+  const operatorData = { operator, prefix };
 
-      if (isEditing) {
-        // Edit country
-        const editAction = await dispatch(
-          editCountry({ countryId: currentCountryId, updatedData: countryData })
-        );
-        if (editCountry.fulfilled.match(editAction)) {
-          Swal.fire({
-            icon: "success",
-            title: t("success"),
-            text: t("countryUpdateSuccess"),
-          });
-        }
-      } else {
-        // Add country
-        const addAction = await dispatch(addCountry(countryData));
-        if (addCountry.fulfilled.match(addAction)) {
-          Swal.fire({
-            icon: "success",
-            title: t("success"),
-            text: t("countryAddSuccess"),
-          });
-        }
-      }
+  try {
+    await getOperatorSchema(t).validate(operatorData, { abortEarly: false });
 
-      // Reset form and close modal
-      setCountryName({ en: "", ps: "", fa: "" });
-      setCountryCode("");
-      setIsModalOpen(false);
-      setIsEditing(false);
-      setCurrentCountryId(null);
-      setErrors({}); // Clear errors
-    } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        // Yup validation errors
-        const newErrors = {};
-        error.inner.forEach((err) => {
-          const path = err.path.split(".");
-          if (path.length === 2) {
-            // Handle nested fields (e.g., countryName.en)
-            if (!newErrors[path[0]]) newErrors[path[0]] = {};
-            newErrors[path[0]][path[1]] = err.message;
-          } else {
-            // Handle top-level fields (e.g., countryCode)
-            newErrors[path[0]] = err.message;
-          }
-        });
-        setErrors(newErrors);
-      } else {
-        // API or other errors
+    if (isEditing) {
+      const editAction = await dispatch(
+        editTelecomOperator({ id: currentOperatorId, operator, prefix })
+      );
+      if (editTelecomOperator.fulfilled.match(editAction)) {
         Swal.fire({
-          icon: "error",
-          title: t("error"),
-          text: error || t("failedToAddEditCountry"),
+          icon: "success",
+          title: t("OPERATOR_SUCCESS_TITLE"),
+          text: t("OPERATOR_SUCCESS_UPDATE"),
+        });
+      }
+    } else {
+      const addAction = await dispatch(addTelecomOperator({ operator, prefix }));
+      if (addTelecomOperator.fulfilled.match(addAction)) {
+        Swal.fire({
+          icon: "success",
+          title: t("OPERATOR_SUCCESS_TITLE"),
+          text: t("OPERATOR_SUCCESS_CREATE"),
         });
       }
     }
-  };
 
-  const handleDelete = (countryId) => {
-    Swal.fire({
-      title: t("DELETE_CONFIRMATION"),
-      text: t("DELETE_ITEM_CONFIRMATION_TEXT"),
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: t("YES_DELETE"),
-      cancelButtonText: t("CANCEL"),
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const deleteAction = await dispatch(deleteCountry(countryId));
-          if (deleteCountry.fulfilled.match(deleteAction)) {
-            Swal.fire(t("DELETED"), t("ITEM_DELETED_SUCCESSFULLY"), "success");
-          }
-          // Refresh the countries list
-          dispatch(fetchCountries({ searchTag: searchTag, page: currentPage }));
-        } catch (error) {
+    // Reset form
+    setOperator("");
+    setPrefix("");
+    setIsModalOpen(false);
+    setIsEditing(false);
+    setCurrentOperatorId(null);
+    setErrors({});
+  } catch (error) {
+    if (error instanceof Yup.ValidationError) {
+      const newErrors = {};
+      error.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: t("OPERATOR_ERROR_TITLE"),
+        text: error.message || t("OPERATOR_ERROR_DEFAULT"),
+      });
+    }
+  }
+};
+
+const handleDelete = (operatorId) => {
+  Swal.fire({
+    title: t("OPERATOR_DELETE_CONFIRM_TITLE"),
+    text: t("OPERATOR_DELETE_CONFIRM_TEXT"),
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: t("OPERATOR_DELETE_CONFIRM_YES"),
+    cancelButtonText: t("OPERATOR_BUTTON_CANCEL"),
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const deleteAction = await dispatch(deleteTelecomOperator(operatorId));
+        if (deleteTelecomOperator.fulfilled.match(deleteAction)) {
           Swal.fire(
-            t("ERROR"),
-            error.message || t("FAILED_TO_DELETE_ITEM"),
-            "error"
+            t("OPERATOR_DELETE_SUCCESS_TITLE"),
+            t("OPERATOR_DELETE_SUCCESS_TEXT"),
+            "success"
           );
+          // Refresh the operators list
+          dispatch(fetchTelecomOperators({ page: currentPage }));
         }
+      } catch (error) {
+        Swal.fire(
+          t("OPERATOR_ERROR_TITLE"),
+          error.message || t("OPERATOR_DELETE_ERROR_TEXT"),
+          "error"
+        );
       }
-    });
-  };
+    }
+  });
+};
 
-  const handleEdit = (countryId) => {
-    dispatch(showCountry(countryId));
+  const handleEdit = (operator) => {
+    //dispatch(showTelecomOperator(operatorId));
     setIsEditing(true);
-    setCurrentCountryId(countryId);
+
+    setCurrentOperatorId(operator.id);
+    setOperator(operator.operator)
+    setPrefix(operator.prefix)
     setIsModalOpen(true);
   };
 
-  const handleApplyFilters = () => {
-    setIsFilterOpen(false); // Close filter dropdown
-  };
+  // const handleApplyFilters = () => {
+  //   setIsFilterOpen(false); // Close filter dropdown
+  // };
 
-  const handleResetFilters = () => {
-    setFilters({ searchTag: "", code: "" }); // Reset filters
-    setIsFilterOpen(false); // Close filter dropdown
-  };
+  // const handleResetFilters = () => {
+  //   setFilters({ searchTag: "", code: "" }); // Reset filters
+  //   setIsFilterOpen(false); // Close filter dropdown
+  // };
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
@@ -196,88 +197,55 @@ export default function CountryList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">
-              {isEditing ? t("EDIT_COUNTRY") : t("ADD_COUNTRY")}
+              {isEditing ? t("EDIT_OPERATOR") : t("ADD_OPERATOR")}
             </h2>
             <form onSubmit={handleSubmit}>
-              {/* English Name (Compulsory) */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
-                  {t("ENGLISH_NAME")} *
+                  {t("OPERATOR")} *
                 </label>
-                <input
-                  type="text"
-                  value={countryName.en}
-                  onChange={(e) =>
-                    setCountryName({ ...countryName, en: e.target.value })
-                  }
+                <select
+                  value={operator}
+                  onChange={(e) => setOperator(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                {errors.countryName?.en && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.countryName.en}
-                  </p>
+                >
+                  <option value="">{t("SELECT_OPERATOR")}</option>
+                  {OPERATORS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.operator && (
+                  <p className="text-red-500 text-sm mt-1">{errors.operator}</p>
                 )}
               </div>
 
-              {/* Pashto Name (Optional) */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
-                  {t("PASHTO_NAME")}
+                  {t("PREFIX")}
                 </label>
                 <input
                   type="text"
-                  value={countryName.ps}
-                  onChange={(e) =>
-                    setCountryName({ ...countryName, ps: e.target.value })
-                  }
+                  value={prefix}
+                  onChange={(e) => setPrefix(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
-              </div>
-
-              {/* Farsi Name (Optional) */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("FARSI_NAME")}
-                </label>
-                <input
-                  type="text"
-                  value={countryName.fa}
-                  onChange={(e) =>
-                    setCountryName({ ...countryName, fa: e.target.value })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              {/* Country Code */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("COUNTRY_CODE")}
-                </label>
-                <input
-                  type="text"
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                {errors.countryCode && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.countryCode}
-                  </p>
+                {errors.prefix && (
+                  <p className="text-red-500 text-sm mt-1">{errors.prefix}</p>
                 )}
               </div>
 
-              {/* Buttons */}
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => {
-                    setCountryName({ en: "", ps: "", fa: "" });
-                    setCountryCode("");
+                    setOperator("");
+                    setPrefix("");
                     setIsModalOpen(false);
                     setIsEditing(false);
-                    setCurrentCountryId(null);
-                    setErrors({}); // Clear errors
+                    setCurrentOperatorId(null);
+                    setErrors({});
                   }}
                   className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
@@ -299,11 +267,11 @@ export default function CountryList() {
       <div className="page-header-info-bar flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            {t("COUNTRY_LIST")}
+            {t("OPERATOR_LIST")}
           </h3>
         </div>
         <div className="flex items-center gap-3">
-          <div className="relative flex-1">
+          {/* <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <SearchIcon />
             </div>
@@ -314,7 +282,7 @@ export default function CountryList() {
               value={filters.searchTag}
               onChange={(e) => setSearchTag(e.target.value)}
             />
-          </div>
+          </div> */}
 
           {/* Filter Button and Dropdown */}
           <div className="relative">
@@ -389,7 +357,7 @@ export default function CountryList() {
             }}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
-            {t("ADD_COUNTRY")}
+            {t("ADD_OPERATOR")}
           </button>
         </div>
       </div>
@@ -409,13 +377,13 @@ export default function CountryList() {
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("COUNTRY_NAME")}
+                  {t("OPERATOR")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("COUNTRY_CODE")}
+                  {t("PREFIX")}
                 </TableCell>
                 <TableCell
                   isHeader
@@ -428,31 +396,31 @@ export default function CountryList() {
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {countries.map((country) => (
-                <TableRow key={country.id}>
+              {operators.map((operator) => (
+                <TableRow key={operator.id}>
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                          {country.name}
+                          {operator.operator}
                         </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {country.code}
+                    {operator.prefix}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEdit(country.id)}
+                        onClick={() => handleEdit(operator)}
                       >
                         <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </div>
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
-                        onClick={() => handleDelete(country.id)}
+                        onClick={() => handleDelete(operator.id)}
                       >
                         <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
                       </div>

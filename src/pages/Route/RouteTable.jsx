@@ -79,7 +79,7 @@ const RouteTable = ({ routes, loading, onEdit, role, onDelete }) => {
                 {route.destination_city.name}
               </TableCell>
               <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                {route.distance} Km
+                {route?.distance} Km
               </TableCell>
               {role === "admin" && (
                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">

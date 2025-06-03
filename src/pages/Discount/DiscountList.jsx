@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import { Delete, Edit, FunnelIcon } from "../../icons";
+import { Delete, Edit, FunnelIcon, SearchIcon } from "../../icons";
 import {
   fetchDiscounts,
   createDiscount,
@@ -317,19 +317,17 @@ export default function DiscountList() {
       //return
 
       if (isEditMode) {
-        const resultAction=await dispatch(
+        const resultAction = await dispatch(
           updateDiscount({ id: currentDiscountId, discountData: payload })
-        )
-        if(updateDiscount.fulfilled.match(resultAction)){
-          Swal.fire(t('success'), t('discountUpdateSuccess'), "success");
+        );
+        if (updateDiscount.fulfilled.match(resultAction)) {
+          Swal.fire(t("success"), t("discountUpdateSuccess"), "success");
         }
-        
       } else {
-        const resultAction= await dispatch(createDiscount(payload))
-        if(createDiscount.fulfilled.match(resultAction)){
-          Swal.fire(t('success'), t('discountAddSuccess'), "success");
+        const resultAction = await dispatch(createDiscount(payload));
+        if (createDiscount.fulfilled.match(resultAction)) {
+          Swal.fire(t("success"), t("discountAddSuccess"), "success");
         }
-        
       }
 
       setIsModalOpen(false);
@@ -343,7 +341,7 @@ export default function DiscountList() {
         setErrors(newErrors);
       } else {
         //console.log(error)
-        Swal.fire(t('error'), error.message || t('failed'), "error");
+        Swal.fire(t("error"), error.message || t("failed"), "error");
       }
     }
   };
@@ -446,13 +444,18 @@ export default function DiscountList() {
           {t("DISCOUNT_LIST")}
         </h3>
         <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <SearchIcon />
+          </div>
           <input
             type="text"
-            className="rounded-md"
+            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder={t("SEARCH")}
             value={searchTag}
             onChange={(e) => setSearchTag(e.target.value)}
           />
+          </div>
           <select
             className="rounded-md"
             value={selectedScope}

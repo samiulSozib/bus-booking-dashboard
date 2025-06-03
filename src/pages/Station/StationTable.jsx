@@ -35,6 +35,18 @@ const StationTable = ({ stations, loading, onEdit, onDelete }) => {
               isHeader
               className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
+              {t("LATITUDE")}
+            </TableCell>
+            <TableCell
+              isHeader
+              className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+            >
+              {t("LONGITUDE")}
+            </TableCell>
+            <TableCell
+              isHeader
+              className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+            >
               {t("CITY_NAME")}
             </TableCell>
             <TableCell
@@ -57,6 +69,12 @@ const StationTable = ({ stations, loading, onEdit, onDelete }) => {
                     </p>
                   </div>
                 </div>
+              </TableCell>
+              <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                {station.latitude}
+              </TableCell>
+              <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                {station.longitude}
               </TableCell>
               <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                 {station.city.name}
