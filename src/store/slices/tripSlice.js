@@ -78,7 +78,7 @@ export const showTrip = createAsyncThunk(
                     'Content-Type': 'application/json',
                 },
             });
-            //console.log(response)
+            console.log(response)
             return response.data.body.item;
         } catch (error) {
             return rejectWithValue(error.message);

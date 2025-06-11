@@ -95,9 +95,14 @@ export default function TripCancellationPolicyList() {
         setIsEditMode(false);
         setPenaltySteps([{ hours: 0, percentage: 0 }]);
         setModalVendorSearchTerm(
-            users.find(user => user.id === selectedVendorId)?.name || ""
+            vendorList.find(user => user.id === selectedVendorId)?.name || ""
         );
+        if(selectedVendorId==null){
+            alert('Select Vendor First')
+            return
+        }
         setIsModalOpen(true);
+        console.log(selectedVendorId)
     };
 
     const handleSubmit = async (e) => {

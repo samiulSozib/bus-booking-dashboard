@@ -313,8 +313,8 @@ export default function TripList() {
       //   console.log(ticket_price_per_seat);
 
       //return
-      console.log(tripData);
-      console.log(currentTripId);
+      //console.log(tripData);
+      //console.log(currentTripId);
       //return
 
       if (isEditMode) {
@@ -556,6 +556,9 @@ export default function TripList() {
   };
 
   const generateSeatEditLayout = () => {
+    const getRowHint = (rowIndex) => {
+      return String.fromCharCode(65 + rowIndex); // 65 is ASCII for 'A'
+    };
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-2 mt-4">
         {seats.map((seat, index) => (

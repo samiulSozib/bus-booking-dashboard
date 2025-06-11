@@ -258,7 +258,7 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
             
             <div className="grid grid-cols-2 gap-y-1 text-xs md:text-sm m-1 md:m-2">
               <div className="text-gray-500">{t("booking.bus")}</div>
-              <div className="font-bold">Sklx 134</div>
+              <div className="font-bold">{bookingDetails?.trip?.bus?.name}</div>
 
               <div className="text-gray-500">{t('booking.traveler')}</div>
               <div className="font-bold">{bookingDetails?.user?.first_name}</div>
@@ -307,8 +307,8 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs md:text-sm">
-              <div className="text-gray-500">{t("booking.operator")}</div>
-              <div className="font-bold">Cooperative 23</div>
+              <div className="text-gray-500">{t("booking.bus")}</div>
+              <div className="font-bold">{bookingDetails?.trip?.bus?.name}</div>
 
               <div className="col-span-2 border border-gray-200 rounded-lg overflow-x-auto mt-1 mb-2">
               <Table className="m-0 p-0">
@@ -351,11 +351,11 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
               {/* Two-column information grid */}
               <div className="col-span-2 grid grid-cols-2 gap-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Bus number</span>
-                  <span className="font-bold">Sklx 134</span>
+                  <span className="text-gray-500">{t('BUS_NUMBER')}</span>
+                  <span className="font-bold">{bookingDetails?.trip?.bus?.bus_number}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Traveler</span>
+                  <span className="text-gray-500">{t('booking.traveler')}</span>
                   <span className="font-bold">Reza Pahlavi</span>
                 </div>
                 <div className="flex justify-between">

@@ -25,7 +25,7 @@ export const fetchBookings = createAsyncThunk(
           Authorization: `${token}`,
         },
       });
-      //console.log(response.data.body.items)
+      console.log(response.data.body.items)
       return {items:response.data.body.items,pagination:response.data.body.data};
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -77,7 +77,7 @@ export const getBookingDetails = createAsyncThunk(
           Authorization: `${token}`,
         },
       });
-      //console.log(response.data.body.item)
+      console.log(response.data.body.item)
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
