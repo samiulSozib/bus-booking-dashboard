@@ -29,7 +29,7 @@ export const fetchBookings = createAsyncThunk(
         )
         .join("&");
 
-      console.log(filterQuery);
+      //console.log(filterQuery);
 
       const response = await axios.get(
         `${base_url}/${

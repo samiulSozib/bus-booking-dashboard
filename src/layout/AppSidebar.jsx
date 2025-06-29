@@ -46,7 +46,7 @@ const AppSidebar = () => {
 
   useEffect(()=>{
     dispatch(fetchUserPermissions(user?.id))
-  },[dispatch,user])
+  },[dispatch])
 
   useEffect(()=>{
     //console.log(userPermissions)
@@ -162,7 +162,7 @@ const AppSidebar = () => {
       name: "BOOKING",
       path: "/bookings",
       roles: ["admin", "vendor", "vendor_user"],
-      permission: "v1.vendor.booking.get"
+      permission: "v1.vendor.booking.show"
     },
     {
       icon: <Settings />,
