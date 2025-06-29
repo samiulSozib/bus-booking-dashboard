@@ -45,8 +45,8 @@ const AppSidebar = () => {
   const isVendorUser = user?.role === "vendor_user";
 
   useEffect(()=>{
-    dispatch(fetchUserPermissions(70))
-  },[dispatch])
+    dispatch(fetchUserPermissions(user?.id))
+  },[dispatch,user])
 
   useEffect(()=>{
     //console.log(userPermissions)
