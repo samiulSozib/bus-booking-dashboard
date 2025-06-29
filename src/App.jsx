@@ -35,6 +35,7 @@ import VendorWallet from "./pages/vendorWaller/vendorWallet";
 import AddBooking from "./pages/Booking/AddBooking";
 import TelecomOperators from "./pages/TelecomOperators/TelecomOperators";
 import Settings from "./pages/Settings/Settings";
+import VendorUser from "./pages/VendorUser/VendorUser";
 
 export default function App() {
   return (
@@ -64,6 +65,8 @@ export default function App() {
             <Route index path="/vendor-wallet" element={<ProtectedRoute><VendorWallet/></ProtectedRoute>}/>
             <Route index path="/telecom-operators" element={<ProtectedRoute><TelecomOperators/></ProtectedRoute>}/>
             <Route index path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
+            <Route index path="/vendor-users" element={<ProtectedRoute><VendorUser/></ProtectedRoute>}/>
+            
 
 
 

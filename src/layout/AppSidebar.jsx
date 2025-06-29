@@ -117,6 +117,12 @@ const AppSidebar = () => {
       roles: ["vendor"]
     },
     {
+      icon: <User_Group />,
+      name: "VENDOR_USER",
+      path: "/vendor-users",
+      roles: ["vendor"]
+    },
+    {
       icon: <Ticket />,
       name: "BOOKING",
       path: "/bookings",

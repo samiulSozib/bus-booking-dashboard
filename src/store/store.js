@@ -19,6 +19,7 @@ import bookingReducer from "./slices/bookingSlice.js"
 import telecomOperatorReducer from './slices/telecomOperatorSlice.js'
 import settingsReducer from './slices/settingsSlice.js'
 import rechargeReducer from './slices/rechargeSlice.js'
+import vendorUserReducer from "./slices/vendorUserSlice.js"
 
 const store = configureStore({
     reducer: {
@@ -41,7 +42,8 @@ const store = configureStore({
         bookings:bookingReducer,
         telecomOperators:telecomOperatorReducer,
         settings:settingsReducer,
-        recharges:rechargeReducer
+        recharges:rechargeReducer,
+        vendorUser:vendorUserReducer
     },
 });
 

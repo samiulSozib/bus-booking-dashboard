@@ -140,45 +140,149 @@ export default function UserList() {
     }
   }, [selectedUser]);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     // Validate form data
+  //     await getValidationSchema(t).validate(formData, { abortEarly: false });
+
+  //     const userData = { ...formData };
+  //     //console.log(userData)
+  //     //return
+  //     if (isEditing) {
+  //       // Dispatch the edit action
+  //       const editAction = await dispatch(
+  //         editUser({ userId: currentUserId, updatedData: userData })
+  //       );
+  //       if (editUser.fulfilled.match(editAction)) {
+  //         Swal.fire({
+  //           icon: "success",
+  //           title: t('success'),
+  //           text: t('userUpdateSuccessfully'),
+  //         });
+  //       } else {
+  //         throw new Error(editAction.payload || t('failedToUpdateUser'));
+  //       }
+  //     } else {
+  //       // Dispatch the add action
+  //       const addAction = await dispatch(addUser(userData));
+  //       if (addUser.fulfilled.match(addAction)) {
+  //         Swal.fire({
+  //           icon: "success",
+  //           title: t('success'),
+  //           text: t('userAddedSuccessfully'),
+  //         });
+  //       } else {
+  //         throw new Error(addAction.payload || t('failedToAddUser'));
+  //       }
+  //     }
+
+  //     // Reset form data and close modal
+  //     setFormData({
+  //       first_name: "",
+  //       last_name: "",
+  //       email: "",
+  //       mobile: "",
+  //       role: "",
+  //       password: "",
+  //       status: "",
+  //       name: "",
+  //       phone: "",
+  //       code: "",
+  //       comission_amount: 0,
+  //       comission_type: "",
+  //       registration_number: "",
+  //       license_number: "",
+  //       rating: 0,
+  //       admin_comission_amount: 0,
+  //       admin_comission_type: "",
+  //       agent_comission_amount: 0,
+  //       agent_comission_type: "",
+  //       logo: "",
+  //       description: "",
+  //       vendor_id: 0,
+  //     });
+
+  //     setIsModalOpen(false);
+  //     setIsEditing(false);
+  //     setCurrentUserId(null);
+  //     setFormErrors({}); // Clear any previous errors
+  //   } catch (err) {
+  //     if (err instanceof ValidationError) {
+  //       const errors = {};
+  //       err.inner.forEach((error) => {
+  //         if (!errors[error.path]) {
+  //           errors[error.path] = error.message;
+  //         }
+  //       });
+  //       setFormErrors(errors);
+  //       return; // Prevent further error handling
+  //     } else if (err.type === "api") {
+  //       const newErrors = {};
+  //       Object.entries(err.errors).forEach(([field, messages]) => {
+  //         newErrors[field] = Array.isArray(messages)
+  //           ? messages.join(" ")
+  //           : messages;
+  //       });
+  //       setFormErrors(newErrors);
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: t('error'),
+  //         text: err.message || t('failedToAddUpdateUser'),
+  //       });
+  //     }
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      // Clear previous errors
+      setFormErrors({});
+
       // Validate form data
       await getValidationSchema(t).validate(formData, { abortEarly: false });
 
       const userData = { ...formData };
-      //console.log(userData)
-      //return
+      let result;
+
       if (isEditing) {
-        // Dispatch the edit action
-        const editAction = await dispatch(
+        result = await dispatch(
           editUser({ userId: currentUserId, updatedData: userData })
         );
-        if (editUser.fulfilled.match(editAction)) {
-          Swal.fire({
-            icon: "success",
-            title: t('success'),
-            text: t('userUpdateSuccessfully'),
-          });
-        } else {
-          throw new Error(editAction.payload || t('failedToUpdateUser'));
-        }
       } else {
-        // Dispatch the add action
-        const addAction = await dispatch(addUser(userData));
-        if (addUser.fulfilled.match(addAction)) {
-          Swal.fire({
-            icon: "success",
-            title: t('success'),
-            text: t('userAddedSuccessfully'),
-          });
-        } else {
-          throw new Error(addAction.payload || t('failedToAddUser'));
-        }
+        result = await dispatch(addUser(userData));
       }
 
-      // Reset form data and close modal
+      // Check if the action was successful
+      if (result.error) {
+        // Handle API validation errors
+        if (result.payload?.errors) {
+          const apiErrors = {};
+          Object.entries(result.payload.errors).forEach(([field, messages]) => {
+            apiErrors[field] = Array.isArray(messages)
+              ? messages.join(" ")
+              : messages;
+          });
+          setFormErrors(apiErrors);
+          return;
+        }
+        throw new Error(result.payload?.message || t("failedToProcessRequest"));
+      }
+
+      // Success case
+      Swal.fire({
+        icon: "success",
+        title: t("success"),
+        text: isEditing
+          ? t("userUpdateSuccessfully")
+          : t("userAddedSuccessfully"),
+      });
+
+      // Reset form
       setFormData({
         first_name: "",
         last_name: "",
@@ -203,39 +307,31 @@ export default function UserList() {
         description: "",
         vendor_id: 0,
       });
-
       setIsModalOpen(false);
       setIsEditing(false);
       setCurrentUserId(null);
-      setFormErrors({}); // Clear any previous errors
     } catch (err) {
-      if (err instanceof ValidationError) {
-        const errors = {};
+      console.error("Submission error:", err);
+
+      if (err.name === "ValidationError") {
+        // Yup validation errors
+        const validationErrors = {};
         err.inner.forEach((error) => {
-          if (!errors[error.path]) {
-            errors[error.path] = error.message;
+          if (!validationErrors[error.path]) {
+            validationErrors[error.path] = error.message;
           }
         });
-        setFormErrors(errors);
-        return; // Prevent further error handling
-      } else if (err.type === "api") {
-        const newErrors = {};
-        Object.entries(err.errors).forEach(([field, messages]) => {
-          newErrors[field] = Array.isArray(messages)
-            ? messages.join(" ")
-            : messages;
-        });
-        setFormErrors(newErrors);
+        setFormErrors(validationErrors);
       } else {
+        // Other errors
         Swal.fire({
           icon: "error",
-          title: t('error'),
-          text: err.message || t('failedToAddUpdateUser'),
+          title: t("error"),
+          text: err.message || t("failedToProcessRequest"),
         });
       }
     }
   };
-
   const handleEdit = (userId) => {
     dispatch(showUser(userId));
     setIsEditing(true);
