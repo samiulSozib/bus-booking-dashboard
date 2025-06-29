@@ -162,7 +162,7 @@ const AppSidebar = () => {
       name: "BOOKING",
       path: "/bookings",
       roles: ["admin", "vendor", "vendor_user"],
-      permission: "v1.vendor.booking.show"
+      permission: "v1.vendor.booking.get"
     },
     {
       icon: <Settings />,
@@ -171,13 +171,13 @@ const AppSidebar = () => {
       roles: ["admin", "vendor","vendor_user"],
       permission: "v1.vendor.trip_cancellation_policy.show"
     },
-    {
-      icon: <User_Group />,
-      name: "TELECOM_OPERATOR",
-      path: "/telecom-operators",
-      roles: ["admin"],
-      permission: null
-    },
+    // {
+    //   icon: <User_Group />,
+    //   name: "TELECOM_OPERATOR",
+    //   path: "/telecom-operators",
+    //   roles: ["admin"],
+    //   permission: null
+    // },
     {
       icon: <Settings />,
       name: "SETTINGS",
