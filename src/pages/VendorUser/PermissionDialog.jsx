@@ -34,11 +34,8 @@ export const PermissionDialog = ({
   const handleSave = () => {
     // Get only the permissions that have been changed
     const updatedPermissions = modifiedPermissions
-      .filter(permission => 
-        permission.has_permission !== 
-        (userPermissions.find(p => p.title === permission.title)?.has_permission || false)
-      )
-      .map(({ title, has_permission }) => ({ title, has_permission }));
+    .filter(permission => permission.has_permission)
+    .map(({ title }) => ({ title, has_permission: true }));
 
     //console.log(updatedPermissions)
     //return
