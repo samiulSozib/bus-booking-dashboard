@@ -29,6 +29,11 @@ import {
 } from "../../store/slices/vendorUserSlice";
 import { PermissionDialog } from "./PermissionDialog";
 import { ValidationError } from "yup";
+import {
+  checkPermission,
+  userType,
+  useUserPermissions,
+} from "../../utils/utils";
 
 // Validation schema
 
@@ -58,20 +63,51 @@ export default function VendorUserList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
 
-const vendorUserSchema = Yup.object().shape({
-  firstName: Yup.string().required(t("vendor.user.validation.firstNameRequired")),
-  lastName: Yup.string().required(t("vendor.user.validation.lastNameRequired")),
-  email: Yup.string()
-    .email(t("vendor.user.validation.invalidEmail"))
-    .nullable(),
-  mobile: Yup.string().required(t("vendor.user.validation.mobileRequired")),
-  password: Yup.string().required(t("vendor.user.validation.passwordRequired")),
-  status: Yup.string()
-    .oneOf(
-      ["pending", "active", "inactive", "banned"], 
-      t("vendor.user.validation.invalidStatus"))
-    .required(t("vendor.user.validation.statusRequired")),
-});
+  const user_type = userType();
+  const user_permissions = useUserPermissions(user_type.id);
+
+  const hasVendorUserCreatePermission = checkPermission(
+    user_permissions,
+    "v1.vendor.user.create"
+  );
+  const hasVendorUserEditPermission = checkPermission(
+    user_permissions,
+    "v1.vendor.user.update"
+  );
+  const hasVendorUserPermissionsPermission = checkPermission(
+    user_permissions,
+    "v1.vendor.user.permissions"
+  );
+  const hasVendorUserUser_permissionsPermission = checkPermission(
+    user_permissions,
+    "v1.vendor.user.sync_user_permissions"
+  );
+  const hasVendorUserSync_user_permissionsPermission = checkPermission(
+    user_permissions,
+    "v1.vendor.user.user_permissions"
+  );
+
+  const vendorUserSchema = Yup.object().shape({
+    firstName: Yup.string().required(
+      t("vendor.user.validation.firstNameRequired")
+    ),
+    lastName: Yup.string().required(
+      t("vendor.user.validation.lastNameRequired")
+    ),
+    email: Yup.string()
+      .email(t("vendor.user.validation.invalidEmail"))
+      .nullable(),
+    mobile: Yup.string().required(t("vendor.user.validation.mobileRequired")),
+    password: Yup.string().required(
+      t("vendor.user.validation.passwordRequired")
+    ),
+    status: Yup.string()
+      .oneOf(
+        ["pending", "active", "inactive", "banned"],
+        t("vendor.user.validation.invalidStatus")
+      )
+      .required(t("vendor.user.validation.statusRequired")),
+  });
 
   useEffect(() => {
     dispatch(fetchVendorUsers({ searchTag, page: currentPage }));
@@ -80,8 +116,6 @@ const vendorUserSchema = Yup.object().shape({
   useEffect(() => {
     dispatch(fetchPermissions());
   }, [dispatch]);
-
- 
 
   useEffect(() => {
     if (selectedUser && isEditing) {
@@ -395,15 +429,20 @@ const vendorUserSchema = Yup.object().shape({
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-          <button
-            onClick={() => {
-              setIsModalOpen(true);
-              setIsEditing(false);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            {t("ADD_VENDOR_USER")}
-          </button>
+          {(user_type?.role === "admin" ||
+            user_type?.role === "vendor" ||
+            (user_type?.role === "vendor_user" &&
+              hasVendorUserCreatePermission)) && (
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+                setIsEditing(false);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              {t("ADD_VENDOR_USER")}
+            </button>
+          )}
         </div>
       </div>
 
@@ -484,18 +523,28 @@ const vendorUserSchema = Yup.object().shape({
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEdit(user.id)}
-                      >
-                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                      </div>
-                      <button
-                        onClick={() => handleManagePermissions(user.id)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-200 hover:bg-blue-300 dark:bg-blue-700 dark:hover:bg-blue-600 cursor-pointer text-sm"
-                      >
-                        🔒
-                      </button>
+                      {(user_type?.role === "admin" ||
+                        user_type?.role === "vendor" ||
+                        (user_type?.role === "vendor_user" &&
+                          hasVendorUserEditPermission)) && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                          onClick={() => handleEdit(user.id)}
+                        >
+                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                        </div>
+                      )}
+                      {(user_type?.role === "admin" ||
+                        user_type?.role === "vendor" ||
+                        (user_type?.role === "vendor_user" &&
+                          hasVendorUserSync_user_permissionsPermission)) && (
+                        <button
+                          onClick={() => handleManagePermissions(user.id)}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-200 hover:bg-blue-300 dark:bg-blue-700 dark:hover:bg-blue-600 cursor-pointer text-sm"
+                        >
+                          🔒
+                        </button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

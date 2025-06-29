@@ -16,7 +16,9 @@ export const fetchTrips = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=user_type()
-
+if(type.role==="vendor_user"){
+                type.role="vendor"
+            }
             const filterQuery = Object.entries(filters)
             .filter(([_, value]) => value !== null && value !== undefined && value !== "")
             .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
@@ -44,6 +46,9 @@ export const fetchActiveTrips = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=user_type()
+            if(type.role==="vendor_user"){
+                type.role="vendor"
+            }
             //console.log(filters)
             const filterQuery = Object.entries(filters)
             .filter(([_, value]) => value !== null && value !== undefined && value !== "")
@@ -72,6 +77,9 @@ export const showTrip = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=user_type()
+            if(type.role==="vendor_user"){
+                type.role="vendor"
+            }
             const response = await axios.get(`${base_url}/${type.role}/trips/${trip_id }/show`, {
                 headers: {
                     Authorization: `${token}`,
@@ -94,6 +102,9 @@ export const addTrip = createAsyncThunk(
             //console.log(tripData)
             const token = getAuthToken();
             const type=user_type()
+            if(type.role==="vendor_user"){
+                type.role="vendor"
+            }
             const formData = new FormData();
             if(tripData.vendor_id){
                 formData.append('vendor_id', tripData.vendor_id);
@@ -133,6 +144,9 @@ export const editTrip = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=user_type()
+            if(type.role==="vendor_user"){
+                type.role="vendor"
+            }
             console.log(updatedData)
             const formData = new FormData();
             if(updatedData.vendor_id){
@@ -174,6 +188,9 @@ export const deleteTrip = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=user_type()
+            if(type.role==="vendor_user"){
+                type.role="vendor"
+            }
             const response=await axios.delete(`${base_url}/${type.role}/trips/${tripId}/delete`, {
                 headers: {
                     Authorization: `${token}`,

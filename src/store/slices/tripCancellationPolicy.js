@@ -1,20 +1,24 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { base_url } from '../../utils/const';
-import { userType } from '../../utils/utils';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
 // Fetch cancellation policy by vendor_id
 export const fetchTripCancellationPolicy = createAsyncThunk(
-  'tripCancellationPolicy/fetch',
+  "tripCancellationPolicy/fetch",
   async (vendor_id, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type=userType()
-      const url = type.role === "vendor"
-        ? `${base_url}/${type.role}/trip-cancellation-policies/show`
-        : `${base_url}/${type.role}/trip-cancellation-policies/${vendor_id}/show`;
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+      const url =
+        type.role === "vendor"
+          ? `${base_url}/${type.role}/trip-cancellation-policies/show`
+          : `${base_url}/${type.role}/trip-cancellation-policies/${vendor_id}/show`;
 
       const response = await axios.get(url, {
         headers: {
@@ -30,18 +34,21 @@ export const fetchTripCancellationPolicy = createAsyncThunk(
 
 // Create or update cancellation policy
 export const createOrUpdateTripCancellationPolicy = createAsyncThunk(
-  'tripCancellationPolicy/createOrUpdate',
+  "tripCancellationPolicy/createOrUpdate",
   async ({ vendor_id, penalty_steps }, { rejectWithValue }) => {
     try {
-      console.log(vendor_id)
-      console.log(penalty_steps)
+      console.log(vendor_id);
+      console.log(penalty_steps);
       const token = getAuthToken();
       const formData = new FormData();
-      const type=userType()
-      if (type.role !== "vendor") {
-        formData.append('vendor_id', vendor_id);
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
       }
-      formData.append('penalty_steps', JSON.stringify(penalty_steps));
+      if (type.role !== "vendor") {
+        formData.append("vendor_id", vendor_id);
+      }
+      formData.append("penalty_steps", JSON.stringify(penalty_steps));
 
       const response = await axios.post(
         `${base_url}/${type.role}/trip-cancellation-policies`,
@@ -49,7 +56,7 @@ export const createOrUpdateTripCancellationPolicy = createAsyncThunk(
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -61,7 +68,7 @@ export const createOrUpdateTripCancellationPolicy = createAsyncThunk(
 );
 
 const tripCancellationPolicySlice = createSlice({
-  name: 'tripCancellationPolicy',
+  name: "tripCancellationPolicy",
   initialState: {
     loading: false,
     policy: null,
@@ -87,14 +94,20 @@ const tripCancellationPolicySlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createOrUpdateTripCancellationPolicy.fulfilled, (state, action) => {
-        state.loading = false;
-        state.policy = action.payload;
-      })
-      .addCase(createOrUpdateTripCancellationPolicy.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
+      .addCase(
+        createOrUpdateTripCancellationPolicy.fulfilled,
+        (state, action) => {
+          state.loading = false;
+          state.policy = action.payload;
+        }
+      )
+      .addCase(
+        createOrUpdateTripCancellationPolicy.rejected,
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        }
+      );
   },
 });
 

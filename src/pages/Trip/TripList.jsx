@@ -22,10 +22,12 @@ import { fetchUsers } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
 import * as Yup from "yup";
 import {
+  checkPermission,
   formatForDisplay,
   formatForInput,
   formatForInputDiscount,
   userType,
+  useUserPermissions,
 } from "../../utils/utils";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
@@ -137,6 +139,24 @@ export default function TripList() {
   const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
 
   const isAdmin = userType().role === "admin";
+  const user_type = userType();
+  const permissions = useUserPermissions(user_type.id);
+  const hasTripCreatePermission = checkPermission(
+    permissions,
+    "v1.vendor.trip.create"
+  );
+  const hasTripEditPermission = checkPermission(
+    permissions,
+    "v1.vendor.trip.update"
+  );
+  const hasTripDeletePermission = checkPermission(
+    permissions,
+    "v1.vendor.trip.delete"
+  );
+  const hasTripCreateOrUpdateSeatPricePermission = checkPermission(
+    permissions,
+    "v1.vendor.trip.create_or_update_seat_prices"
+  );
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
@@ -324,8 +344,8 @@ export default function TripList() {
         if (editTrip.fulfilled.match(editAction)) {
           Swal.fire({
             icon: "success",
-            title: t('success'),
-            text: t('tripUpdateSuccessfully'),
+            title: t("success"),
+            text: t("tripUpdateSuccessfully"),
           });
         }
       } else {
@@ -333,8 +353,8 @@ export default function TripList() {
         if (addTrip.fulfilled.match(addAction)) {
           Swal.fire({
             icon: "success",
-            title: t('success'),
-            text: t('tripAddedSuccessfully'),
+            title: t("success"),
+            text: t("tripAddedSuccessfully"),
           });
         }
       }
@@ -350,8 +370,8 @@ export default function TripList() {
       } else {
         Swal.fire({
           icon: "error",
-          title: t('error'),
-          text: error || t('tripAddUpdateFail'),
+          title: t("error"),
+          text: error || t("tripAddUpdateFail"),
         });
       }
     }
@@ -630,12 +650,16 @@ export default function TripList() {
             value={searchTag}
             onChange={(e) => setSearchTag(e.target.value)}
           />
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            {t("ADD_TRIP")}
-          </button>
+          {(user_type?.role === "admin" ||
+            user_type?.role === "vendor" ||
+            (user_type?.role === "vendor_user" && hasTripCreatePermission)) && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              {t("ADD_TRIP")}
+            </button>
+          )}
         </div>
       </div>
 
@@ -765,18 +789,28 @@ export default function TripList() {
 
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEditTrip(trip.id)}
-                      >
-                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                      </div>
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
-                        onClick={() => handleDelete(trip.id)}
-                      >
-                        <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
-                      </div>
+                      {(user_type?.role === "admin" ||
+                        user_type?.role === "vendor" ||
+                        (user_type?.role === "vendor_user" &&
+                          hasTripEditPermission)) && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                          onClick={() => handleEditTrip(trip.id)}
+                        >
+                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                        </div>
+                      )}
+                      {(user_type?.role === "admin" ||
+                        user_type?.role === "vendor" ||
+                        (user_type?.role === "vendor_user" &&
+                          hasTripDeletePermission)) && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
+                          onClick={() => handleDelete(trip.id)}
+                        >
+                          <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -1111,24 +1145,36 @@ export default function TripList() {
 
               {isEditMode ? (
                 <div className="flex justify-end mt-2 mb-2">
-                  <button
-                    type="button"
-                    onClick={() => setOpenSeatsEditDialog(true)}
-                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    {t("EDIT_SEATS")}
-                  </button>
+                  {(user_type?.role === "admin" ||
+                    user_type?.role === "vendor" ||
+                    (user_type?.role === "vendor_user" &&
+                      hasTripCreateOrUpdateSeatPricePermission)) && (
+                    <button
+                      type="button"
+                      onClick={() => setOpenSeatsEditDialog(true)}
+                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      {t("EDIT_SEATS")}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="flex justify-end mt-2 mb-2">
                   {busId && (
-                    <button
-                      type="button"
-                      onClick={() => setOpenSeatsDialog(true)}
-                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                      {t("MANAGE_SEATS")}
-                    </button>
+                    <div>
+                      {(user_type?.role === "admin" ||
+                        user_type?.role === "vendor" ||
+                        (user_type?.role === "vendor_user" &&
+                          hasTripCreateOrUpdateSeatPricePermission)) && (
+                        <button
+                          type="button"
+                          onClick={() => setOpenSeatsDialog(true)}
+                          className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                          {t("MANAGE_SEATS")}
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )}

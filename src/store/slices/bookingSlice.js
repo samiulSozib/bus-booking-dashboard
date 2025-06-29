@@ -8,25 +8,46 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Bookings
 export const fetchBookings = createAsyncThunk(
   "bookings/fetchBookings",
-  async ({searchTag = "",page=1,filters={},status=""}, { rejectWithValue }) => {
+  async (
+    { searchTag = "", page = 1, filters = {}, status = "" },
+    { rejectWithValue }
+  ) => {
     try {
       const token = getAuthToken();
       const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
 
       const filterQuery = Object.entries(filters)
-      .filter(([_, value]) => value !== null && value !== undefined && value !== "")
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-      .join('&');
+        .filter(
+          ([_, value]) => value !== null && value !== undefined && value !== ""
+        )
+        .map(
+          ([key, value]) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+        )
+        .join("&");
 
-      console.log(filterQuery)
+      console.log(filterQuery);
 
-      const response = await axios.get(`${base_url}/${type.role}/bookings?page=${page}&search=${searchTag}&status=${status}${filterQuery ? `&${filterQuery}` : ''}`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      console.log(response.data.body.items)
-      return {items:response.data.body.items,pagination:response.data.body.data};
+      const response = await axios.get(
+        `${base_url}/${
+          type.role
+        }/bookings?page=${page}&search=${searchTag}&status=${status}${
+          filterQuery ? `&${filterQuery}` : ""
+        }`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      console.log(response.data.body.items);
+      return {
+        items: response.data.body.items,
+        pagination: response.data.body.data,
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -40,6 +61,9 @@ export const createBooking = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
       const formData = new FormData();
       //console.log(bookingData)
       formData.append("trip_id", bookingData.trip_id);
@@ -50,16 +74,20 @@ export const createBooking = createAsyncThunk(
       formData.append("customer_last_name", bookingData.customer_last_name);
       formData.append("tickets", JSON.stringify(bookingData.tickets));
 
-      const response = await axios.post(`${base_url}/${type.role}/bookings`, formData, {
-        headers: {
-          Authorization: `${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log(response)
-      return response.data.body.item
+      const response = await axios.post(
+        `${base_url}/${type.role}/bookings`,
+        formData,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response);
+      return response.data.body.item;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
@@ -72,12 +100,18 @@ export const getBookingDetails = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type = userType();
-      const response = await axios.get(`${base_url}/${type.role}/bookings/${bookingId}/show`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      console.log(response.data.body.item)
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+      const response = await axios.get(
+        `${base_url}/${type.role}/bookings/${bookingId}/show`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      console.log(response.data.body.item);
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -92,11 +126,17 @@ export const markBookingAsPaid = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type = userType();
-      const response = await axios.get(`${base_url}/${type.role}/bookings/${bookingId}/paid`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+      const response = await axios.get(
+        `${base_url}/${type.role}/bookings/${bookingId}/paid`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -111,9 +151,12 @@ export const cancelBooking = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
       const response = await axios.get(
         `${base_url}/${type.role}/bookings/${bookingId}/cancel`,
-       
+
         {
           headers: {
             Authorization: `${token}`,
@@ -134,44 +177,46 @@ export const downloadBookingTickets = createAsyncThunk(
     try {
       const token = getAuthToken();
       const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
       const response = await axios.get(
         `${base_url}/${type.role}/bookings/${bookingId}/download`,
         {
           headers: {
             Authorization: `${token}`,
           },
-          responseType: 'blob' // Important for file downloads
+          responseType: "blob", // Important for file downloads
         }
       );
-      
+
       // Create a blob URL for the downloaded file
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      
+
       // Try to get filename from content-disposition header
-      const contentDisposition = response.headers['content-disposition'];
-      let fileName = 'tickets.pdf'; // default filename
-      
+      const contentDisposition = response.headers["content-disposition"];
+      let fileName = "tickets.pdf"; // default filename
+
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
         if (fileNameMatch && fileNameMatch.length === 2) {
           fileName = fileNameMatch[1];
         }
       }
-      
-      link.setAttribute('download', fileName);
+
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      
+
       return { bookingId, fileName };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
-
 
 // Slice
 const bookingSlice = createSlice({
@@ -184,8 +229,8 @@ const bookingSlice = createSlice({
     pagination: {
       current_page: 1,
       last_page: 1,
-      total: 0
-  }
+      total: 0,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -198,7 +243,7 @@ const bookingSlice = createSlice({
       .addCase(fetchBookings.fulfilled, (state, action) => {
         state.loading = false;
         state.bookings = action.payload.items;
-        state.pagination=action.payload.pagination
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchBookings.rejected, (state, action) => {
         state.loading = false;
@@ -211,7 +256,7 @@ const bookingSlice = createSlice({
       })
       .addCase(createBooking.fulfilled, (state, action) => {
         state.bookings.push(action.payload);
-        state.pagination.total+=1
+        state.pagination.total += 1;
       })
       .addCase(createBooking.rejected, (state, action) => {
         state.error = action.payload;
@@ -233,7 +278,9 @@ const bookingSlice = createSlice({
         state.error = null;
       })
       .addCase(markBookingAsPaid.fulfilled, (state, action) => {
-        const index = state.bookings.findIndex((b) => b.id === action.payload.id);
+        const index = state.bookings.findIndex(
+          (b) => b.id === action.payload.id
+        );
         if (index !== -1) {
           state.bookings[index] = action.payload;
         }
@@ -247,11 +294,16 @@ const bookingSlice = createSlice({
         state.error = null;
       })
       .addCase(cancelBooking.fulfilled, (state, action) => {
-        const index = state.bookings.findIndex((b) => b.id === action.payload.id);
+        const index = state.bookings.findIndex(
+          (b) => b.id === action.payload.id
+        );
         if (index !== -1) {
           state.bookings[index] = action.payload; // Update booking as cancelled
         }
-        if (state.bookingDetails && state.bookingDetails.id === action.payload.id) {
+        if (
+          state.bookingDetails &&
+          state.bookingDetails.id === action.payload.id
+        ) {
           state.bookingDetails = action.payload; // Also update detailed view if active
         }
       })

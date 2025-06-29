@@ -172,3 +172,28 @@ export function formatToYMD(datetime) {
   const datePart = datetime.split('T')[0] || datetime.split(' ')[0];
   return datePart;
 }
+
+
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserPermissions } from '../store/slices/vendorUserSlice';
+
+export function useUserPermissions  (userId)  {
+  const dispatch = useDispatch();
+  const { userPermissions } = useSelector((state) => state.vendorUser);
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchUserPermissions(userId));
+    }
+  }, [dispatch, userId]);
+
+  return  userPermissions ;
+};
+
+// utils/permissionUtils.js
+export const checkPermission = (permissions, permissionTitle) => {
+  return permissions?.some(
+    permission => permission.title === permissionTitle && permission.has_permission
+  );
+};

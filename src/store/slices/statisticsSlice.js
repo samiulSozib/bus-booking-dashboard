@@ -12,6 +12,9 @@ export const fetchDashboardData = createAsyncThunk(
         try {
             const token = getAuthToken();
             const type=userType()
+            if(type.role==="vendor_user"){
+                type.role="vendor"
+            }
             const response = await axios.get(`${base_url}/${type.role}/statistics`, {
                 headers: { Authorization: `${token}` },
             });

@@ -21,6 +21,8 @@ import SidebarWidget from "./SidebarWidget";
 import { useTranslation } from "react-i18next";
 import SidebarBottom from "./SidebarBottom";
 import { userType } from "../utils/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserPermissions } from "../store/slices/vendorUserSlice";
 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
@@ -30,20 +32,41 @@ const AppSidebar = () => {
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [subMenuHeight, setSubMenuHeight] = useState({});
   const subMenuRefs = useRef({});
+  const dispatch=useDispatch()
+    const {
+    userPermissions,
+  } = useSelector((state) => state.vendorUser);
 
   // Get user role
   const user = userType();
   const isAdmin = user?.role === "admin";
   const isVendor = user?.role === "vendor";
   const isAgent = user?.role === "agent";
+  const isVendorUser = user?.role === "vendor_user";
 
-  // Memoized navigation items configuration
-  const navItems = useMemo(() => [
+  useEffect(()=>{
+    dispatch(fetchUserPermissions(user.id))
+  },[dispatch])
+
+  useEffect(()=>{
+    console.log(userPermissions)
+  },[dispatch,userPermissions])
+
+  // Helper function to check permissions
+  const hasPermission = useCallback((permissionName) => {
+    if (!isVendorUser) return true; // Skip check for non-vendor users
+    return userPermissions.some(perm => perm.name === permissionName && perm.has_permission);
+  }, [isVendorUser, userPermissions]);
+
+
+
+   const navItems = useMemo(() => [
     {
       icon: <Dashboard />,
       name: "DASHBOARD",
       path: "/",
-      roles: ["admin", "vendor", "agent"]
+      roles: ["admin", "vendor", "agent", "vendor_user"],
+      permission:  "v1.vendor.statistics.general_statistics"// No permission required for dashboard
     },
     {
       icon: <Location />,
@@ -54,42 +77,48 @@ const AppSidebar = () => {
         { name: "PROVINCE", path: "/location/provinces" },
         { name: "CITY", path: "/location/cities" }
       ],
+      permission: null
     },
     {
       icon: <Station />,
       name: "STATIONS",
       path: "/stations",
-      roles: ["admin"]
+      roles: ["admin"],
+      permission: null
     },
     {
       icon: <Direction />,
       name: "ROUTES",
       path: "/routes",
-      roles: ["admin","vendor"]
+      roles: ["admin", "vendor","vendor_user"],
+      permission: "v1.vendor.route.get_listing"
     },
-    
     {
       icon: <Discount />,
       name: "DISCOUNTS",
       path: "/discounts",
-      roles: ["admin"]
+      roles: ["admin"],
+      permission: null
     },
     {
       icon: <Trip />,
       name: "TRIPS",
       path: "/trips",
-      roles: ["admin", "vendor"]
+      roles: ["admin", "vendor", "vendor_user"],
+      permission: "v1.vendor.trip.get"
     },
     {
       icon: <User_Group />,
       name: "USERS",
       path: "/users",
-      roles: ["admin"]
+      roles: ["admin"],
+      permission: null
     },
     {
       icon: <Wallet />,
       name: "WALLET",
-      roles: ["admin", "vendor"],
+      roles: ["admin", "vendor","vendor_user"],
+      permission: "v1.vendor.wallet_transaction.show",
       getSubItems: (role) => {
         const items = [];
         if (role === "admin") {
@@ -98,8 +127,11 @@ const AppSidebar = () => {
             { name: "WALLET_TRANSACTION", path: "/wallet-transactions" }
           );
         }
-        if (role === "vendor") {
-          items.push({ name: "WALLET", path: "/vendor-wallet" });
+        if (role === "vendor" || role === "vendor_user") {
+          if (hasPermission("v1.vendor.wallet_transaction.show")) {
+            items.push({ name: "WALLET", path: "/vendor-wallet" });
+          }
+          
         }
         return items;
       }
@@ -108,61 +140,75 @@ const AppSidebar = () => {
       icon: <Bus />,
       name: "BUS",
       path: "/buses",
-      roles: ["admin", "vendor"]
+      roles: ["admin", "vendor", "vendor_user"],
+      permission: "v1.vendor.bus.get"
     },
     {
       icon: <User_Group />,
       name: "DRIVERS",
       path: "/drivers",
-      roles: ["vendor"]
+      roles: ["vendor","vendor_user"],
+      permission: "v1.driver.vendor.get"
     },
     {
       icon: <User_Group />,
       name: "VENDOR_USER",
       path: "/vendor-users",
-      roles: ["vendor"]
+      roles: ["vendor","vendor_user"],
+      permission: "v1.vendor.user.get"
     },
     {
       icon: <Ticket />,
       name: "BOOKING",
       path: "/bookings",
-      roles: ["admin","vendor"]
+      roles: ["admin", "vendor", "vendor_user"],
+      permission: "v1.vendor.booking.get"
     },
     {
       icon: <Settings />,
       name: "TRIP_CANCELLATION_POLICY",
       path: "/trip-cancellation-policy",
-      roles: ["admin","vendor"]
+      roles: ["admin", "vendor","vendor_user"],
+      permission: "v1.vendor.trip_cancellation_policy.show"
     },
     {
       icon: <User_Group />,
       name: "TELECOM_OPERATOR",
       path: "/telecom-operators",
-      roles: ["admin"]
+      roles: ["admin"],
+      permission: null
     },
     {
       icon: <Settings />,
       name: "SETTINGS",
       path: "/settings",
-      roles: ["admin"]
+      roles: ["admin"],
+      permission: null
     },
-  ], []);
+  ], [hasPermission]);
 
   const othersItems = useMemo(() => [
     {
       icon: <UserIcon />,
       name: "PROFILE",
       path: "/profile",
-      roles: ["admin", "vendor"]
+      roles: ["admin", "vendor", "vendor_user"],
+      permission: null
     },
   ], []);
 
-  // Memoize filtered items
+  // Enhanced filter function that checks both role and permissions
   const filterItemsByRole = useCallback((items) => {
     return items.filter(item => {
-      if (!item.roles) return false;
-      // Only show items that match the user's exact role
-      return item.roles.includes(user?.role);
+      // Check if user has the required role
+      if (!item.roles || !item.roles.includes(user?.role)) return false;
+      
+      // For vendor_user, check permissions
+      if (isVendorUser && item.permission) {
+        return hasPermission(item.permission);
+      }
+      
+      return true;
     }).map(item => {
       // Handle dynamic sub-items
       if (item.getSubItems) {
@@ -183,7 +229,7 @@ const AppSidebar = () => {
       }
       return item;
     });
-  }, [user?.role]);  // Removed isAdmin from dependencies
+  }, [user?.role, isVendorUser, hasPermission]);
 
   const filteredNavItems = useMemo(() => filterItemsByRole(navItems), [filterItemsByRole, navItems]);
   const filteredOthersItems = useMemo(() => filterItemsByRole(othersItems), [filterItemsByRole, othersItems]);

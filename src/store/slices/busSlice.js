@@ -1,9 +1,9 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { base_url } from '../../utils/const';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { base_url } from "../../utils/const";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
-export function user_type(){
+export function user_type() {
   // return JSON.parse(localStorage.getItem("profile")||"{}");
   const profile = localStorage.getItem("profile");
   return profile ? JSON.parse(profile) : null;
@@ -13,55 +13,65 @@ export function user_type(){
 
 // Add a new bus
 export const addBus = createAsyncThunk(
-  'bus/addBus',
-  async ({busData}, { rejectWithValue }) => {
+  "bus/addBus",
+  async ({ busData }, { rejectWithValue }) => {
     try {
       //console.log(busData)
       const token = getAuthToken();
-      const type=user_type()
+      const type = user_type();
+
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
       const formData = new FormData();
-      
+
       Object.keys(busData).forEach((key) => {
-        if (key === 'seats') {
+        if (key === "seats") {
           formData.append(key, JSON.stringify(busData[key])); // Append seats as JSON
-        }else if(key==="facilities"){
-          formData.append(key,JSON.stringify(busData[key]))
-        }
-         else if (key === 'image') {
+        } else if (key === "facilities") {
+          formData.append(key, JSON.stringify(busData[key]));
+        } else if (key === "image") {
           formData.append(key, busData[key]); // Append image file
         } else {
           formData.append(key, busData[key]); // Append other fields
         }
       });
 
-      formData.forEach((value,key)=>{
+      formData.forEach((value, key) => {
         //console.log(key,value)
-      })
-
-      const response = await axios.post(`${base_url}/${type.role}/buses`, formData, {
-        headers: {
-          Authorization: `${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
       });
-      console.log(response)
+
+      const response = await axios.post(
+        `${base_url}/${type.role}/buses`,
+        formData,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response);
       return response.data.body.item;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return rejectWithValue(error?.response?.statusText);
     }
   }
 );
 
-// Edit a bus 
+// Edit a bus
 export const editBus = createAsyncThunk(
-  'bus/editBus',
+  "bus/editBus",
   async ({ busId, busData }, { rejectWithValue }) => {
     try {
       //console.log("Bus Data:", busData);
 
       const token = getAuthToken();
-      const type=user_type()
+      const type = user_type();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
       const formData = new FormData();
 
       // Append basic fields
@@ -84,8 +94,6 @@ export const editBus = createAsyncThunk(
         formData.append("image", busData.image);
       }
 
-      
-
       // Debugging FormData output
       //console.log("FormData Contents:");
       for (let pair of formData.entries()) {
@@ -93,12 +101,16 @@ export const editBus = createAsyncThunk(
       }
 
       // API Request
-      const response = await axios.post(`${base_url}/${type.role}/buses/update`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `${token}`,
-        },
-      });
+      const response = await axios.post(
+        `${base_url}/${type.role}/buses/update`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `${token}`,
+          },
+        }
+      );
 
       //console.log("Response:", response.data);
       return response.data.body.item;
@@ -109,11 +121,9 @@ export const editBus = createAsyncThunk(
   }
 );
 
-
-
 // Add seats to a bus
 export const addSeats = createAsyncThunk(
-  'bus/addSeats',
+  "bus/addSeats",
   async ({ busId, seats }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`/api/buses/${busId}/seats`, { seats });
@@ -126,25 +136,32 @@ export const addSeats = createAsyncThunk(
 
 // Update a seat
 export const updateSeat = createAsyncThunk(
-  'bus/updateSeat',
+  "bus/updateSeat",
   async ({ busId, busData }, { rejectWithValue }) => {
     try {
-      const token=getAuthToken()
-      const type=user_type()
-      const formData=new FormData()
+      const token = getAuthToken();
+      const type = user_type();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+      const formData = new FormData();
       //console.log(busData)
-      formData.append("bus_id",busId)
-      formData.append("rows",busData.rows)
-      formData.append("columns",busData.columns)
-      formData.append("seats",JSON.stringify(busData.seats))
-      formData.append("berth_type",busData.berth_type)
+      formData.append("bus_id", busId);
+      formData.append("rows", busData.rows);
+      formData.append("columns", busData.columns);
+      formData.append("seats", JSON.stringify(busData.seats));
+      formData.append("berth_type", busData.berth_type);
 
-      const response = await axios.post(`${base_url}/${type.role}/buses/seat`, formData,{
-        headers:{
-          'Content-Type': 'multipart/form-data',
-          Authorization: `${token}`,
+      const response = await axios.post(
+        `${base_url}/${type.role}/buses/seat`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `${token}`,
+          },
         }
-      });
+      );
       //console.log(response)
       return response.data.body.item;
     } catch (error) {
@@ -156,19 +173,31 @@ export const updateSeat = createAsyncThunk(
 
 // Fetch all buses
 export const fetchBuses = createAsyncThunk(
-  'bus/fetchBuses',
-  async ({searchTag="",vendor_id="",page=1,filters={}}, { rejectWithValue }) => {
+  "bus/fetchBuses",
+  async (
+    { searchTag = "", vendor_id = "", page = 1, filters = {} },
+    { rejectWithValue }
+  ) => {
     try {
       const token = getAuthToken();
-      const type=user_type()
-      if(filters["vendor-id"]){
-        vendor_id=filters["vendor-id"]
+      const type = user_type();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+      if (filters["vendor-id"]) {
+        vendor_id = filters["vendor-id"];
       }
       //console.log("vendor-id",vendor_id)
-      const response = await axios.get(`${base_url}/${type.role}/buses?search=${searchTag}&vendor-id=${vendor_id}&page=${page}`,{headers:{Authorization: `${token}`}});
+      const response = await axios.get(
+        `${base_url}/${type.role}/buses?search=${searchTag}&vendor-id=${vendor_id}&page=${page}`,
+        { headers: { Authorization: `${token}` } }
+      );
       //console.log(searchTag)
       //console.log(response.data.body.items)
-      return {items:response.data.body.items,pagination:response.data.body.data};
+      return {
+        items: response.data.body.items,
+        pagination: response.data.body.data,
+      };
     } catch (error) {
       //console.log(error)
       return rejectWithValue(error?.response?.statusText);
@@ -178,18 +207,24 @@ export const fetchBuses = createAsyncThunk(
 
 // Fetch a single bus by ID
 export const fetchBusById = createAsyncThunk(
-  'bus/fetchBusById',
+  "bus/fetchBusById",
   async (busId, { rejectWithValue }) => {
     try {
       //console.log("fdf")
       //console.log(busId)
-      const token=getAuthToken()
-      const type=user_type()
-      const response = await axios.get(`${base_url}/${type.role}/buses/${busId}/show`,{
-        headers:{
-          Authorization: `${token}`
+      const token = getAuthToken();
+      const type = user_type();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+      const response = await axios.get(
+        `${base_url}/${type.role}/buses/${busId}/show`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
         }
-      });
+      );
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error?.response?.statusText);
@@ -199,23 +234,27 @@ export const fetchBusById = createAsyncThunk(
 
 // Delete a bus
 export const deleteBus = createAsyncThunk(
-  'bus/deleteBus',
+  "bus/deleteBus",
   async (busId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const type = user_type();
-      const response = await axios.delete(`${base_url}/${type.role}/buses/${busId}/delete`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      const response = await axios.delete(
+        `${base_url}/${type.role}/buses/${busId}/delete`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
       return busId; // Return the ID of the deleted bus
     } catch (error) {
-      return rejectWithValue(error?.response?.statusText || "Failed to delete bus");
+      return rejectWithValue(
+        error?.response?.statusText || "Failed to delete bus"
+      );
     }
   }
 );
-
 
 // Initial State
 const initialState = {
@@ -226,13 +265,13 @@ const initialState = {
   pagination: {
     current_page: 1,
     last_page: 1,
-    total: 0
-}
+    total: 0,
+  },
 };
 
 // Bus Slice
 const busSlice = createSlice({
-  name: 'bus',
+  name: "bus",
   initialState,
   reducers: {
     // Clear the currently selected bus
@@ -259,7 +298,9 @@ const busSlice = createSlice({
         state.error = null;
       })
       .addCase(editBus.fulfilled, (state, action) => {
-        const index = state.buses.findIndex((bus) => bus.id === action.payload.id);
+        const index = state.buses.findIndex(
+          (bus) => bus.id === action.payload.id
+        );
         if (index !== -1) {
           // Update the bus data
           state.buses[index] = action.payload;
@@ -279,7 +320,9 @@ const busSlice = createSlice({
         state.error = null;
       })
       .addCase(addSeats.fulfilled, (state, action) => {
-        const index = state.buses.findIndex((bus) => bus.id === action.payload.busId);
+        const index = state.buses.findIndex(
+          (bus) => bus.id === action.payload.busId
+        );
         if (index !== -1) {
           state.buses[index].seats = action.payload.seats; // Update seats in the bus
         }
@@ -293,7 +336,9 @@ const busSlice = createSlice({
         state.error = null;
       })
       .addCase(updateSeat.fulfilled, (state, action) => {
-        const index = state.buses.findIndex((bus) => bus.id === action.payload.busId);
+        const index = state.buses.findIndex(
+          (bus) => bus.id === action.payload.busId
+        );
         if (index !== -1) {
           const seatIndex = state.buses[index].seats.findIndex(
             (seat) => seat.id === action.payload.seatId
@@ -315,7 +360,7 @@ const busSlice = createSlice({
       .addCase(fetchBuses.fulfilled, (state, action) => {
         state.loading = false;
         state.buses = action.payload.items; // Set the list of buses
-        state.pagination=action.payload.pagination
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchBuses.rejected, (state, action) => {
         state.loading = false;
@@ -342,8 +387,7 @@ const busSlice = createSlice({
       })
       .addCase(deleteBus.rejected, (state, action) => {
         state.error = action.payload;
-      })
-
+      });
   },
 });
 

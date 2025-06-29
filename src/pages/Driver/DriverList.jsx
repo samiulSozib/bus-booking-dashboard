@@ -18,6 +18,11 @@ import { Edit, SearchIcon } from "../../icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import {
+  checkPermission,
+  userType,
+  useUserPermissions,
+} from "../../utils/utils";
 
 // Validation schema
 const driverSchema = Yup.object().shape({
@@ -50,6 +55,18 @@ export default function DriverList() {
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
+
+  const user_type = userType();
+  const permissions = useUserPermissions(user_type.id);
+
+  const hasDriverCreatePermission = checkPermission(
+    permissions,
+    "v1.driver.vendor.create"
+  );
+  const hasDriverEitPermission = checkPermission(
+    permissions,
+    "v1.driver.vendor.update"
+  );
 
   useEffect(() => {
     dispatch(fetchDrivers({ searchTag, page: currentPage }));
@@ -308,15 +325,20 @@ export default function DriverList() {
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-          <button
-            onClick={() => {
-              setIsModalOpen(true);
-              setIsEditing(false);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            {t("ADD_DRIVER")}
-          </button>
+          {(user_type?.role === "admin" ||
+            user_type?.role === "vendor" ||
+            (user_type?.role === "vendor_user" &&
+              hasDriverCreatePermission)) && (
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+                setIsEditing(false);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              {t("ADD_DRIVER")}
+            </button>
+          )}
         </div>
       </div>
 
@@ -397,12 +419,17 @@ export default function DriverList() {
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEdit(driver.id)}
-                      >
-                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                      </div>
+                      {(user_type?.role === "admin" ||
+                        user_type?.role === "vendor" ||
+                        (user_type?.role === "vendor_user" &&
+                          hasDriverEitPermission)) && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                          onClick={() => handleEdit(driver.id)}
+                        >
+                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                        </div>
+                      )}
                       {/* <div
       className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
       onClick={() => handleDelete(bus.id)}
