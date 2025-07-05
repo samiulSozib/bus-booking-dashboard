@@ -6,7 +6,7 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 
 // Fetch Vendor Users
 export const fetchVendorUsers = createAsyncThunk(
-  "vendorUsers/fetchVendorUsers",
+  "vendorUserPermission/fetchVendorUsers",
   async ({ searchTag = "", page = 1, per_page = 10 }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
@@ -31,7 +31,7 @@ export const fetchVendorUsers = createAsyncThunk(
 
 // Show Vendor User
 export const showVendorUser = createAsyncThunk(
-  "vendorUsers/showVendorUser",
+  "vendorUserPermission/showVendorUser",
   async (userId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
@@ -53,17 +53,27 @@ export const showVendorUser = createAsyncThunk(
 
 // Add Vendor User
 export const addVendorUser = createAsyncThunk(
-  "vendorUsers/addVendorUser",
+  "vendorUserPermission/addVendorUser",
   async (userData, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const formData = new FormData();
+      formData.append(
+        "vendor_user_role_id",
+        userData.vendor_user_role_id || ""
+      );
       formData.append("first_name", userData.first_name);
       formData.append("last_name", userData.last_name);
       formData.append("email", userData.email || "");
       formData.append("mobile", userData.mobile);
       formData.append("password", userData.password);
       formData.append("status", userData.status);
+      formData.append("vendor_user_role_id", userData.role);
+
+      for (const key in formData) {
+        console.log(`${key}:`, formData[key]);
+      }
+      //return;
 
       const response = await axios.post(`${base_url}/vendor/users`, formData, {
         headers: {
@@ -71,11 +81,10 @@ export const addVendorUser = createAsyncThunk(
           "Content-Type": "multipart/form-data",
         },
       });
-
+      console.log(response)
       return response.data.body.item;
     } catch (error) {
       if (error.response?.data?.errors) {
-        // Return the entire error response data
         return rejectWithValue(error.response.data);
       }
       return rejectWithValue(error.message);
@@ -85,18 +94,23 @@ export const addVendorUser = createAsyncThunk(
 
 // Update Vendor User
 export const updateVendorUser = createAsyncThunk(
-  "vendorUsers/updateVendorUser",
+  "vendorUserPermission/updateVendorUser",
   async ({ userId, updatedData }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const formData = new FormData();
       formData.append("id", userId);
+      formData.append(
+        "vendor_user_role_id",
+        updatedData.vendor_user_role_id || ""
+      );
       formData.append("first_name", updatedData.first_name);
       formData.append("last_name", updatedData.last_name);
       formData.append("email", updatedData.email || "");
       formData.append("mobile", updatedData.mobile);
-      formData.append("password", updatedData.password);
+      formData.append("password", updatedData.password || "");
       formData.append("status", updatedData.status);
+      formData.append("vendor_user_role_id",updatedData.role)
 
       const response = await axios.post(
         `${base_url}/vendor/users/update`,
@@ -111,7 +125,6 @@ export const updateVendorUser = createAsyncThunk(
       return response.data.body.item;
     } catch (error) {
       if (error.response?.data?.errors) {
-        // Return the entire error response data
         return rejectWithValue(error.response.data);
       }
       return rejectWithValue(error.message);
@@ -121,7 +134,7 @@ export const updateVendorUser = createAsyncThunk(
 
 // Fetch Permissions
 export const fetchPermissions = createAsyncThunk(
-  "vendorUsers/fetchPermissions",
+  "vendorUserPermission/fetchPermissions",
   async (_, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
@@ -140,7 +153,7 @@ export const fetchPermissions = createAsyncThunk(
 
 // Fetch User Permissions
 export const fetchUserPermissions = createAsyncThunk(
-  "vendorUsers/fetchUserPermissions",
+  "vendorUserPermission/fetchUserPermissions",
   async (userId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
@@ -153,7 +166,6 @@ export const fetchUserPermissions = createAsyncThunk(
           },
         }
       );
-
       return {
         userId,
         permissions: response.data.body.items,
@@ -166,7 +178,7 @@ export const fetchUserPermissions = createAsyncThunk(
 
 // Update User Permissions
 export const updateUserPermissions = createAsyncThunk(
-  "vendorUsers/updateUserPermissions",
+  "vendorUserPermission/updateUserPermissions",
   async ({ userId, permissions }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
@@ -184,20 +196,18 @@ export const updateUserPermissions = createAsyncThunk(
           },
         }
       );
-      //console.log(response)
       return {
         userId,
         permissions: response.data.body.items,
       };
     } catch (error) {
-      //console.log(error)
       return rejectWithValue(error?.response?.statusText);
     }
   }
 );
 
-const vendorUsersSlice = createSlice({
-  name: "vendorUsers",
+const vendorUserSlice = createSlice({
+  name: "vendorUserPermission",
   initialState: {
     loading: false,
     users: [],
@@ -211,7 +221,11 @@ const vendorUsersSlice = createSlice({
       total: 0,
     },
   },
-  reducers: {},
+  reducers: {
+    clearSelectedUser: (state) => {
+      state.selectedUser = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Fetch Users
@@ -230,21 +244,38 @@ const vendorUsersSlice = createSlice({
       })
 
       // Show User
+      .addCase(showVendorUser.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(showVendorUser.fulfilled, (state, action) => {
+        state.loading = false;
         state.selectedUser = action.payload;
+      })
+      .addCase(showVendorUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Add User
+      .addCase(addVendorUser.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(addVendorUser.fulfilled, (state, action) => {
+        state.loading = false;
         state.users.unshift(action.payload);
         state.pagination.total += 1;
       })
       .addCase(addVendorUser.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       })
 
       // Update User
+      .addCase(updateVendorUser.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(updateVendorUser.fulfilled, (state, action) => {
+        state.loading = false;
         const index = state.users.findIndex(
           (user) => user.id === action.payload.id
         );
@@ -256,24 +287,50 @@ const vendorUsersSlice = createSlice({
         }
       })
       .addCase(updateVendorUser.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       })
 
       // Fetch Permissions
+      .addCase(fetchPermissions.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchPermissions.fulfilled, (state, action) => {
+        state.loading = false;
         state.permissions = action.payload;
+      })
+      .addCase(fetchPermissions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Fetch User Permissions
+      .addCase(fetchUserPermissions.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchUserPermissions.fulfilled, (state, action) => {
+        state.loading = false;
         state.userPermissions = action.payload.permissions;
+      })
+      .addCase(fetchUserPermissions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Update User Permissions
+      .addCase(updateUserPermissions.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(updateUserPermissions.fulfilled, (state, action) => {
+        state.loading = false;
         state.userPermissions = action.payload.permissions;
+      })
+      .addCase(updateUserPermissions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export default vendorUsersSlice.reducer;
+export const { clearSelectedUser } = vendorUserSlice.actions;
+export default vendorUserSlice.reducer;

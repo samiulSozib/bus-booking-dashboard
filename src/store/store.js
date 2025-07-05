@@ -20,6 +20,9 @@ import telecomOperatorReducer from './slices/telecomOperatorSlice.js'
 import settingsReducer from './slices/settingsSlice.js'
 import rechargeReducer from './slices/rechargeSlice.js'
 import vendorUserReducer from "./slices/vendorUserSlice.js"
+import vendorRolesReducer from "./slices/vendorRolesSlice"
+import expenseCategoryReducer from "./slices/expenseCategorySlice.js"
+import expenseReducer from "./slices/expenseSlice.js"
 
 const store = configureStore({
     reducer: {
@@ -43,7 +46,10 @@ const store = configureStore({
         telecomOperators:telecomOperatorReducer,
         settings:settingsReducer,
         recharges:rechargeReducer,
-        vendorUser:vendorUserReducer
+        vendorUser:vendorUserReducer,
+        vendorRoles:vendorRolesReducer,
+        expenseCategory:expenseCategoryReducer,
+        expenseSlice:expenseReducer
     },
 });
 

@@ -157,6 +157,13 @@ const AppSidebar = () => {
       roles: ["vendor","vendor_user"],
       permission: "v1.vendor.user.get"
     },
+      {
+      icon: <User_Group />,
+      name: "ROLES",
+      path: "/vendor-users-roles",
+      roles: ["vendor","vendor_user"],
+      permission: "v1.vendor.user.get"
+    },
     {
       icon: <Ticket />,
       name: "BOOKING",
@@ -171,13 +178,20 @@ const AppSidebar = () => {
       roles: ["admin", "vendor","vendor_user"],
       permission: "v1.vendor.trip_cancellation_policy.show"
     },
-    // {
-    //   icon: <User_Group />,
-    //   name: "TELECOM_OPERATOR",
-    //   path: "/telecom-operators",
-    //   roles: ["admin"],
-    //   permission: null
-    // },
+    {
+      icon: <Wallet />,
+      name: "EXPENSE_CATEGORY",
+      path: "/expense-category",
+      roles: ["vendor"],
+      permission: null
+    },
+    {
+      icon: <Wallet />,
+      name: "EXPENSE",
+      path: "/expense",
+      roles: ["vendor"],
+      permission: null
+    },
     {
       icon: <Settings />,
       name: "SETTINGS",

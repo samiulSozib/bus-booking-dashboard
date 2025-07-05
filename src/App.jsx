@@ -36,6 +36,9 @@ import AddBooking from "./pages/Booking/AddBooking";
 import TelecomOperators from "./pages/TelecomOperators/TelecomOperators";
 import Settings from "./pages/Settings/Settings";
 import VendorUser from "./pages/VendorUser/VendorUser";
+import VendorUserRoles from "./pages/VendorUserRoles/VendorUserRoles";
+import ExpenseCategory from "./pages/ExpenseCategory/ExpenseCategory";
+import Expense from "./pages/Expense/Expense";
 
 export default function App() {
   return (
@@ -66,6 +69,12 @@ export default function App() {
             <Route index path="/telecom-operators" element={<ProtectedRoute><TelecomOperators/></ProtectedRoute>}/>
             <Route index path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
             <Route index path="/vendor-users" element={<ProtectedRoute><VendorUser/></ProtectedRoute>}/>
+            <Route index path="/vendor-users-roles" element={<ProtectedRoute><VendorUserRoles/></ProtectedRoute>}/>
+            <Route index path="/expense-category" element={<ProtectedRoute><ExpenseCategory/></ProtectedRoute>}/>
+            <Route index path="/expense" element={<ProtectedRoute><Expense/></ProtectedRoute>}/>
+
+
+
             
 
 

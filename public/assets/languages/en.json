@@ -615,6 +615,11 @@
   "v1.vendor.user.user_permissions": "User Permissions",
   "permissionsUpdateSuccess":"Permissions Update Success",
   "failedToUpdatePermissions":"Failed to Update Permissions",
+
+
+
+
+
   "vendor.user.validation": {
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required",
@@ -622,7 +627,81 @@
     "mobileRequired": "Mobile number is required",
     "passwordRequired": "Password is required",
     "invalidStatus": "Invalid status",
-    "statusRequired": "Status is required"
+    "statusRequired": "Status is required",
+    "roleRequired": "Role is required",
+    "invalidRole": "Please select a valid role"
+  },
+  "ROLES":"Roles",
+  "VENDOR_USER_ROLES_LIST":"Roles List",
+  "ADD_ROLES":"Add Roles",
+  "ROLE_INFORMATION":"Role Information",
+  "ROLE_TITLE":"Title",
+  "ROLE_NAME":"Name",
+  "ROLE_DESCRIPTION":"Description",
+  "FAILED_TO_SAVE_ROLE":"",
+  "ROLE_UPDATED_SUCCESS":"Role Updated successfully",
+  "ROLE_ADDED_SUCCESS":"Role Added successfully",
+  "SELECT_ALL":"Select All",
+  "ADD_ROLE":"Add Role",
+  "EDIT_ROLE":"Edit Role",
+  "SUCCESS":"Success",
+  "ERROR":"Error",
+  "SELECT":"Select",
+  "EXPENSE_CATEGORY":"Expense Category",
+  "EXPENSE":"Expense",
+  "EXPENSE_CATEGORIES":"Expense Categories",
+  "ADD_CATEGORY":"Add Category",
+  "EDIT_CATEGORY":"Edit Category",
+  "PARENT":"Parent",
+  "PARENT_CATEGORY":"Parent Category",
+  "categoryUpdateSuccess":"Category Updated Successfully",
+  "categoryAddSuccess":"Category Added Successfully",
+  "failedToAddUpdateCategory":"Failed to Save Category",
+  "VALIDATION.EXPENSE_CATEGORY.NAME_REQUIRED":"Name is required",
+  "VALIDATION.EXPENSE_CATEGORY.TYPE_REQUIRED":"Type is required",
+
+  
+  "EXPENSES": "Expenses",
+  "ADD_EXPENSE": "Add Expense",
+  "EDIT_EXPENSE": "Edit Expense",
+  "TITLE": "Title",
+  "DATE": "Date",
+  "CATEGORY": "Category",
+  "FILES": "Files",
+  "FROM_DATE": "From Date",
+  "TO_DATE": "To Date",
+  "SELECT_CATEGORY": "Select Category",
+  "ADD_FILE": "Add File",
+  "ADD_FILE_WITH_TITLE": "Add File with Title",
+  "FILE_TITLE": "File Title",
+  "FILE": "File",
+  "UPLOAD_FILE": "Upload File",
+  "UPLOAD": "Upload",
+  "DELETE_FILE_CONFIRMATION_TEXT": "This file will be permanently deleted!",
+  "FILE_DELETED_SUCCESSFULLY": "File deleted successfully",
+  "FAILED_TO_DELETE_FILE": "Failed to delete file",
+  "expenseUpdateSuccess": "Expense updated successfully",
+  "expenseAddSuccess": "Expense added successfully",
+  "fileUploadSuccess": "File uploaded successfully",
+  "failedToAddUpdateExpense": "Failed to add/update expense",
+  "failedToUploadFile": "Failed to upload file",
+  "FILE_TITLE_REQUIRED": "File title is required",
+  "SELECT_TRIP":"Select Trip",
+  "VALIDATION.EXPENSE.TITLE_REQUIRED":"Title required",
+  "VALIDATION.EXPENSE.AMOUNT_REQUIRED":"Amount required",
+  "VALIDATION.EXPENSE.AMOUNT_POSITIVE":"Amount should be positive",
+  "VALIDATION.EXPENSE.DATE_REQUIRED":"Date required",
+
+
+  "SELECT_DATE": "Select Date",
+  
+  "expense": {
+    "searchPlaceholder": "Search by title or description...",
+    "searchCategory": "Search category...",
+    "searchTrip": "Search trip...",
+    "noCategoriesFound": "No categories found",
+    "noTripsFound": "No trips found"
   }
+
 
 }

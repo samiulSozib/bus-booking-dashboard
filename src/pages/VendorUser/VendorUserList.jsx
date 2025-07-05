@@ -34,6 +34,7 @@ import {
   userType,
   useUserPermissions,
 } from "../../utils/utils";
+import { fetchRoles } from "../../store/slices/vendorRolesSlice";
 
 // Validation schema
 
@@ -48,6 +49,8 @@ export default function VendorUserList() {
     userPermissions,
   } = useSelector((state) => state.vendorUser);
 
+  const { roles } = useSelector((state) => state.vendorRoles);
+
   const [searchTag, setSearchTag] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -58,34 +61,11 @@ export default function VendorUserList() {
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("pending");
+  const [role, setRole] = useState();
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
-
-  const user_type = userType();
-  const user_permissions = useUserPermissions(user_type.id);
-
-  const hasVendorUserCreatePermission = checkPermission(
-    user_permissions,
-    "v1.vendor.user.create"
-  );
-  const hasVendorUserEditPermission = checkPermission(
-    user_permissions,
-    "v1.vendor.user.update"
-  );
-  const hasVendorUserPermissionsPermission = checkPermission(
-    user_permissions,
-    "v1.vendor.user.permissions"
-  );
-  const hasVendorUserUser_permissionsPermission = checkPermission(
-    user_permissions,
-    "v1.vendor.user.sync_user_permissions"
-  );
-  const hasVendorUserSync_user_permissionsPermission = checkPermission(
-    user_permissions,
-    "v1.vendor.user.user_permissions"
-  );
 
   const vendorUserSchema = Yup.object().shape({
     firstName: Yup.string().required(
@@ -107,6 +87,9 @@ export default function VendorUserList() {
         t("vendor.user.validation.invalidStatus")
       )
       .required(t("vendor.user.validation.statusRequired")),
+    role: Yup.string()
+      .required(t("vendor.user.validation.roleRequired"))
+      
   });
 
   useEffect(() => {
@@ -115,6 +98,7 @@ export default function VendorUserList() {
 
   useEffect(() => {
     dispatch(fetchPermissions());
+    dispatch(fetchRoles());
   }, [dispatch]);
 
   useEffect(() => {
@@ -139,6 +123,7 @@ export default function VendorUserList() {
       mobile,
       password,
       status,
+      role,
     };
 
     try {
@@ -151,15 +136,18 @@ export default function VendorUserList() {
           mobile,
           password,
           status,
+          role,
         },
         { abortEarly: false }
       );
 
-      const action = isEditing
-        ? updateVendorUser({ userId: currentUserId, updatedData: userData })
-        : addVendorUser(userData);
+      const result = await (isEditing
+        ? dispatch(
+            updateVendorUser({ userId: currentUserId, updatedData: userData })
+          )
+        : dispatch(addVendorUser(userData)));
 
-      const result = await dispatch(action);
+      //const result = await dispatch(action);
 
       if (result.error) {
         // Handle API validation errors
@@ -173,7 +161,6 @@ export default function VendorUserList() {
         }
         throw new Error(result.payload || "An unknown error occurred");
       }
-
       // Success case
       Swal.fire({
         icon: "success",
@@ -210,6 +197,7 @@ export default function VendorUserList() {
     setMobile("");
     setPassword("");
     setStatus("pending");
+    setRole();
     setIsEditing(false);
     setCurrentUserId(null);
     setErrors({});
@@ -261,7 +249,7 @@ export default function VendorUserList() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">
               {isEditing ? t("EDIT_VENDOR_USER") : t("ADD_VENDOR_USER")}
             </h2>
@@ -368,6 +356,30 @@ export default function VendorUserList() {
                 )}
               </div>
 
+              {/* role */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  {t("ROLES")} *
+                </label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+                    errors.role ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">{t("SELECT")}</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.role && (
+                  <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+                )}
+              </div>
+
               {/* Buttons */}
               <div className="flex justify-end gap-2">
                 <button
@@ -379,6 +391,7 @@ export default function VendorUserList() {
                     setMobile("");
                     setPassword("");
                     setStatus("pending");
+                    setRole();
                     setIsModalOpen(false);
                     setIsEditing(false);
                     setErrors({}); // Clear errors
@@ -429,20 +442,16 @@ export default function VendorUserList() {
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-          {(user_type?.role === "admin" ||
-            user_type?.role === "vendor" ||
-            (user_type?.role === "vendor_user" &&
-              hasVendorUserCreatePermission)) && (
-            <button
-              onClick={() => {
-                setIsModalOpen(true);
-                setIsEditing(false);
-              }}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-            >
-              {t("ADD_VENDOR_USER")}
-            </button>
-          )}
+
+          <button
+            onClick={() => {
+              setIsModalOpen(true);
+              setIsEditing(false);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+          >
+            {t("ADD_VENDOR_USER")}
+          </button>
         </div>
       </div>
 
@@ -491,6 +500,12 @@ export default function VendorUserList() {
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
+                  {t("ROLE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
                   {t("ACTION")}
                 </TableCell>
               </TableRow>
@@ -522,29 +537,23 @@ export default function VendorUserList() {
                     {user.status}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {user?.user_role?.name}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      {(user_type?.role === "admin" ||
-                        user_type?.role === "vendor" ||
-                        (user_type?.role === "vendor_user" &&
-                          hasVendorUserEditPermission)) && (
-                        <div
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                          onClick={() => handleEdit(user.id)}
-                        >
-                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                        </div>
-                      )}
-                      {(user_type?.role === "admin" ||
-                        user_type?.role === "vendor" ||
-                        (user_type?.role === "vendor_user" &&
-                          hasVendorUserSync_user_permissionsPermission)) && (
-                        <button
-                          onClick={() => handleManagePermissions(user.id)}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-200 hover:bg-blue-300 dark:bg-blue-700 dark:hover:bg-blue-600 cursor-pointer text-sm"
-                        >
-                          🔒
-                        </button>
-                      )}
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                        onClick={() => handleEdit(user.id)}
+                      >
+                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                      </div>
+
+                      <button
+                        onClick={() => handleManagePermissions(user.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-200 hover:bg-blue-300 dark:bg-blue-700 dark:hover:bg-blue-600 cursor-pointer text-sm"
+                      >
+                        🔒
+                      </button>
                     </div>
                   </TableCell>
                 </TableRow>

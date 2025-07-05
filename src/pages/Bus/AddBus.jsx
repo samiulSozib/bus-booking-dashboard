@@ -23,9 +23,6 @@ const AddBus = () => {
   const { t } = useTranslation();
 
   
-  const user_type = userType();
-  const permissions = useUserPermissions(user_type.id);
-  const hasBusUpdateSeatPermission = checkPermission(permissions,"v1.vendor.bus.create_update_seats")
 
   const [formData, setFormData] = useState({
     driver_id: "",
@@ -877,10 +874,7 @@ const AddBus = () => {
           {/* Berth Type Configuration */}
           <div className="md:col-span-2 lg:col-span-3">
             <div className="flex gap-4">
-              {(user_type?.role === "admin" ||
-                user_type?.role === "vendor" ||
-                (user_type?.role === "vendor_user" &&
-                  hasBusUpdateSeatPermission)) && (
+              
                 <button
                   type="button"
                   onClick={() => setOpenDialog(true)}
@@ -888,7 +882,7 @@ const AddBus = () => {
                 >
                   {t("CONFIGURE_BERTH")}
                 </button>
-              )}
+              
             </div>
           </div>
         </div>

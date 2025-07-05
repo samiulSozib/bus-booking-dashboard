@@ -48,37 +48,7 @@ export default function BookingList() {
   const navigate = useNavigate();
   const type = userType();
   const user_type = userType();
-  const permissions = useUserPermissions(user_type.id);
   // Booking Permissions
-  const hasBookingShowPermission = checkPermission(
-    permissions,
-    "v1.vendor.booking.show"
-  );
-
-  const hasBookingMakePaidPermission = checkPermission(
-    permissions,
-    "v1.vendor.booking.make_paid"
-  );
-
-  const hasBookingMakeCancelPermission = checkPermission(
-    permissions,
-    "v1.vendor.booking.make_cancel"
-  );
-
-  const hasBookingCancellationInfoPermission = checkPermission(
-    permissions,
-    "v1.admin.booking.cancellation_info"
-  );
-
-  const hasBookingGetPermission = checkPermission(
-    permissions,
-    "v1.vendor.booking.get"
-  );
-
-  const hasBookingStorePermission = checkPermission(
-    permissions,
-    "v1.vendor.booking.store_booking"
-  );
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);

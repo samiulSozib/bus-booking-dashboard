@@ -58,12 +58,7 @@ export default function TripCancellationPolicyList() {
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
   const type = userType();
-  const user_type = userType();
-  const permissions = useUserPermissions(user_type.id);
-  const hasTripCancellationPolicyCreateUpdatePermission = checkPermission(
-    permissions,
-    "v1.vendor.trip_cancellation_policy.create_or_update"
-  );
+
 
   // Vendor selection states
   const [selectedVendorId, setSelectedVendorId] = useState(null);
@@ -410,8 +405,7 @@ export default function TripCancellationPolicyList() {
             </div>
           )}
 
-          {(type?.role === "vendor" ||
-            (type?.role === "vendor_user" && hasBookingStorePermission)) && (
+          {(type?.role === "vendor") && (
               <div className="flex gap-2">
                 <button
                   onClick={openEditModal}
