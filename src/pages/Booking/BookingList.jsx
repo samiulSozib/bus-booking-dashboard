@@ -222,7 +222,7 @@ export default function BookingList() {
             </button>
           </div>
           {(type?.role === "vendor" ||
-            (type?.role === "vendor_user" && hasBookingStorePermission)) && (
+            (type?.role === "vendor_user")) && (
             <button
               onClick={() => navigate("/add-booking")}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -333,8 +333,7 @@ export default function BookingList() {
                     <div className="flex flex-row items-center justify-start gap-3">
                       {(user_type?.role === "admin" ||
                         user_type?.role === "vendor" ||
-                        (user_type?.role === "vendor_user" &&
-                          hasBookingShowPermission)) && (
+                        (user_type?.role === "vendor_user")) && (
                         <View
                           className="w-5 h-5 cursor-pointer text-blue-500"
                           onClick={() => handleViewDetails(booking.id)}
@@ -342,8 +341,7 @@ export default function BookingList() {
                       )}
                       {(user_type?.role === "admin" ||
                         user_type?.role === "vendor" ||
-                        (user_type?.role === "vendor_user" &&
-                          hasBookingMakeCancelPermission)) &&
+                        (user_type?.role === "vendor_user")) &&
                         ["paid", "pending", "partial_paid"].includes(
                           booking.status
                         ) && (
@@ -357,8 +355,7 @@ export default function BookingList() {
 
                       {(user_type?.role === "admin" ||
                         user_type?.role === "vendor" ||
-                        (user_type?.role === "vendor_user" &&
-                          hasBookingMakePaidPermission)) &&
+                        (user_type?.role === "vendor_user")) &&
                         ["pending", "partial_paid"].includes(
                           booking.status
                         ) && (

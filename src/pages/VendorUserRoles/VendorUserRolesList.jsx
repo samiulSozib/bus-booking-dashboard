@@ -23,6 +23,7 @@ import {
 } from "../../store/slices/vendorRolesSlice";
 import { fetchPermissions } from "../../store/slices/vendorUserSlice";
 import { RoleFormModal } from "./RoleFormModal";
+import { useHasPermission } from "../../utils/utils";
 
 // Validation schema for roles
 const roleSchema = Yup.object().shape({
@@ -230,13 +231,14 @@ export default function VendorUserRolesList() {
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-
+        {useHasPermission("v1.vendor.role.create")&&(
           <button
             onClick={() => setIsModalOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
             {t("ADD_ROLES")}
           </button>
+          )}
         </div>
       </div>
 
@@ -310,18 +312,22 @@ export default function VendorUserRolesList() {
                   </TableCell> */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
+                      {useHasPermission("v1.vendor.role.update")&&(
                       <button
                         onClick={() => handleEdit(role.id)}
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                       >
                         <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </button>
+                      )}
+                      {useHasPermission("v1.vendor.role.delete")&&(
                       <button
                         onClick={() => handleDelete(role.id)}
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                       >
                         <Delete className="w-4 h-4 text-gray-700 dark:text-white" />
                       </button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

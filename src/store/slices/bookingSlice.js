@@ -43,7 +43,7 @@ export const fetchBookings = createAsyncThunk(
           },
         }
       );
-      console.log(response.data.body.items);
+      //console.log(response.data.body.items);
       return {
         items: response.data.body.items,
         pagination: response.data.body.data,

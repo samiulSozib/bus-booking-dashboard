@@ -14,6 +14,10 @@ const BusFilter = ({ isOpen, onClose, onApplyFilters }) => {
 
     const type=userType()
 
+    useEffect(()=>{
+        console.log(vendorList)
+    },[dispatch,vendorList])
+
     // Filter states
     const [filters, setFilters] = useState({
         vendor_id: null,
@@ -87,8 +91,8 @@ const BusFilter = ({ isOpen, onClose, onApplyFilters }) => {
     
     // Format vendors for react-select (only for admin)
     const vendorOptions = vendorList.map(vendor => ({
-        value: vendor.vendor.id,
-        label: `${vendor.vendor.name} (${vendor.vendor.email})`
+        value: vendor?.vendor?.id,
+        label: `${vendor?.vendor?.name} (${vendor?.vendor?.email})`
     }));
 
     if (!isOpen) return null;

@@ -20,6 +20,7 @@ import BusFilter from "./BusFilter";
 import Swal from "sweetalert2";
 import {
   checkPermission,
+  useHasPermission,
   userType,
   useUserPermissions,
 } from "../../utils/utils";
@@ -114,12 +115,14 @@ const BusList = () => {
             {t("FILTER")}
           </button>
 
-          <button
-            onClick={() => navigate("/add-bus")}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            {t("ADD_BUS")}
-          </button>
+          {useHasPermission("v1.vendor.bus.create") && (
+            <button
+              onClick={() => navigate("/add-bus")}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              {t("ADD_BUS")}
+            </button>
+          )}
         </div>
       </div>
 
@@ -238,19 +241,23 @@ const BusList = () => {
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEdit(bus.id)}
-                      >
-                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                      </div>
+                      {useHasPermission("v1.vendor.bus.update") && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                          onClick={() => handleEdit(bus.id)}
+                        >
+                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                        </div>
+                      )}
 
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
-                        onClick={() => handleDelete(bus.id)}
-                      >
-                        <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
-                      </div>
+                      {useHasPermission("v1.vendor.bus.delete") && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
+                          onClick={() => handleDelete(bus.id)}
+                        >
+                          <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

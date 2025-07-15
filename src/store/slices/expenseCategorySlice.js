@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
@@ -10,10 +11,13 @@ export const fetchExpenseCategories = createAsyncThunk(
   async ({ search = "", type = "", page = 1 }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
 
       const response = await axios.get(
-        `${base_url}/vendor/expense-categories`,
+        `${base_url}/${type.role}/expense-categories`,
         {
           params: {
             search,
@@ -42,8 +46,13 @@ export const showExpenseCategory = createAsyncThunk(
   async (categoryId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const response = await axios.get(
-        `${base_url}/vendor/expense-categories/${categoryId}/show`,
+        `${base_url}/${type.role}/expense-categories/${categoryId}/show`,
         {
           headers: {
             Authorization: `${token}`,
@@ -64,6 +73,11 @@ export const createExpenseCategory = createAsyncThunk(
   async (categoryData, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append("name", categoryData.name);
       formData.append("type", categoryData.type);
@@ -72,7 +86,7 @@ export const createExpenseCategory = createAsyncThunk(
       if (categoryData.sort) formData.append("sort", categoryData.sort);
 
       const response = await axios.post(
-        `${base_url}/vendor/expense-categories`,
+        `${base_url}/${type.role}/expense-categories`,
         formData,
         {
           headers: {
@@ -94,6 +108,11 @@ export const updateExpenseCategory = createAsyncThunk(
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append("id", id);
       formData.append("name", updatedData.name);
@@ -103,7 +122,7 @@ export const updateExpenseCategory = createAsyncThunk(
       if (updatedData.sort) formData.append("sort", updatedData.sort);
 
       const response = await axios.post(
-        `${base_url}/vendor/expense-categories/update`,
+        `${base_url}/${type.role}/expense-categories/update`,
         formData,
         {
           headers: {
@@ -125,8 +144,13 @@ export const deleteExpenseCategory = createAsyncThunk(
   async (categoryId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       await axios.delete(
-        `${base_url}/vendor/expense-categories/${categoryId}/delete`,
+        `${base_url}/${type.role}/expense-categories/${categoryId}/delete`,
         {
           headers: {
             Authorization: `${token}`,

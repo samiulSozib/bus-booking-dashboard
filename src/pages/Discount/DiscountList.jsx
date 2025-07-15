@@ -445,16 +445,16 @@ export default function DiscountList() {
         </h3>
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <SearchIcon />
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            placeholder={t("SEARCH")}
-            value={searchTag}
-            onChange={(e) => setSearchTag(e.target.value)}
-          />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <SearchIcon />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder={t("SEARCH")}
+              value={searchTag}
+              onChange={(e) => setSearchTag(e.target.value)}
+            />
           </div>
           <select
             className="rounded-md"
@@ -663,20 +663,23 @@ export default function DiscountList() {
                     {showModalVendorDropdown && (
                       <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                         {vendorList
-                          .filter((vendor) =>
-                            vendor.vendor.name
-                              .toLowerCase()
-                              .includes(modalVendorSearchTag.toLowerCase())
-                          )
+                          .filter((vendor) => {
+                            const name = vendor?.vendor?.name;
+                            const search = modalVendorSearchTag ?? "";
+                            return (
+                              name &&
+                              name.toLowerCase().includes(search.toLowerCase())
+                            );
+                          })
                           .map((vendor) => (
                             <div
-                              key={vendor.vendor.id}
+                              key={vendor?.vendor?.id}
                               onClick={() =>
-                                handleModalVendorSelect(vendor.vendor)
+                                handleModalVendorSelect(vendor?.vendor)
                               }
                               className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                             >
-                              {vendor.vendor.name}
+                              {vendor?.vendor?.name}
                             </div>
                           ))}
                       </div>

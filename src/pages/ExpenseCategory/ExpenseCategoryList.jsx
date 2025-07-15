@@ -19,6 +19,7 @@ import { Edit, SearchIcon, Delete } from "../../icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import { useHasPermission, userType, useUserPermissions } from "../../utils/utils";
 
 // Validation schema
 const getExpenseCategorySchema = (t) => Yup.object().shape({
@@ -45,6 +46,7 @@ export default function ExpenseCategoryList() {
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
+
 
   useEffect(() => {
     dispatch(
@@ -309,7 +311,7 @@ export default function ExpenseCategoryList() {
               <option value="office">Office</option>
             </select>
           </div>
-
+            {useHasPermission("v1.vendor.expense_categories.create")&&(
           <button
             onClick={() => {
               setIsModalOpen(true);
@@ -319,6 +321,7 @@ export default function ExpenseCategoryList() {
           >
             {t("ADD_CATEGORY")}
           </button>
+          )}
         </div>
       </div>
 
@@ -383,18 +386,22 @@ export default function ExpenseCategoryList() {
 
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
+                      {useHasPermission("v1.vendor.expense_categories.update")&&(
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         onClick={() => handleEdit(category.id)}
                       >
                         <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </div>
+                      )}
+                      {useHasPermission("v1.vendor.expense_categories.delete")&&(
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
                         onClick={() => handleDelete(category.id)}
                       >
                         <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
                       </div>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

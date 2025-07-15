@@ -103,7 +103,7 @@ export default function TripCancellationPolicyList() {
     setIsEditMode(false);
     setPenaltySteps([{ hours: 0, percentage: 0 }]);
     setModalVendorSearchTerm(
-      vendorList.find((user) => user.id === selectedVendorId)?.name || ""
+      vendorList.find((user) => user?.id === selectedVendorId)?.name || ""
     );
     if (selectedVendorId == null) {
       alert("Select Vendor First");
@@ -375,7 +375,7 @@ export default function TripCancellationPolicyList() {
                       onClick={() => handleVendorSelect(vendor?.vendor)}
                       className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                     >
-                      {vendor?.vendor.name}
+                      {vendor?.vendor?.name}
                     </div>
                   ))}
                 </div>
@@ -432,7 +432,7 @@ export default function TripCancellationPolicyList() {
             <div className="mb-4">
               <h4 className="text-md font-semibold">
                 {t("POLICY_FOR_VENDOR")}:{" "}
-                {vendorList.find((u) => u.id === selectedVendorId)?.name ||
+                {vendorList.find((u) => u?.id === selectedVendorId)?.name ||
                   selectedVendorId}
               </h4>
             </div>

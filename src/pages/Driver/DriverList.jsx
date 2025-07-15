@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import {
   checkPermission,
+  useHasPermission,
   userType,
   useUserPermissions,
 } from "../../utils/utils";
@@ -77,18 +78,18 @@ export default function DriverList() {
     e.preventDefault();
 
     const driverData = {
-      first_name: firstName,
-      last_name: lastName,
+      firstName,
+      lastName,
       email,
       mobile,
       password,
       status,
     };
-    //console.log(driverData)
+    console.log(driverData)
 
     try {
       // Validate form data using Yup
-      //await driverSchema.validate(driverData, { abortEarly: false });
+      await driverSchema.validate(driverData, { abortEarly: false });
 
       if (isEditing) {
         // Edit driver
@@ -315,7 +316,7 @@ export default function DriverList() {
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-          
+            {useHasPermission("v1.driver.vendor.create")&&(
             <button
               onClick={() => {
                 setIsModalOpen(true);
@@ -325,7 +326,7 @@ export default function DriverList() {
             >
               {t("ADD_DRIVER")}
             </button>
-          
+          )}
         </div>
       </div>
 
@@ -406,14 +407,14 @@ export default function DriverList() {
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                     
+                     {useHasPermission("v1.driver.vendor.update")&&(
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                           onClick={() => handleEdit(driver.id)}
                         >
                           <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                         </div>
-                      
+                     )}
                       {/* <div
       className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
       onClick={() => handleDelete(bus.id)}

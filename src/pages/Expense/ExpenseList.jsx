@@ -25,7 +25,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fetchExpenseCategories } from "../../store/slices/expenseCategorySlice";
 import { fetchTrips } from "../../store/slices/tripSlice";
-import { formatToYMD } from "../../utils/utils";
+import { formatToYMD, useHasPermission } from "../../utils/utils";
 import ExpenseFilter from "./ExpenseFilter";
 import Modal from "react-modal";
 
@@ -540,6 +540,7 @@ export default function ExpenseList() {
                               </>
                             )}
                           </div>
+                          {useHasPermission("v1.vendor.expenses.files.delete")&&(
                           <button
                             type="button"
                             onClick={() => removeFile(index)}
@@ -547,6 +548,7 @@ export default function ExpenseList() {
                           >
                             <Delete className="w-4 h-4" />
                           </button>
+                          )}
                         </div>
                       ))}
 
@@ -575,6 +577,7 @@ export default function ExpenseList() {
                               </>
                             )}
                           </div>
+                          {useHasPermission("v1.vendor.expenses.files.delete")&&(
                           <button
                             type="button"
                             onClick={() => removeFile(index)}
@@ -582,6 +585,7 @@ export default function ExpenseList() {
                           >
                             <Delete className="w-4 h-4" />
                           </button>
+                          )}
                         </div>
                       ))}
 
@@ -673,6 +677,7 @@ export default function ExpenseList() {
               >
                 {t("CANCEL")}
               </button>
+              {useHasPermission("v1.vendor.expenses.files.upload")&&(
               <button
                 type="button"
                 onClick={handleFileUpload}
@@ -680,6 +685,7 @@ export default function ExpenseList() {
               >
                 {t("UPLOAD")}
               </button>
+              )}
             </div>
           </div>
         </div>
@@ -716,7 +722,7 @@ export default function ExpenseList() {
               {t("FILTER")}
             </button>
           </div>
-
+          {useHasPermission("v1.vendor.expenses.create")&&(
           <button
             onClick={() => {
               setIsModalOpen(true);
@@ -726,6 +732,7 @@ export default function ExpenseList() {
           >
             {t("ADD_EXPENSE")}
           </button>
+          )}
         </div>
       </div>
 
@@ -921,19 +928,24 @@ export default function ExpenseList() {
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
+                      {useHasPermission("v1.vendor.expenses.update")&&(
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         onClick={() => handleEdit(expense.id)}
                       >
                         <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </div>
+                      )}
+                      {useHasPermission("v1.vendor.expenses.delete")&&(
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
                         onClick={() => handleDelete(expense.id)}
                       >
                         <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
                       </div>
+                      )}
                     </div>
+                    
                   </TableCell>
                 </TableRow>
               ))}

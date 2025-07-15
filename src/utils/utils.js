@@ -174,6 +174,21 @@ export function formatToYMD(datetime) {
 }
 
 
+
+
+// utils/permissionUtils.js
+export const checkPermission = (permissions, permissionTitle) => {
+  return permissions?.some(
+    permission => permission.title === permissionTitle && permission.has_permission
+  );
+};
+
+// export const hasPermission = (permissionName, role, permissions = []) => {
+//   if (role === 'admin' || role === 'vendor') return true;
+//   return permissions.some(p => p.name === permissionName && p.has_permission);
+// };
+
+
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserPermissions } from '../store/slices/vendorUserSlice';
@@ -191,9 +206,29 @@ export function useUserPermissions  (userId)  {
   return  userPermissions ;
 };
 
-// utils/permissionUtils.js
-export const checkPermission = (permissions, permissionTitle) => {
-  return permissions?.some(
-    permission => permission.title === permissionTitle && permission.has_permission
+
+
+export function useHasPermission(permissionName) {
+  // const dispatch = useDispatch();
+  // const { userPermissions } = useSelector((state) => state.vendorUser);
+
+  const profile = localStorage.getItem("profile");
+  const user = profile ? JSON.parse(profile) : null;
+
+  // useEffect(() => {
+  //   if (user?.id && (user.role === 'vendor_user')) {
+  //     dispatch(fetchUserPermissions(user.id));
+  //   }
+  // }, [dispatch, user?.id]);
+  const userPermissions = profile ? JSON.parse(profile)?.permissions || [] : [];
+
+
+  // Admin and Vendor have full access
+  if (!user) return false;
+  if (user.role === 'admin' || user.role === 'vendor') return true;
+
+  // Vendor_user: check permission from list
+  return userPermissions.some(
+    (p) => p.name === permissionName && p.has_permission
   );
-};
+}

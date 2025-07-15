@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
@@ -10,7 +11,12 @@ export const fetchRoles = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/vendor/users/roles`, {
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
+      const response = await axios.get(`${base_url}/${type.role}/users/roles`, {
         headers: {
           Authorization: `${token}`,
           "Content-Type": "application/json",
@@ -32,6 +38,11 @@ export const addRole = createAsyncThunk(
   async (roleData, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append("title", roleData.title);
       formData.append("name", roleData.name);
@@ -39,7 +50,7 @@ export const addRole = createAsyncThunk(
       formData.append("permissions", JSON.stringify(roleData.permissions));
 
       const response = await axios.post(
-        `${base_url}/vendor/users/roles`,
+        `${base_url}/${type.role}/users/roles`,
         formData,
         {
           headers: {
@@ -64,8 +75,13 @@ export const showRole = createAsyncThunk(
   async (roleId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const response = await axios.get(
-        `${base_url}/vendor/users/roles/${roleId}/show`,
+        `${base_url}/${type.role}/users/roles/${roleId}/show`,
         {
           headers: {
             Authorization: `${token}`,
@@ -87,6 +103,11 @@ export const updateRole = createAsyncThunk(
   async ({ id, roleData }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append("id", id);
       formData.append("title", roleData.title);
@@ -95,7 +116,7 @@ export const updateRole = createAsyncThunk(
       formData.append("permissions", JSON.stringify(roleData.permissions));
 
       const response = await axios.post(
-        `${base_url}/vendor/users/roles/update`,
+        `${base_url}/${type.role}/users/roles/update`,
         formData,
         {
           headers: {
@@ -122,8 +143,13 @@ export const deleteRole = createAsyncThunk(
   async (roleId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const response = await axios.delete(
-        `${base_url}/vendor/users/roles/${roleId}/delete`,
+        `${base_url}/${type.role}/users/roles/${roleId}/delete`,
         {
           headers: {
             Authorization: `${token}`,

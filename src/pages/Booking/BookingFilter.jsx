@@ -128,8 +128,8 @@ const BookingFilter = ({ isOpen, onClose, onApplyFilters }) => {
 
     // Format vendors for react-select (only for admin)
     const vendorOptions = vendorList.map(vendor => ({
-        value: vendor.vendor.id,
-        label: `${vendor.vendor.name} (${vendor.vendor.email})`
+        value: vendor?.vendor?.id,
+        label: `${vendor?.vendor?.name} (${vendor?.vendor?.email})`
     }));
 
     if (!isOpen) return null;

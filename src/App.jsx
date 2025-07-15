@@ -39,6 +39,7 @@ import VendorUser from "./pages/VendorUser/VendorUser";
 import VendorUserRoles from "./pages/VendorUserRoles/VendorUserRoles";
 import ExpenseCategory from "./pages/ExpenseCategory/ExpenseCategory";
 import Expense from "./pages/Expense/Expense";
+import Branch from "./pages/Branch/Branch";
 
 export default function App() {
   return (
@@ -72,6 +73,8 @@ export default function App() {
             <Route index path="/vendor-users-roles" element={<ProtectedRoute><VendorUserRoles/></ProtectedRoute>}/>
             <Route index path="/expense-category" element={<ProtectedRoute><ExpenseCategory/></ProtectedRoute>}/>
             <Route index path="/expense" element={<ProtectedRoute><Expense/></ProtectedRoute>}/>
+            <Route index path="/branch" element={<ProtectedRoute><Branch/></ProtectedRoute>}/>
+
 
 
 

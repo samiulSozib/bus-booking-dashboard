@@ -26,6 +26,7 @@ import {
   formatForDisplay,
   formatForInput,
   formatForInputDiscount,
+  useHasPermission,
   userType,
   useUserPermissions,
 } from "../../utils/utils";
@@ -633,13 +634,14 @@ export default function TripList() {
             value={searchTag}
             onChange={(e) => setSearchTag(e.target.value)}
           />
-
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            {t("ADD_TRIP")}
-          </button>
+          {useHasPermission("v1.vendor.trip.create") && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              {t("ADD_TRIP")}
+            </button>
+          )}
         </div>
       </div>
 
@@ -769,19 +771,22 @@ export default function TripList() {
 
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEditTrip(trip.id)}
-                      >
-                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                      </div>
-
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
-                        onClick={() => handleDelete(trip.id)}
-                      >
-                        <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
-                      </div>
+                      {useHasPermission("v1.vendor.trip.update") && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                          onClick={() => handleEditTrip(trip.id)}
+                        >
+                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                        </div>
+                      )}
+                      {useHasPermission("v1.vendor.trip.delete") && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
+                          onClick={() => handleDelete(trip.id)}
+                        >
+                          <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -825,18 +830,23 @@ export default function TripList() {
                     {showModalVendorDropdown && (
                       <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                         {vendorList
-                          .filter((vendor) =>
-                            vendor?.vendor.name.includes(modalVendorSearchTag)
-                          )
+                          .filter((vendor) => {
+                            const name =
+                              vendor?.vendor?.name?.toLowerCase() ?? "";
+                            const search =
+                              modalVendorSearchTag?.toLowerCase() ?? "";
+                            return name && name.includes(search);
+                          })
+
                           .map((vendor) => (
                             <div
-                              key={vendor.vendor.id}
+                              key={vendor?.vendor?.id}
                               onClick={() =>
-                                handleModalVendorSelect(vendor.vendor)
+                                handleModalVendorSelect(vendor?.vendor)
                               }
                               className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                             >
-                              {vendor.vendor.name}
+                              {vendor?.vendor?.name}
                             </div>
                           ))}
                       </div>
@@ -1116,25 +1126,33 @@ export default function TripList() {
 
               {isEditMode ? (
                 <div className="flex justify-end mt-2 mb-2">
-                  <button
-                    type="button"
-                    onClick={() => setOpenSeatsEditDialog(true)}
-                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    {t("EDIT_SEATS")}
-                  </button>
+                  {useHasPermission(
+                    "v1.vendor.trip.create_or_update_seat_prices"
+                  ) && (
+                    <button
+                      type="button"
+                      onClick={() => setOpenSeatsEditDialog(true)}
+                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      {t("EDIT_SEATS")}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="flex justify-end mt-2 mb-2">
                   {busId && (
                     <div>
-                      <button
-                        type="button"
-                        onClick={() => setOpenSeatsDialog(true)}
-                        className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                      >
-                        {t("MANAGE_SEATS")}
-                      </button>
+                      {useHasPermission(
+                        "v1.vendor.trip.create_or_update_seat_prices"
+                      ) && (
+                        <button
+                          type="button"
+                          onClick={() => setOpenSeatsDialog(true)}
+                          className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                          {t("MANAGE_SEATS")}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

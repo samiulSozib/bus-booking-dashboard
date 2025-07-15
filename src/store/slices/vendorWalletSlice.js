@@ -1,21 +1,30 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
 // Fetch Wallets
 export const fetchWallets = createAsyncThunk(
   "wallets/fetchWallets",
-  async ( { rejectWithValue }) => {
+  async ({ rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       //console.log(token)
-      const response = await axios.get(`${base_url}/vendor/wallets/balance`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${base_url}/${type.role}/wallets/balance`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
       return {
         balance: response.data.body.balance,
       };
@@ -24,8 +33,6 @@ export const fetchWallets = createAsyncThunk(
     }
   }
 );
-
-
 
 const vendorWalletSlice = createSlice({
   name: "wallets",
@@ -49,7 +56,7 @@ const vendorWalletSlice = createSlice({
       .addCase(fetchWallets.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
+      });
   },
 });
 

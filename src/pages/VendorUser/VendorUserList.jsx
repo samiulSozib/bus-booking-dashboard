@@ -31,6 +31,7 @@ import { PermissionDialog } from "./PermissionDialog";
 import { ValidationError } from "yup";
 import {
   checkPermission,
+  useHasPermission,
   userType,
   useUserPermissions,
 } from "../../utils/utils";
@@ -442,7 +443,7 @@ export default function VendorUserList() {
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-
+        {useHasPermission("v1.vendor.user.create")&&(
           <button
             onClick={() => {
               setIsModalOpen(true);
@@ -452,6 +453,7 @@ export default function VendorUserList() {
           >
             {t("ADD_VENDOR_USER")}
           </button>
+          )}
         </div>
       </div>
 
@@ -541,19 +543,22 @@ export default function VendorUserList() {
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
+                      {useHasPermission("v1.vendor.user.update")&&(
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                         onClick={() => handleEdit(user.id)}
                       >
                         <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </div>
-
+                      )}
+                      {useHasPermission("v1.vendor.user.permissions")&&(
                       <button
                         onClick={() => handleManagePermissions(user.id)}
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-200 hover:bg-blue-300 dark:bg-blue-700 dark:hover:bg-blue-600 cursor-pointer text-sm"
                       >
                         🔒
                       </button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

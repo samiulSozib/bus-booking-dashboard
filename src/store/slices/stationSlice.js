@@ -225,6 +225,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
+
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
@@ -239,9 +241,13 @@ export const fetchStations = createAsyncThunk(
   'stations/fetchStations',
   async ({ cityId, searchTag = "", page = 1, filters = {} }) => {
     const token = getAuthToken();
+    const type=userType()
+    if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
     const filterQuery = buildFilterQuery(filters);
     const response = await axios.get(
-      `${base_url}/admin/stations?city-id=${cityId}&search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`,
+      `${base_url}/${type.role}/stations?city-id=${cityId}&search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

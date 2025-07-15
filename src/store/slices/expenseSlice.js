@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
@@ -21,7 +22,12 @@ export const fetchExpenses = createAsyncThunk(
   ) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/vendor/expenses`, {
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
+      const response = await axios.get(`${base_url}/${type.role}/expenses`, {
         params: {
           search,
           "trip-id": tripId,
@@ -74,6 +80,11 @@ export const createExpense = createAsyncThunk(
   async (expenseData, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       // const formData = new FormData();
 
       // // Append basic fields
@@ -101,7 +112,7 @@ export const createExpense = createAsyncThunk(
       //   console.log(`${pair[0]}:`, pair[1]);
       // }
       const response = await axios.post(
-        `${base_url}/vendor/expenses`,
+        `${base_url}/${type.role}/expenses`,
         expenseData,
         {
           headers: {
@@ -126,6 +137,10 @@ export const updateExpense = createAsyncThunk(
     try {
       const token = getAuthToken();
       const formData = new FormData();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
 
       // Append basic fields
       formData.append("id", id);
@@ -144,7 +159,7 @@ export const updateExpense = createAsyncThunk(
       formData.append("expense_date", updatedData.expense_date);
 
       const response = await axios.post(
-        `${base_url}/vendor/expenses/update`,
+        `${base_url}/${type.role}/expenses/update`,
         formData,
         {
           headers: {
@@ -166,11 +181,19 @@ export const deleteExpense = createAsyncThunk(
   async (expenseId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      await axios.delete(`${base_url}/vendor/expenses/${expenseId}/delete`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
+      await axios.delete(
+        `${base_url}/${type.role}/expenses/${expenseId}/delete`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
       return expenseId;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -184,13 +207,18 @@ export const attachExpenseFile = createAsyncThunk(
   async ({ expenseId, title, file }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append("vendor_expense_id", expenseId);
       formData.append("title", title);
       formData.append("file", file);
 
       const response = await axios.post(
-        `${base_url}/vendor/expenses/files`,
+        `${base_url}/${type.role}/expenses/files`,
         formData,
         {
           headers: {
@@ -215,11 +243,19 @@ export const deleteExpenseFile = createAsyncThunk(
   async (fileId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      await axios.delete(`${base_url}/vendor/expenses/files/${fileId}/delete`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
+      await axios.delete(
+        `${base_url}/${type.role}/expenses/files/${fileId}/delete`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
       return fileId;
     } catch (error) {
       return rejectWithValue(error.message);

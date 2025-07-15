@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
@@ -10,8 +11,13 @@ export const fetchVendorUsers = createAsyncThunk(
   async ({ searchTag = "", page = 1, per_page = 10 }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const response = await axios.get(
-        `${base_url}/vendor/users?search=${searchTag}&page=${page}&per_page=${per_page}`,
+        `${base_url}/${type.role}/users?search=${searchTag}&page=${page}&per_page=${per_page}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -35,8 +41,13 @@ export const showVendorUser = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const response = await axios.get(
-        `${base_url}/vendor/users/${userId}/show`,
+        `${base_url}/${type.role}/users/${userId}/show`,
         {
           headers: {
             Authorization: `${token}`,
@@ -57,6 +68,11 @@ export const addVendorUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append(
         "vendor_user_role_id",
@@ -75,13 +91,17 @@ export const addVendorUser = createAsyncThunk(
       }
       //return;
 
-      const response = await axios.post(`${base_url}/vendor/users`, formData, {
-        headers: {
-          Authorization: `${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log(response)
+      const response = await axios.post(
+        `${base_url}/${type.role}/users`,
+        formData,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response);
       return response.data.body.item;
     } catch (error) {
       if (error.response?.data?.errors) {
@@ -98,6 +118,11 @@ export const updateVendorUser = createAsyncThunk(
   async ({ userId, updatedData }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append("id", userId);
       formData.append(
@@ -110,10 +135,10 @@ export const updateVendorUser = createAsyncThunk(
       formData.append("mobile", updatedData.mobile);
       formData.append("password", updatedData.password || "");
       formData.append("status", updatedData.status);
-      formData.append("vendor_user_role_id",updatedData.role)
+      formData.append("vendor_user_role_id", updatedData.role);
 
       const response = await axios.post(
-        `${base_url}/vendor/users/update`,
+        `${base_url}/${type.role}/users/update`,
         formData,
         {
           headers: {
@@ -138,12 +163,20 @@ export const fetchPermissions = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/vendor/users/permissions`, {
-        headers: {
-          Authorization: `${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
+      const response = await axios.get(
+        `${base_url}/${type.role}/users/permissions`,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return response.data.body.items;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -157,8 +190,13 @@ export const fetchUserPermissions = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const response = await axios.get(
-        `${base_url}/vendor/users/${userId}/permissions`,
+        `${base_url}/${type.role}/users/${userId}/permissions`,
         {
           headers: {
             Authorization: `${token}`,
@@ -182,12 +220,17 @@ export const updateUserPermissions = createAsyncThunk(
   async ({ userId, permissions }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type = userType();
+      if (type.role === "vendor_user") {
+        type.role = "vendor";
+      }
+
       const formData = new FormData();
       formData.append("user_id", userId);
       formData.append("permissions", JSON.stringify(permissions));
 
       const response = await axios.post(
-        `${base_url}/vendor/users/permissions`,
+        `${base_url}/${type.role}/users/permissions`,
         formData,
         {
           headers: {
