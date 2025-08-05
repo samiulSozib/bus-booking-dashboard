@@ -24,18 +24,26 @@ import {
   userType,
   useUserPermissions,
 } from "../../utils/utils";
+import { fetchBranches } from "../../store/slices/branchSlice";
 
-// Validation schema
-const driverSchema = Yup.object().shape({
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  mobile: Yup.string().required("Mobile number is required"),
-  password: Yup.string().required("Password is required"),
-  status: Yup.string()
-    .oneOf(["pending", "active", "inactive", "banned"], "Invalid status")
-    .required("Status is required"),
-});
+const driverSchema = (t, role) =>
+  Yup.object().shape({
+    first_name: Yup.string().required("First name is required"),
+    last_name: Yup.string().required("Last name is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    mobile: Yup.string().required("Mobile number is required"),
+    password: Yup.string().required("Password is required"),
+    vendor_branch_id: role === "branch" 
+      ? Yup.number().notRequired()  // Skip validation if role is "branch"
+      : Yup.number()
+          .typeError(t("bus.vendorBranchRequired"))
+          .required(t("bus.vendorBranchRequired"))
+          .positive(t("bus.vendorBranchRequired"))
+          .integer(t("bus.vendorBranchRequired")),
+    status: Yup.string()
+      .oneOf(["pending", "active", "inactive", "banned"], "Invalid status")
+      .required("Status is required"),
+  });
 
 export default function DriverList() {
   const dispatch = useDispatch();
@@ -47,71 +55,128 @@ export default function DriverList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentDriverId, setCurrentDriverId] = useState(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("pending");
+  const [vendor_branch_id, setVendor_branch_id] = useState("");
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
 
+  const { branches } = useSelector((state) => state.branch);
 
+  const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
+
+  const isBranch=userType().role==="branch"
 
   useEffect(() => {
     dispatch(fetchDrivers({ searchTag, page: currentPage }));
   }, [dispatch, currentPage, searchTag]);
 
   useEffect(() => {
+    dispatch(fetchBranches({ searchTag: vendorBranchSearch }));
+  }, [dispatch, vendorBranchSearch]);
+
+  useEffect(() => {
     if (selectedDriver && isEditing) {
+      
       setFirstName(selectedDriver.first_name);
       setLastName(selectedDriver.last_name);
       setEmail(selectedDriver.email);
       setMobile(selectedDriver.mobile);
       setPassword(selectedDriver.password);
       setStatus(selectedDriver.status);
+      setVendorBranchSearch(selectedDriver.branch.name)
+      setVendor_branch_id(selectedDriver.branch.id)
     }
   }, [selectedDriver]);
+
+  const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    //setFormData({ ...formData, vendor_branch_id: branch.id });
+    setVendor_branch_id(branch.id);
+    setShowVendorBranchDropdown(false);
+    // setErrors((prevErrors) => {
+    //   const newErrors = { ...prevErrors };
+    //   delete newErrors.vendor_branch_id;
+    //   return newErrors;
+    // });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const driverData = {
-      firstName,
-      lastName,
+      first_name,
+      last_name,
       email,
       mobile,
       password,
       status,
     };
-    console.log(driverData)
+
+    if(vendor_branch_id){
+      driverData.vendor_branch_id=vendor_branch_id
+    }
 
     try {
       // Validate form data using Yup
-      await driverSchema.validate(driverData, { abortEarly: false });
+      await driverSchema(t,userType().role).validate(driverData, { abortEarly: false });
 
       if (isEditing) {
-        // Edit driver
         const resultAction = await dispatch(
           editDriver({ driverId: currentDriverId, updatedData: driverData })
         );
+
         if (editDriver.fulfilled.match(resultAction)) {
           Swal.fire({
             icon: "success",
             title: t("success"),
+            timer:2000,
             text: t("driverUpdateSuccess"),
           });
+        } else if (editDriver.rejected.match(resultAction)) {
+          if (resultAction.payload?.errors) {
+            const apiErrors = {};
+            Object.entries(resultAction.payload.errors).forEach(
+              ([key, value]) => {
+                apiErrors[key] = Array.isArray(value) ? value[0] : value;
+              }
+            );
+            setErrors(apiErrors);
+            return;
+          }
+          throw new Error(resultAction.payload || "An unknown error occurred");
         }
       } else {
-        // Add driver
+        console.log(driverData)
         const resultAction = await dispatch(addDriver(driverData));
+
         if (addDriver.fulfilled.match(resultAction)) {
           Swal.fire({
             icon: "success",
             title: t("success"),
+            timer:2000,
             text: t("driverAddSuccess"),
           });
+        } else if (addDriver.rejected.match(resultAction)) {
+          if (resultAction.payload?.errors) {
+            const apiErrors = {};
+            Object.entries(resultAction.payload.errors).forEach(
+              ([key, value]) => {
+                apiErrors[key] = Array.isArray(value) ? value[0] : value;
+              }
+            );
+            setErrors(apiErrors);
+            return;
+          }
+          throw new Error(resultAction.payload || "An unknown error occurred");
         }
       }
 
@@ -122,20 +187,20 @@ export default function DriverList() {
       setMobile("");
       setPassword("");
       setStatus("pending");
+      setVendor_branch_id("");
+      setVendorBranchSearch("")
+      setCurrentDriverId(null);
       setIsModalOpen(false);
       setIsEditing(false);
-      setCurrentDriverId(null);
-      setErrors({}); // Clear errors
+      setErrors({});
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
-        // Yup validation errors
         const newErrors = {};
         error.inner.forEach((err) => {
           newErrors[err.path] = err.message;
         });
         setErrors(newErrors);
       } else {
-        // API or other errors
         Swal.fire({
           icon: "error",
           title: t("error"),
@@ -169,13 +234,13 @@ export default function DriverList() {
                 </label>
                 <input
                   type="text"
-                  value={firstName}
+                  value={first_name}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
-                {errors.firstName && (
+                {errors.first_name && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.firstName}
+                    {errors.first_name}
                   </p>
                 )}
               </div>
@@ -187,12 +252,12 @@ export default function DriverList() {
                 </label>
                 <input
                   type="text"
-                  value={lastName}
+                  value={last_name}
                   onChange={(e) => setLastName(e.target.value)}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
-                {errors.lastName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                {errors.last_name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
                 )}
               </div>
 
@@ -264,8 +329,77 @@ export default function DriverList() {
                 )}
               </div>
 
+              {/* branch id */}
+
+              {!isBranch && (
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("BRANCH")}
+                </label>
+                <input
+                  type="text"
+                  placeholder={t("SEARCH_BRANCH")}
+                  value={vendorBranchSearch} // Always use driverSearch for the value
+                  onChange={(e) => {
+                    setVendorBranchSearch(e.target.value);
+                    setShowVendorBranchDropdown(true);
+                    if (
+                      selectedVendorBranch &&
+                      e.target.value !== `${selectedVendorBranch?.name}`
+                    ) {
+                      setSelectedVendorBranch(null);
+                      //setFormData({ ...formData, vendor_branch_id: "" });
+                      setVendor_branch_id("");
+                    }
+                  }}
+                  onFocus={() => setShowVendorBranchDropdown(true)}
+                  onBlur={() =>
+                    setTimeout(() => setShowVendorBranchDropdown(false), 200)
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                />
+                {showVendorBranchDropdown && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                    {branches
+                      .filter((branch) =>
+                        `${branch?.branch?.name} || ""}`
+                          .toLowerCase()
+                          .includes(vendorBranchSearch.toLowerCase())
+                      )
+                      .map((branch) => (
+                        <div
+                          key={branch?.branch?.id}
+                          onClick={() => {
+                            handleVendorBranchSelect(branch?.branch);
+                            setVendorBranchSearch(`${branch?.branch?.name}`);
+                          }}
+                          className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        >
+                          {branch?.branch?.name}
+                        </div>
+                      ))}
+                    {branches.filter((branch) =>
+                      `${branch?.branch?.name} || ""}`
+                        .toLowerCase()
+                        .includes(vendorBranchSearch.toLowerCase())
+                    ).length === 0 && (
+                      <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                        {t("NO_BRANCH_FOUND")}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {errors.vendor_branch_id && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.vendor_branch_id}
+                  </p>
+                )}
+              </div>
+              )}
+              {/* branch id */}
+
               {/* Buttons */}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 mt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -275,6 +409,8 @@ export default function DriverList() {
                     setMobile("");
                     setPassword("");
                     setStatus("pending");
+                    setVendor_branch_id("");
+                    setVendorBranchSearch("");
                     setIsModalOpen(false);
                     setIsEditing(false);
                     setCurrentDriverId(null);
@@ -316,7 +452,7 @@ export default function DriverList() {
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-            {useHasPermission("v1.driver.vendor.create")&&(
+          {useHasPermission("v1.driver.vendor.create") && (
             <button
               onClick={() => {
                 setIsModalOpen(true);
@@ -407,14 +543,14 @@ export default function DriverList() {
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                     {useHasPermission("v1.driver.vendor.update")&&(
+                      {useHasPermission("v1.driver.vendor.update") && (
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                           onClick={() => handleEdit(driver.id)}
                         >
                           <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                         </div>
-                     )}
+                      )}
                       {/* <div
       className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
       onClick={() => handleDelete(bus.id)}

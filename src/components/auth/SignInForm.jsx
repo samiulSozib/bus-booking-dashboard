@@ -51,6 +51,7 @@ export default function SignInForm() {
         );
         navigate("/");
       } catch (e) {
+        navigate("/signin")
         setLoading(false);
       }
     },
@@ -82,6 +83,7 @@ export default function SignInForm() {
                   <option value="admin">Admin</option>
                   <option value="vendor">Vendor</option>
                   <option value="vendor_user">Vendor User</option>
+                  <option value="vendor_branch">Vendor Branch</option>
                   {/* <option value="bus_driver">Bus Driver</option>
                   <option value="agent">Agent</option> */}
                 </select>

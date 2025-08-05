@@ -25,18 +25,27 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fetchExpenseCategories } from "../../store/slices/expenseCategorySlice";
 import { fetchTrips } from "../../store/slices/tripSlice";
-import { formatToYMD, useHasPermission } from "../../utils/utils";
+import { formatToYMD, useHasPermission, userType } from "../../utils/utils";
 import ExpenseFilter from "./ExpenseFilter";
 import Modal from "react-modal";
+import { fetchBranches } from "../../store/slices/branchSlice";
 
 // Validation schema
-const getExpenseSchema = (t) =>
+const getExpenseSchema = (t,role) =>
   Yup.object().shape({
     title: Yup.string().required(t("VALIDATION.EXPENSE.TITLE_REQUIRED")),
     amount: Yup.number()
       .required(t("VALIDATION.EXPENSE.AMOUNT_REQUIRED"))
       .positive(t("VALIDATION.EXPENSE.AMOUNT_POSITIVE")),
     expense_date: Yup.date().required(t("VALIDATION.EXPENSE.DATE_REQUIRED")),
+    vendor_branch_id:
+          role === "branch"
+            ? Yup.number().notRequired() // Skip validation if role is "branch"
+            : Yup.number()
+                .typeError(t("bus.vendorBranchRequired"))
+                .required(t("bus.vendorBranchRequired"))
+                .positive(t("bus.vendorBranchRequired"))
+                .integer(t("bus.vendorBranchRequired")),
   });
 
 export default function ExpenseList() {
@@ -56,6 +65,8 @@ export default function ExpenseList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentExpenseId, setCurrentExpenseId] = useState(null);
+  const [vendor_branch_id, setVendor_branch_id] = useState("");
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
@@ -75,6 +86,19 @@ export default function ExpenseList() {
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const { branches } = useSelector((state) => state.branch);
+
+  const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
+
+  const isBranch = userType().role === "branch";
+
+  useEffect(() => {
+    dispatch(fetchBranches({ searchTag: vendorBranchSearch }));
+  }, [dispatch, vendorBranchSearch]);
 
   useEffect(() => {
     dispatch(
@@ -105,8 +129,20 @@ export default function ExpenseList() {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchTrips({}));
-  }, [dispatch]);
+    dispatch(fetchTrips({branch_id:vendor_branch_id}));
+  }, [dispatch,vendor_branch_id]);
+
+  const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    //setFormData({ ...formData, vendor_branch_id: branch.id });
+    setVendor_branch_id(branch.id);
+    setShowVendorBranchDropdown(false);
+    // setErrors((prevErrors) => {
+    //   const newErrors = { ...prevErrors };
+    //   delete newErrors.vendor_branch_id;
+    //   return newErrors;
+    // });
+  };
 
   useEffect(() => {
     if (selectedExpense && isEditing) {
@@ -117,6 +153,8 @@ export default function ExpenseList() {
       setVendorExpenseCategoryId(selectedExpense.category.id || "");
       setTripId(selectedExpense.trip_id || "");
       setFiles(selectedExpense.files || []);
+      setVendorBranchSearch(selectedExpense.branch?.name)
+      setVendor_branch_id(selectedExpense.branch?.id)
     }
   }, [selectedExpense, isEditing]);
 
@@ -167,11 +205,17 @@ export default function ExpenseList() {
       trip_id: tripId || null,
     };
 
+     if(vendor_branch_id){
+          expenseData.vendor_branch_id=vendor_branch_id
+        }
+
+
     try {
-      await getExpenseSchema(t).validate(expenseData, { abortEarly: false });
+      await getExpenseSchema(t,userType().role).validate(expenseData, { abortEarly: false });
 
       if (isEditing) {
         // For editing, we'll first update the expense
+
 
         const resultAction = await dispatch(
           updateExpense({
@@ -261,6 +305,8 @@ export default function ExpenseList() {
     setIsEditing(false);
     setCurrentExpenseId(null);
     setErrors({});
+    setVendorBranchSearch("")
+    setVendor_branch_id("")
   };
 
   const handleEdit = (expenseId) => {
@@ -408,6 +454,80 @@ export default function ExpenseList() {
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* branch id */}
+
+                {!isBranch && (
+                  <div className="relative">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t("BRANCH")}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={t("SEARCH_BRANCH")}
+                      value={vendorBranchSearch} // Always use driverSearch for the value
+                      onChange={(e) => {
+                        setVendorBranchSearch(e.target.value);
+                        setShowVendorBranchDropdown(true);
+                        if (
+                          selectedVendorBranch &&
+                          e.target.value !== `${selectedVendorBranch?.name}`
+                        ) {
+                          setSelectedVendorBranch(null);
+                          //setFormData({ ...formData, vendor_branch_id: "" });
+                          setVendor_branch_id("");
+                        }
+                      }}
+                      onFocus={() => setShowVendorBranchDropdown(true)}
+                      onBlur={() =>
+                        setTimeout(
+                          () => setShowVendorBranchDropdown(false),
+                          200
+                        )
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                    />
+                    {showVendorBranchDropdown && (
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                        {branches
+                          .filter((branch) =>
+                            `${branch?.branch?.name} || ""}`
+                              .toLowerCase()
+                              .includes(vendorBranchSearch.toLowerCase())
+                          )
+                          .map((branch) => (
+                            <div
+                              key={branch?.branch?.id}
+                              onClick={() => {
+                                handleVendorBranchSelect(branch?.branch);
+                                setVendorBranchSearch(
+                                  `${branch?.branch?.name}`
+                                );
+                              }}
+                              className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                            >
+                              {branch?.branch?.name}
+                            </div>
+                          ))}
+                        {branches.filter((branch) =>
+                          `${branch?.branch?.name} || ""}`
+                            .toLowerCase()
+                            .includes(vendorBranchSearch.toLowerCase())
+                        ).length === 0 && (
+                          <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                            {t("NO_BRANCH_FOUND")}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {errors.vendor_branch_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.vendor_branch_id}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {/* branch id */}
+
                 {/* Title */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700">
@@ -479,6 +599,26 @@ export default function ExpenseList() {
                   </select>
                 </div>
 
+                {/* Expense Date */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t("DATE")} *
+                  </label>
+                  <DatePicker
+                    selected={expenseDate}
+                    onChange={(date) => setExpenseDate(date)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    dateFormat="yyyy-MM-dd"
+                      wrapperClassName="w-full" // Ensures the wrapper takes full width
+
+                  />
+                  {errors.expense_date && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.expense_date}
+                    </p>
+                  )}
+                </div>
+
                 {/* Description */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700">
@@ -491,23 +631,7 @@ export default function ExpenseList() {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
                 </div>
-                {/* Expense Date */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("DATE")} *
-                  </label>
-                  <DatePicker
-                    selected={expenseDate}
-                    onChange={(date) => setExpenseDate(date)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    dateFormat="yyyy-MM-dd"
-                  />
-                  {errors.expense_date && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.expense_date}
-                    </p>
-                  )}
-                </div>
+                
 
                 {/* Files */}
                 <div className="mb-4 md:col-span-2">
@@ -540,14 +664,16 @@ export default function ExpenseList() {
                               </>
                             )}
                           </div>
-                          {useHasPermission("v1.vendor.expenses.files.delete")&&(
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Delete className="w-4 h-4" />
-                          </button>
+                          {useHasPermission(
+                            "v1.vendor.expenses.files.delete"
+                          ) && (
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Delete className="w-4 h-4" />
+                            </button>
                           )}
                         </div>
                       ))}
@@ -577,14 +703,16 @@ export default function ExpenseList() {
                               </>
                             )}
                           </div>
-                          {useHasPermission("v1.vendor.expenses.files.delete")&&(
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Delete className="w-4 h-4" />
-                          </button>
+                          {useHasPermission(
+                            "v1.vendor.expenses.files.delete"
+                          ) && (
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Delete className="w-4 h-4" />
+                            </button>
                           )}
                         </div>
                       ))}
@@ -677,14 +805,14 @@ export default function ExpenseList() {
               >
                 {t("CANCEL")}
               </button>
-              {useHasPermission("v1.vendor.expenses.files.upload")&&(
-              <button
-                type="button"
-                onClick={handleFileUpload}
-                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                {t("UPLOAD")}
-              </button>
+              {useHasPermission("v1.vendor.expenses.files.upload") && (
+                <button
+                  type="button"
+                  onClick={handleFileUpload}
+                  className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  {t("UPLOAD")}
+                </button>
               )}
             </div>
           </div>
@@ -722,16 +850,16 @@ export default function ExpenseList() {
               {t("FILTER")}
             </button>
           </div>
-          {useHasPermission("v1.vendor.expenses.create")&&(
-          <button
-            onClick={() => {
-              setIsModalOpen(true);
-              setIsEditing(false);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            {t("ADD_EXPENSE")}
-          </button>
+          {useHasPermission("v1.vendor.expenses.create") && (
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+                setIsEditing(false);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              {t("ADD_EXPENSE")}
+            </button>
           )}
         </div>
       </div>
@@ -928,24 +1056,23 @@ export default function ExpenseList() {
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      {useHasPermission("v1.vendor.expenses.update")&&(
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEdit(expense.id)}
-                      >
-                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                      </div>
+                      {useHasPermission("v1.vendor.expenses.update") && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                          onClick={() => handleEdit(expense.id)}
+                        >
+                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                        </div>
                       )}
-                      {useHasPermission("v1.vendor.expenses.delete")&&(
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
-                        onClick={() => handleDelete(expense.id)}
-                      >
-                        <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
-                      </div>
+                      {useHasPermission("v1.vendor.expenses.delete") && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
+                          onClick={() => handleDelete(expense.id)}
+                        >
+                          <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
+                        </div>
                       )}
                     </div>
-                    
                   </TableCell>
                 </TableRow>
               ))}

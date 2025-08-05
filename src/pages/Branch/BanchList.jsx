@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import {
@@ -11,7 +11,6 @@ import {
 import {
   addBranch,
   updateBranch,
-  updateBranchUser,
   fetchBranches,
   showBranch,
 } from "../../store/slices/branchSlice";
@@ -20,166 +19,182 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import { useHasPermission, userType } from "../../utils/utils";
+import useOutsideClick from "../../hooks/useOutSideClick";
+import { fetchUsers } from "../../store/slices/userSlice";
+import { fetchProvinces } from "../../store/slices/provinceSlice";
 
-// Validation schemas
-const userSchema = Yup.object().shape({
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  mobile: Yup.string().required("Mobile number is required"),
+// Validation schema based on API
+const branchSchema = Yup.object().shape({
+  first_name: Yup.string().required("First name is required"),
+  last_name: Yup.string().required("Last name is required"),
+  email: Yup.string().email("Invalid email").nullable(),
+  mobile: Yup.string().required("Mobile is required"),
+  name: Yup.string().required("Branch name is required"),
+  province_id: Yup.number().required("Province is required"),
+  address: Yup.string().required("Address is required"),
+  representative_name: Yup.string().required("Representative name is required"),
+  representative_phone: Yup.string().required(
+    "Representative phone is required"
+  ),
+  representative_email: Yup.string().email("Invalid email").nullable(),
+  representative_nid: Yup.string().required("Representative NID is required"),
+  representative_position: Yup.string().required(
+    "Representative position is required"
+  ),
+  vendor_commission_amount: Yup.number().nullable(),
+  vendor_commission_type: Yup.string()
+    .oneOf(["fixed", "percentage"])
+    .nullable(),
   status: Yup.string()
-    .oneOf(["pending", "active", "inactive", "banned"], "Invalid status")
+    .oneOf(["active", "inactive"])
     .required("Status is required"),
 });
 
-const branchSchema = Yup.object().shape({
-  name: Yup.string(),
-  phone: Yup.string(),
-  registrationNumber: Yup.string().nullable(),
-  licenseNumber: Yup.string().nullable(),
-  rating: Yup.number().nullable(),
-  agentComissionAmount: Yup.number().nullable(),
-  agentComissionType: Yup.string().oneOf(["fixed", "percentage"]).nullable(),
-  settlementPeriod: Yup.string()
-    .oneOf(["daily", "weekly", "monthly"])
-    .required("Settlement period is required"),
-});
-
 export default function BranchList() {
+  const vendorDropdownRef = useRef(null);
+
+  useOutsideClick(vendorDropdownRef, () => {
+    if (showModalVendorDropdown) {
+      setShowModalVendorDropdown(false);
+    }
+  });
   const dispatch = useDispatch();
   const { branches, selectedBranch, loading, pagination } = useSelector(
     (state) => state.branch
   );
 
+  const { vendorList } = useSelector((state) => state.users);
+  const { provinces } = useSelector((state) => state.provinces);
+
   const [searchTag, setSearchTag] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editMode, setEditMode] = useState(null); // 'user' or 'branch'
   const [currentBranchId, setCurrentBranchId] = useState(null);
 
-  // User fields
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [password, setPassword] = useState("");
-  const [status, setStatus] = useState("pending");
+  const [provinceSearch, setProvinceSearch] = useState("");
+  const [showProvinceDropdown, setShowProvinceDropdown] = useState(false);
+  const [selectedProvince, setSelectedProvince] = useState(null);
 
-  // Branch fields
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [registrationNumber, setRegistrationNumber] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [rating, setRating] = useState(0);
-  const [agentComissionAmount, setAgentComissionAmount] = useState(0);
-  const [agentComissionType, setAgentComissionType] = useState("fixed");
-  const [settlementPeriod, setSettlementPeriod] = useState("daily");
-  const [logoFile, setLogoFile] = useState(null);
-  const [description, setDescription] = useState("");
+  // Form fields
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    mobile: "",
+    name: "",
+    province_id: "",
+    address: "",
+    representative_name: "",
+    representative_phone: "",
+    representative_email: "",
+    representative_nid: "",
+    representative_position: "",
+    vendor_commission_amount: null,
+    vendor_commission_type: null,
+    status: "active",
+    password: "", // Only for new branches
+    vendor_id: null,
+  });
 
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
+  const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
+  const isAdmin = userType().role === "admin";
 
   useEffect(() => {
     dispatch(fetchBranches({ search: searchTag, page: currentPage }));
   }, [dispatch, currentPage, searchTag]);
 
   useEffect(() => {
+    dispatch(fetchProvinces({ searchTag: provinceSearch }));
+  }, [dispatch, provinceSearch]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      dispatch(fetchUsers({ searchTag: modalVendorSearchTag, role: "vendor" }));
+    }
+  }, [dispatch, modalVendorSearchTag]);
+
+  const handleProvinceSelect = (province) => {
+    setSelectedProvince(province);
+    setFormData((prev) => ({
+      ...prev,
+      province_id: province.id,
+    }));
+    setShowProvinceDropdown(false);
+  };
+
+  useEffect(() => {
     if (selectedBranch) {
-      setFirstName(selectedBranch.first_name || "");
-      setLastName(selectedBranch.last_name || "");
-      setEmail(selectedBranch.email || "");
-      setMobile(selectedBranch.mobile || "");
-      setStatus(selectedBranch.status || "pending");
-      setName(selectedBranch?.vendor?.name);
-      setPhone(selectedBranch?.vendor?.phone);
-      setRegistrationNumber(selectedBranch?.vendor?.registration_number || "");
-      setLicenseNumber(selectedBranch?.vendor?.license_number || "");
-      setRating(selectedBranch?.vendor?.rating || 0);
-      setAgentComissionAmount(
-        selectedBranch?.vendor?.agent_comission_amount || 0
-      );
-      setAgentComissionType(
-        selectedBranch?.vendor?.agent_comission_type || "fixed"
-      );
-      setSettlementPeriod(selectedBranch?.vendor?.settlement_period || "daily");
-      setDescription(selectedBranch?.vendor?.description);
+      setFormData({
+        first_name: selectedBranch.first_name || "",
+        last_name: selectedBranch.last_name || "",
+        email: selectedBranch.email || "",
+        mobile: selectedBranch.mobile || "",
+        name: selectedBranch?.branch?.name || "",
+        province_id: selectedBranch?.branch?.province?.id || "",
+        address: selectedBranch?.branch?.address || "",
+        representative_name: selectedBranch?.branch?.representative_name || "",
+        representative_phone:
+          selectedBranch?.branch?.representative_phone || "",
+        representative_email:
+          selectedBranch?.branch?.representative_email || "",
+        representative_nid: selectedBranch?.branch?.representative_nid || "",
+        representative_position:
+          selectedBranch?.branch?.representative_position || "",
+        vendor_commission_amount:
+          selectedBranch?.branch?.vendor_commission_amount || null,
+        vendor_commission_type:
+          selectedBranch?.branch?.vendor_commission_type || null,
+        status: selectedBranch.status || "active",
+        password: "",
+        vendor_id: selectedBranch?.branch?.vendor?.id,
+      });
+      setModalVendorSearchTag(selectedBranch?.branch?.vendor?.name);
+      setProvinceSearch(selectedBranch?.branch?.province?.name)
     }
   }, [selectedBranch]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleModalVendorSelect = (vendor) => {
+    setFormData({ ...formData, vendor_id: vendor.id });
+    setModalVendorSearchTag(vendor.name);
+    setShowModalVendorDropdown(false);
+
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      delete newErrors.vendor_id;
+      return newErrors;
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      if (editMode === "user") {
-        await userSchema.validate(
-          {
-            firstName,
-            lastName,
-            email,
-            mobile,
-            status,
-          },
-          { abortEarly: false }
-        );
+      
+      await branchSchema.validate(formData, { abortEarly: false });
 
-        const userData = {
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          mobile,
-          status,
-        };
-
+      if (isEditing) {
         const resultAction = await dispatch(
-          updateBranchUser({ id: currentBranchId, userData })
-        );
-
-        if (updateBranchUser.fulfilled.match(resultAction)) {
-          Swal.fire({
-            icon: "success",
-            title: t("success"),
-            text: t("branchUserUpdateSuccess"),
-          });
-        }
-      } else if (editMode === "branch") {
-        await branchSchema.validate(
-          {
-            name,
-            phone,
-            registrationNumber,
-            licenseNumber,
-            rating,
-            agentComissionAmount,
-            agentComissionType,
-            settlementPeriod,
-          },
-          { abortEarly: false }
-        );
-
-        const branchData = {
-          name,
-          phone,
-          registration_number: registrationNumber,
-          license_number: licenseNumber,
-          rating,
-          agent_comission_amount: agentComissionAmount,
-          agent_comission_type: agentComissionType,
-          settlement_period: settlementPeriod,
-          logo: logoFile,
-          description,
-        };
-
-        const resultAction = await dispatch(
-          updateBranch({ id: selectedBranch?.vendor?.id, branchData })
+          updateBranch({ id: currentBranchId, branchData: formData })
         );
 
         if (updateBranch.fulfilled.match(resultAction)) {
           Swal.fire({
             icon: "success",
             title: t("success"),
-            text: t("branchDetailsUpdateSuccess"),
+            text: t("branchUpdateSuccess"),
           });
         } else if (updateBranch.rejected.match(resultAction)) {
           if (resultAction.payload?.errors) {
@@ -192,40 +207,10 @@ export default function BranchList() {
             setErrors(apiErrors);
             return;
           }
-          throw new Error(result.payload || "An unknown error occurred");
+          throw new Error(resultAction.payload || "An unknown error occurred");
         }
       } else {
-        // Add new branch
-        await userSchema.validate(
-          {
-            firstName,
-            lastName,
-            email,
-            mobile,
-            status,
-            password,
-          },
-          { abortEarly: false }
-        );
-
-        const branchData = {
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          mobile,
-          password,
-          status,
-          registration_number: registrationNumber,
-          license_number: licenseNumber,
-          rating,
-          agent_comission_amount: agentComissionAmount,
-          agent_comission_type: agentComissionType,
-          settlement_period: settlementPeriod,
-          logo: logoFile,
-          description,
-        };
-
-        const resultAction = await dispatch(addBranch(branchData));
+        const resultAction = await dispatch(addBranch(formData));
         if (addBranch.fulfilled.match(resultAction)) {
           Swal.fire({
             icon: "success",
@@ -243,7 +228,7 @@ export default function BranchList() {
             setErrors(apiErrors);
             return;
           }
-          throw new Error(result.payload || "An unknown error occurred");
+          throw new Error(resultAction.payload || "An unknown error occurred");
         }
       }
 
@@ -268,47 +253,38 @@ export default function BranchList() {
 
   const resetForm = () => {
     setIsModalOpen(false);
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setMobile("");
-    setPassword("");
-    setStatus("pending");
-    setName("");
-    setPhone("");
-    setRegistrationNumber("");
-    setLicenseNumber("");
-    setRating(0);
-    setAgentComissionAmount(0);
-    setAgentComissionType("fixed");
-    setSettlementPeriod("daily");
-    setLogoFile(null);
-    setErrors({});
     setIsEditing(false);
-    setEditMode(null);
     setCurrentBranchId(null);
-  };
-
-  const handleEditUser = (branchId) => {
-    dispatch(showBranch(branchId));
-    setIsEditing(true);
-    setEditMode("user");
-    setCurrentBranchId(branchId);
-    setIsModalOpen(true);
+    setModalVendorSearchTag("");
+    setProvinceSearch("")
+    setFormData({
+      first_name: "",
+      last_name: "",
+      email: "",
+      mobile: "",
+      name: "",
+      province_id: "",
+      address: "",
+      representative_name: "",
+      representative_phone: "",
+      representative_email: "",
+      representative_nid: "",
+      representative_position: "",
+      vendor_commission_amount: null,
+      vendor_commission_type: null,
+      status: "active",
+      password: "",
+      vendor_id: null,
+      
+    });
+    setErrors({});
   };
 
   const handleEditBranch = (branchId) => {
     dispatch(showBranch(branchId));
     setIsEditing(true);
-    setEditMode("branch");
     setCurrentBranchId(branchId);
     setIsModalOpen(true);
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
-    }
   };
 
   return (
@@ -316,349 +292,423 @@ export default function BranchList() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div
-            className={`bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
-              !isEditing ? "lg:max-w-6xl" : "max-w-md"
-            }`}
-          >
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">
-              {isEditing
-                ? editMode === "user"
-                  ? t("EDIT_BRANCH_USER")
-                  : t("EDIT_BRANCH_DETAILS")
-                : t("ADD_BRANCH")}
+              {isEditing ? t("EDIT_BRANCH") : t("ADD_BRANCH")}
             </h2>
             <form onSubmit={handleSubmit}>
-              <div
-                className={`${
-                  !isEditing ? "lg:grid lg:grid-cols-2 lg:gap-6" : ""
-                }`}
-              >
-                {/* User Information Section - Show for add or user edit */}
-                {(editMode === "user" || !isEditing) && (
-                  <div className="mb-6">
-                    <h3 className="text-md font-medium mb-3">
-                      {t("USER_INFORMATION")}
-                    </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Column 1 */}
+                <div>
+                  {/* Branch Information */}
 
-                    {/* First Name */}
-                    <div className="mb-4">
+                  {isAdmin && (
+                    <div className="mb-4" ref={vendorDropdownRef}>
                       <label className="block text-sm font-medium text-gray-700">
-                        {t("FIRST_NAME")} *
+                        {t("VENDOR")} *
                       </label>
-                      <input
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {errors.firstName && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.firstName}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Last Name */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LAST_NAME")} *
-                      </label>
-                      <input
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {errors.lastName && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.lastName}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Email */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("EMAIL")}
-                      </label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {errors.email && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.email}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Mobile */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("MOBILE")} *
-                      </label>
-                      <input
-                        type="text"
-                        value={mobile}
-                        onChange={(e) => setMobile(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {errors.mobile && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.mobile}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Password - Only for new branches */}
-                    {!isEditing && (
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t("PASSWORD")} *
-                        </label>
+                      <div className="relative">
                         <input
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
+                          type="text"
+                          placeholder={t("SEARCH_VENDOR")}
+                          value={modalVendorSearchTag}
+                          onChange={(e) => {
+                            setModalVendorSearchTag(e.target.value);
+                            setShowModalVendorDropdown(true);
+                          }}
+                          onFocus={() => setShowModalVendorDropdown(true)}
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         />
-                        {errors.password && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.password}
-                          </p>
+                        {showModalVendorDropdown && (
+                          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {vendorList
+                              .filter((vendor) => {
+                                const name =
+                                  vendor?.vendor?.name?.toLowerCase() ?? "";
+                                const search =
+                                  modalVendorSearchTag?.toLowerCase() ?? "";
+                                return name && name.includes(search);
+                              })
+
+                              .map((vendor) => (
+                                <div
+                                  key={vendor?.vendor?.id}
+                                  onClick={() =>
+                                    handleModalVendorSelect(vendor?.vendor)
+                                  }
+                                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                >
+                                  {vendor?.vendor?.name}
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                      {errors.vendor_id && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.vendor_id}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("NAME")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("ADDRESS")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.address && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.address}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* province */}
+
+                  {/* <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("PROVINCE")} *
+                    </label>
+                    <input
+                      type="number"
+                      name="province_id"
+                      value={formData.province_id}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.province_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.province_id}
+                      </p>
+                    )}
+                  </div> */}
+
+                  <div className="mb-4 relative">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t("PROVINCE")}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={t("SEARCH_PROVINCE")}
+                      value={provinceSearch}
+                      onChange={(e) => {
+                        setProvinceSearch(e.target.value);
+                        setShowProvinceDropdown(true);
+                        if (
+                          selectedProvince &&
+                          e.target.value !== `${selectedProvince?.name}`
+                        ) {
+                          setSelectedProvince(null);
+                          setFormData((prev) => ({ ...prev, province_id: "" }));
+                        }
+                      }}
+                      onFocus={() => setShowProvinceDropdown(true)}
+                      onBlur={() =>
+                        setTimeout(() => setShowProvinceDropdown(false), 200)
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                    />
+                    {showProvinceDropdown && (
+                      <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                        {provinces
+                          .filter((province) =>
+                            province.name
+                              .toLowerCase()
+                              .includes(provinceSearch.toLowerCase())
+                          )
+                          .map((province) => (
+                            <div
+                              key={province.id}
+                              onClick={() => {
+                                handleProvinceSelect(province);
+                                setProvinceSearch(province.name);
+                              }}
+                              className="px-3 py-2 text-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                            >
+                              {province.name}
+                            </div>
+                          ))}
+                        {provinces.filter((province) =>
+                          province.name
+                            .toLowerCase()
+                            .includes(provinceSearch.toLowerCase())
+                        ).length === 0 && (
+                          <div className="px-3 py-1 text-sm text-gray-500 dark:text-gray-400">
+                            {t("NO_PROVINCE_FOUND")}
+                          </div>
                         )}
                       </div>
                     )}
-
-                    {/* Status */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("STATUS")} *
-                      </label>
-                      <select
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="pending">{t("pending")}</option>
-                        <option value="active">{t("active")}</option>
-                        <option value="inactive">{t("inactive")}</option>
-                        <option value="banned">{t("banned")}</option>
-                      </select>
-                      {errors.status && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.status}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Branch Information Section - Show for add or branch edit */}
-                {(editMode === "branch" || !isEditing) && (
-                  <div className="mb-6">
-                    <h3 className="text-md font-medium mb-3">
-                      {t("BRANCH_INFORMATION")}
-                    </h3>
-
-                    {editMode === "branch" && (
-                      <>
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-700">
-                            {t("NAME")}
-                          </label>
-                          <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          />
-                          {errors.name && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {errors.name}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* New Phone Field */}
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-700">
-                            {t("PHONE")}
-                          </label>
-                          <input
-                            type="text"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          />
-                          {errors.phone && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {errors.phone}
-                            </p>
-                          )}
-                        </div>
-                      </>
+                    {errors.province_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.province_id}
+                      </p>
                     )}
+                  </div>
 
-                    {/* Registration Number */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REGISTRATION_NUMBER")}
-                      </label>
-                      <input
-                        type="text"
-                        value={registrationNumber}
-                        onChange={(e) => setRegistrationNumber(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {errors.registrationNumber && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.registrationNumber}
-                        </p>
-                      )}
-                    </div>
+                  {/* province */}
 
-                    {/* License Number */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LICENSE_NUMBER")}
-                      </label>
-                      <input
-                        type="text"
-                        value={licenseNumber}
-                        onChange={(e) => setLicenseNumber(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {errors.licenseNumber && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.licenseNumber}
-                        </p>
-                      )}
-                    </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("REPRESENTATIVE_PHONE")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="representative_phone"
+                      value={formData.representative_phone}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.representative_phone && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.representative_phone}
+                      </p>
+                    )}
+                  </div>
 
-                    {/* Rating */}
-                    <div className="mb-4">
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("REPRESENTATIVE_EMAIL")}
+                    </label>
+                    <input
+                      type="email"
+                      name="representative_email"
+                      value={formData.representative_email}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.representative_email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.representative_email}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("REPRESENTATIVE_NID")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="representative_nid"
+                      value={formData.representative_nid}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.representative_nid && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.representative_nid}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Representative Information */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("REPRESENTATIVE_NAME")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="representative_name"
+                      value={formData.representative_name}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.representative_name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.representative_name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("REPRESENTATIVE_POSITION")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="representative_position"
+                      value={formData.representative_position}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.representative_position && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.representative_position}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Column 2 */}
+                <div>
+                  {/* User Information */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("FIRST_NAME")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="first_name"
+                      value={formData.first_name}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.first_name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.first_name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("LAST_NAME")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="last_name"
+                      value={formData.last_name}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.last_name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.last_name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("MOBILE")} *
+                    </label>
+                    <input
+                      type="text"
+                      name="mobile"
+                      value={formData.mobile}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.mobile && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.mobile}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("EMAIL")}
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
                       <label className="block text-sm font-medium text-gray-700">
-                        {t("RATING")}
+                        {t("COMMISSION_AMOUNT")}
                       </label>
                       <input
                         type="number"
-                        step="0.1"
-                        min="0"
-                        max="5"
-                        value={rating}
-                        onChange={(e) => setRating(parseFloat(e.target.value))}
+                        name="vendor_commission_amount"
+                        value={formData.vendor_commission_amount || ""}
+                        onChange={handleInputChange}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
-                      {errors.rating && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.rating}
-                        </p>
-                      )}
                     </div>
-
-                    {/* Agent Commission */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t("AGENT_COMMISSION_AMOUNT")}
-                        </label>
-                        <input
-                          type="number"
-                          value={agentComissionAmount}
-                          onChange={(e) =>
-                            setAgentComissionAmount(parseFloat(e.target.value))
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                        {errors.agentComissionAmount && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.agentComissionAmount}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t("AGENT_COMMISSION_TYPE")}
-                        </label>
-                        <select
-                          value={agentComissionType}
-                          onChange={(e) =>
-                            setAgentComissionType(e.target.value)
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        >
-                          <option value="fixed">{t("FIXED_AMOUNT")}</option>
-                          <option value="percentage">{t("PERCENTAGE")}</option>
-                        </select>
-                        {errors.agentComissionType && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.agentComissionType}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Settlement Period */}
-                    <div className="mb-4">
+                    <div>
                       <label className="block text-sm font-medium text-gray-700">
-                        {t("SETTLEMENT_PERIOD")} *
+                        {t("COMMISSION_TYPE")}
                       </label>
                       <select
-                        value={settlementPeriod}
-                        onChange={(e) => setSettlementPeriod(e.target.value)}
+                        name="vendor_commission_type"
+                        value={formData.vendor_commission_type || ""}
+                        onChange={handleInputChange}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       >
-                        <option value="daily">{t("daily")}</option>
-                        <option value="weekly">{t("weekly")}</option>
-                        <option value="monthly">{t("monthly")}</option>
+                        <option value="">Select Type</option>
+                        <option value="fixed">Fixed</option>
+                        <option value="percentage">Percentage</option>
                       </select>
-                      {errors.settlementPeriod && (
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("STATUS")} *
+                    </label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                    {errors.status && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.status}
+                      </p>
+                    )}
+                  </div>
+                  {!isEditing && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("PASSWORD")} *
+                      </label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {errors.password && (
                         <p className="text-red-500 text-sm mt-1">
-                          {errors.settlementPeriod}
+                          {errors.password}
                         </p>
                       )}
                     </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("DESCRIPTION")}
-                      </label>
-                      <textarea
-                        type="text"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                    </div>
-
-                    {/* Logo - Only for add or branch edit */}
-                    {editMode !== "user" && (
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t("LOGO")}
-                        </label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="mt-1 block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-indigo-50 file:text-indigo-700
-                      hover:file:bg-indigo-100"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
-              {/* Buttons - Always full width */}
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   type="button"
@@ -683,7 +733,7 @@ export default function BranchList() {
       <div className="page-header-info-bar flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            {t("BRANCH_LIST")}
+            {t("BRANCHES")}
           </h3>
         </div>
         <div className="flex items-center gap-3">
@@ -704,7 +754,6 @@ export default function BranchList() {
               onClick={() => {
                 setIsModalOpen(true);
                 setIsEditing(false);
-                setEditMode(null);
               }}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
             >
@@ -722,7 +771,6 @@ export default function BranchList() {
           </div>
         ) : (
           <Table className="">
-            {/* Table Header */}
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
                 <TableCell
@@ -730,6 +778,12 @@ export default function BranchList() {
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("NAME")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("USER_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
@@ -747,37 +801,25 @@ export default function BranchList() {
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("REGISTRATION_NUMBER")}
+                  {t("REPRESENTATIVE_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("LICENSE_NUMBER")}
+                  {t("REPRESENTATIVE_PHONE")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("RATING")}
+                  {t("PROVINCE")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("AGENT_COMMISSION_AMOUNT")}
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  {t("AGENT_COMMISSION_TYPE")}
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  {t("SETTLEMENT_PERIOD")}
+                  {t("COMMISSION")}
                 </TableCell>
                 <TableCell
                   isHeader
@@ -794,76 +836,80 @@ export default function BranchList() {
               </TableRow>
             </TableHeader>
 
-            {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {branches.map((branch) => (
                 <TableRow key={branch.id}>
+                  {/* Branch Name */}
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                          {branch.first_name} {branch.last_name}
+                          {branch?.branch?.name}
                         </p>
                       </div>
                     </div>
                   </TableCell>
+
+                  {/* User Name */}
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {branch.first_name} {branch.last_name}
+                  </TableCell>
+
+                  {/* Email */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {branch.email}
                   </TableCell>
+
+                  {/* Mobile */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {branch.mobile}
                   </TableCell>
+
+                  {/* Representative */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {branch?.vendor?.registration_number}
+                    {branch?.branch?.representative_name}
                   </TableCell>
+
+                  {/* Representative Phone */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {branch?.vendor?.license_number}
+                    {branch?.branch?.representative_phone}
                   </TableCell>
+
+                  {/* Province */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {branch?.vendor?.rating}
+                    {branch?.branch?.province?.name}
                   </TableCell>
+
+                  {/* Commission */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {branch?.vendor?.agent_comission_amount}
+                    {branch?.branch?.vendor_commission_amount || "N/A"}{" "}
+                    {branch?.branch?.vendor_commission_type &&
+                      `(${branch.branch.vendor_commission_type})`}
                   </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {branch?.vendor?.agent_comission_type}
-                  </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {branch?.vendor?.settlement_period}
-                  </TableCell>
+
+                  {/* Status */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <span
                       className={`px-2 py-1 text-xs rounded-full ${
-                        branch.status === "active"
+                        branch?.branch?.status === "active"
                           ? "bg-green-100 text-green-800"
-                          : branch.status === "inactive"
-                          ? "bg-red-100 text-red-800"
-                          : branch.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800"
+                          : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {branch.status}
+                      {branch?.branch?.status}
                     </span>
                   </TableCell>
+
+                  {/* Actions */}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      {useHasPermission("v1..vendor.branches.update_user") && (
+                      {useHasPermission("v1.vendor.branches.update") && (
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 cursor-pointer"
-                          onClick={() => handleEditUser(branch.id)}
-                          title="Edit User"
+                          onClick={() => handleEditBranch(branch?.branch?.id)}
+                          title="Edit Branch"
                         >
                           <Edit className="w-4 h-4 text-blue-600 dark:text-blue-300" />
-                        </div>
-                      )}
-                      {useHasPermission("v1..vendor.branches.update") && (
-                        <div
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200 dark:bg-purple-800 dark:hover:bg-purple-700 cursor-pointer"
-                          onClick={() => handleEditBranch(branch.id)}
-                          title="Edit Branch Details"
-                        >
-                          <Edit className="w-4 h-4 text-purple-600 dark:text-purple-300" />
                         </div>
                       )}
                     </div>
@@ -874,6 +920,7 @@ export default function BranchList() {
           </Table>
         )}
       </div>
+
       <Pagination
         currentPage={pagination.current_page}
         totalPages={pagination.last_page}

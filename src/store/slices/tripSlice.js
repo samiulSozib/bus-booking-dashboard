@@ -1,21 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
-export function user_type() {
-  // return JSON.parse(localStorage.getItem("profile")||"{}");
-  const profile = localStorage.getItem("profile");
-  return profile ? JSON.parse(profile) : null;
-}
+
 
 // Fetch Trips
 export const fetchTrips = createAsyncThunk(
   "trips/fetchTrips",
-  async ({ searchTag = "", page = 1, filters = {} }, { rejectWithValue }) => {
+  async ({ searchTag = "", page = 1, filters = {},branch_id }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -31,10 +28,16 @@ export const fetchTrips = createAsyncThunk(
 
       //console.log(filterQuery)
 
-      const response = await axios.get(
-        `${base_url}/${type.role}/trips?search=${searchTag}&page=${page}${
+      let url=`${base_url}/${type.role}/trips?search=${searchTag}&page=${page}${
           filterQuery ? `&${filterQuery}` : ""
-        }`,
+        }`
+
+        if(branch_id){
+          url+=`&branch-id=${branch_id}`
+        }
+
+      const response = await axios.get(
+        url,
         {
           headers: {
             Authorization: `${token}`,
@@ -58,7 +61,7 @@ export const fetchActiveTrips = createAsyncThunk(
   async ({ searchTag = "", page = 1, filters = {} }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -104,7 +107,7 @@ export const showTrip = createAsyncThunk(
   async ({ trip_id }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -131,8 +134,9 @@ export const addTrip = createAsyncThunk(
   async (tripData, { rejectWithValue }) => {
     try {
       //console.log(tripData)
+      //return
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -159,6 +163,10 @@ export const addTrip = createAsyncThunk(
         JSON.stringify(tripData.ticket_price_per_seat)
       );
 
+      if(tripData.vendor_branch_id){
+        formData.append('vendor_branch_id',tripData.vendor_branch_id)
+      }
+
       const response = await axios.post(
         `${base_url}/${type.role}/trips`,
         formData,
@@ -184,7 +192,7 @@ export const editTrip = createAsyncThunk(
   async ({ tripId, updatedData }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -211,7 +219,12 @@ export const editTrip = createAsyncThunk(
         "ticket_price_per_seat",
         JSON.stringify(updatedData.ticket_price_per_seat)
       );
+
+      if(updatedData.vendor_branch_id){
+        formData.append('vendor_branch_id',updatedData.vendor_branch_id)
+      }
       formData.append("id", tripId);
+
 
       //console.log(updatedData)
       const response = await axios.post(
@@ -238,7 +251,7 @@ export const deleteTrip = createAsyncThunk(
   async (tripId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -265,7 +278,7 @@ export const updateTripSeatPrices = createAsyncThunk(
   async ({ trip_id, ticket_price_per_seat }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
 
       const formData = new FormData();
       formData.append("trip_id", trip_id);

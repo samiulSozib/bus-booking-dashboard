@@ -8,19 +8,22 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Branches
 export const fetchBranches = createAsyncThunk(
   "branches/fetch",
-  async ({ search = "", page = 1, perPage = 10 }, { rejectWithValue }) => {
+  async ({ search = "", page = 1, perPage = 10,vendor_id }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const type = userType();
-      if (type.role === "vendor_user") {
-        type.role = "vendor";
+      
+      let url=`${base_url}/${type.role}/branches?search=${search}&page=${page}&per_page=${perPage}`
+      if(vendor_id){
+        url+=`&vendor-id=${vendor_id}`
       }
       const response = await axios.get(
-        `${base_url}/${type.role}/branches?search=${search}&page=${page}&per_page=${perPage}`,
+        url,
         {
           headers: { Authorization: `${token}` },
         }
       );
+      console.log(response)
       return {
         items: response.data.body.items,
         pagination: response.data.body.data,
@@ -95,45 +98,7 @@ export const addBranch = createAsyncThunk(
   }
 );
 
-// Update Branch User
-export const updateBranchUser = createAsyncThunk(
-  "branches/updateUser",
-  async ({ id, userData }, { rejectWithValue }) => {
-    try {
-      const token = getAuthToken();
-      const type = userType();
-      if (type.role === "vendor_user") {
-        type.role = "vendor";
-      }
-      const formData = new FormData();
 
-      // Append user data
-      Object.keys(userData).forEach((key) => {
-        if (userData[key] !== null && userData[key] !== undefined) {
-          formData.append(key, userData[key]);
-        }
-      });
-      formData.append("id", id);
-
-      const response = await axios.post(
-        `${base_url}/${type.role}/branches/user/update`,
-        formData,
-        {
-          headers: {
-            Authorization: `${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      return response.data.body.item;
-    } catch (error) {
-      if (error.response?.data?.errors) {
-        return rejectWithValue(error.response.data);
-      }
-      return rejectWithValue(error.message);
-    }
-  }
-);
 
 // Update Branch
 export const updateBranch = createAsyncThunk(
@@ -235,22 +200,6 @@ const branchSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update Branch User
-      .addCase(updateBranchUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateBranchUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.branches = state.branches.map((branch) =>
-          branch.id === action.payload.id ? action.payload : branch
-        );
-        state.selectedBranch = action.payload;
-      })
-      .addCase(updateBranchUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
 
       // Update Branch
       .addCase(updateBranch.pending, (state) => {

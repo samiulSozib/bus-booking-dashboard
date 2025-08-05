@@ -8,15 +8,23 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 // Fetch Drivers
 export const fetchDrivers = createAsyncThunk(
   "drivers/fetchDrivers",
-  async ({ searchTag, page = 1 }, { rejectWithValue }) => {
+  async ({ searchTag, page = 1,branch_id }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
+
+      let url = `${base_url}/${type.role}/drivers?search=${searchTag}&page=${page}`;
+
+
+      if (branch_id) {
+        url += `&branch-id=${branch_id}`;
+      }
+
       const response = await axios.get(
-        `${base_url}/${type.role}/drivers?search=${searchTag}&page=${page}`,
+        url,
         {
           headers: {
             Authorization: `${token}`,
@@ -70,13 +78,18 @@ export const addDriver = createAsyncThunk(
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
+      console.log(driverData)
       const formData = new FormData();
-      formData.append("first_name", driverData.firstName);
-      formData.append("last_name", driverData.lastName);
+      formData.append("first_name", driverData.first_name);
+      formData.append("last_name", driverData.last_name);
       formData.append("email", driverData.email);
       formData.append("mobile", driverData.mobile);
       formData.append("password", driverData.password);
       formData.append("status", driverData.status);
+      if(driverData.vendor_branch_id){
+        formData.append('vendor_branch_id',driverData.vendor_branch_id)
+      }
+      
 
       const response = await axios.post(
         `${base_url}/${type.role}/drivers`,
@@ -116,6 +129,10 @@ export const editDriver = createAsyncThunk(
       formData.append("mobile", updatedData.mobile);
       formData.append("password", updatedData.password);
       formData.append("status", updatedData.status);
+      if(updatedData.vendor_branch_id){
+        formData.append('vendor_branch_id',updatedData.vendor_branch_id)
+      }
+      
 
       const response = await axios.post(
         `${base_url}/${type.role}/drivers/update`,

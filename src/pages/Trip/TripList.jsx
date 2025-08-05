@@ -34,6 +34,7 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import DiscountFilter from "../Discount/DiscountFilter";
 import useOutsideClick from "../../hooks/useOutSideClick";
+import { fetchBranches } from "../../store/slices/branchSlice";
 
 // Updated Yup validation schema
 const getTripSchema = (t, isAdmin) => {
@@ -92,6 +93,8 @@ export default function TripList() {
   const { buses } = useSelector((state) => state.buses);
   const { routes } = useSelector((state) => state.routes);
   const { vendorList } = useSelector((state) => state.users);
+  const { branches } = useSelector((state) => state.branch);
+
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -117,6 +120,8 @@ export default function TripList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [vendorId, setVendorId] = useState(null);
+  const [vendor_branch_id, setVendor_branch_id] = useState("");
+
   const [routeId, setRouteId] = useState(null);
   const [busId, setBusId] = useState(null);
   const [bus, setBus] = useState(null);
@@ -139,7 +144,13 @@ export default function TripList() {
   const [showModalRouteDropdown, setShowModalRouteDropdown] = useState(false);
   const [showModalBusDropdown, setShowModalBusDropdown] = useState(false);
 
+  const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
+
   const isAdmin = userType().role === "admin";
+  const isBranch = userType().role === "branch";
   const user_type = userType();
 
   const handleApplyFilters = (filters) => {
@@ -160,9 +171,31 @@ export default function TripList() {
       dispatch(fetchUsers({ searchTag: modalVendorSearchTag, role: "vendor" }));
     }
 
-    dispatch(fetchBuses({ searchTag: modalBusSearchTag, vendor_id: vendorId }));
     dispatch(fetchRoutes({ searchTag: modalRouteSearchTag }));
   }, [dispatch, modalBusSearchTag, modalRouteSearchTag, modalVendorSearchTag]);
+
+  useEffect(() => {
+    dispatch(
+      fetchBuses({
+        searchTag: modalBusSearchTag,
+        vendor_id: vendorId,
+        branch_id: vendor_branch_id,
+      })
+    );
+  }, [dispatch, modalBusSearchTag, vendorId, vendor_branch_id]);
+
+  useEffect(() => {
+    if (isAdmin && vendorId) {
+      dispatch(
+        fetchBranches({
+          searchTag: vendorBranchSearch,
+          vendor_id: vendorId,
+        })
+      );
+    } else {
+      dispatch(fetchBranches({ searchTag: vendorBranchSearch }));
+    }
+  }, [dispatch, vendorBranchSearch, vendorId]);
 
   // Pre-fill form when editing a trip
   useEffect(() => {
@@ -205,6 +238,18 @@ export default function TripList() {
     setSelectedBusId(bus.value);
     setShowBusDropdown(false);
     setBusSearchTag(bus.label);
+  };
+
+  const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    //setFormData({ ...formData, vendor_branch_id: branch.id });
+    setVendor_branch_id(branch.id);
+    setShowVendorBranchDropdown(false);
+    // setErrors((prevErrors) => {
+    //   const newErrors = { ...prevErrors };
+    //   delete newErrors.vendor_branch_id;
+    //   return newErrors;
+    // });
   };
 
   // Handle vendor selection in modal
@@ -305,6 +350,10 @@ export default function TripList() {
         ticket_price: seat.price,
         status: seat.status,
       }));
+    }
+
+    if (vendor_branch_id) {
+      tripData.vendor_branch_id = vendor_branch_id;
     }
 
     try {
@@ -901,6 +950,74 @@ export default function TripList() {
                   <p className="text-red-500 text-sm mt-1">{errors.route_id}</p>
                 )}
               </div>
+
+              {/* branch for vendor */}
+              {!isBranch && (
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t("BRANCH")}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={t("SEARCH_BRANCH")}
+                    value={vendorBranchSearch} // Always use driverSearch for the value
+                    onChange={(e) => {
+                      setVendorBranchSearch(e.target.value);
+                      setShowVendorBranchDropdown(true);
+                      if (
+                        selectedVendorBranch &&
+                        e.target.value !== `${selectedVendorBranch?.name}`
+                      ) {
+                        setSelectedVendorBranch(null);
+                        //setFormData({ ...formData, vendor_branch_id: "" });
+                        setVendor_branch_id("");
+                      }
+                    }}
+                    onFocus={() => setShowVendorBranchDropdown(true)}
+                    onBlur={() =>
+                      setTimeout(() => setShowVendorBranchDropdown(false), 200)
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  />
+                  {showVendorBranchDropdown && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                      {branches
+                        .filter((branch) =>
+                          `${branch?.branch?.name} || ""}`
+                            .toLowerCase()
+                            .includes(vendorBranchSearch.toLowerCase())
+                        )
+                        .map((branch) => (
+                          <div
+                            key={branch?.branch?.id}
+                            onClick={() => {
+                              handleVendorBranchSelect(branch?.branch);
+                              setVendorBranchSearch(`${branch?.branch?.name}`);
+                            }}
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                          >
+                            {branch?.branch?.name}
+                          </div>
+                        ))}
+                      {branches.filter((branch) =>
+                        `${branch?.branch?.name} || ""}`
+                          .toLowerCase()
+                          .includes(vendorBranchSearch.toLowerCase())
+                      ).length === 0 && (
+                        <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                          {t("NO_BRANCH_FOUND")}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {errors.vendor_branch_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.vendor_branch_id}
+                    </p>
+                  )}
+                </div>
+              )}
+              {/* branch for vendor */}
 
               {/* Bus Dropdown in Modal */}
               <div className="mb-4" ref={busDropdownRef}>

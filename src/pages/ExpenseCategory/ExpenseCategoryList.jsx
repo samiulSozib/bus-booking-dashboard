@@ -19,14 +19,27 @@ import { Edit, SearchIcon, Delete } from "../../icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
-import { useHasPermission, userType, useUserPermissions } from "../../utils/utils";
+import {
+  useHasPermission,
+  userType,
+  useUserPermissions,
+} from "../../utils/utils";
+import { fetchBranches } from "../../store/slices/branchSlice";
 
 // Validation schema
-const getExpenseCategorySchema = (t) => Yup.object().shape({
-  name: Yup.string().required(t("VALIDATION.EXPENSE_CATEGORY.NAME_REQUIRED")),
-  type: Yup.string()
-    .required(t("VALIDATION.EXPENSE_CATEGORY.TYPE_REQUIRED")),
-});
+const getExpenseCategorySchema = (t, role) =>
+  Yup.object().shape({
+    name: Yup.string().required(t("VALIDATION.EXPENSE_CATEGORY.NAME_REQUIRED")),
+    type: Yup.string().required(t("VALIDATION.EXPENSE_CATEGORY.TYPE_REQUIRED")),
+    vendor_branch_id:
+      role === "branch"
+        ? Yup.number().notRequired() // Skip validation if role is "branch"
+        : Yup.number()
+            .typeError(t("bus.vendorBranchRequired"))
+            .required(t("bus.vendorBranchRequired"))
+            .positive(t("bus.vendorBranchRequired"))
+            .integer(t("bus.vendorBranchRequired")),
+  });
 
 export default function ExpenseCategoryList() {
   const dispatch = useDispatch();
@@ -42,11 +55,24 @@ export default function ExpenseCategoryList() {
   const [name, setName] = useState("");
   const [type, setType] = useState("trip");
   const [parentId, setParentId] = useState(null);
+  const [vendor_branch_id, setVendor_branch_id] = useState("");
+
   const [sort, setSort] = useState(0);
   const [errors, setErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
+  const { branches } = useSelector((state) => state.branch);
 
+  const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
+
+  const isBranch = userType().role === "branch";
+
+  useEffect(() => {
+    dispatch(fetchBranches({ searchTag: vendorBranchSearch }));
+  }, [dispatch, vendorBranchSearch]);
 
   useEffect(() => {
     dispatch(
@@ -62,10 +88,24 @@ export default function ExpenseCategoryList() {
     if (selectedCategory && isEditing) {
       setName(selectedCategory.name);
       setType(selectedCategory.type);
-      setParentId(selectedCategory.parent_id || null);
+      setParentId(selectedCategory.parent?.id || null);
       setSort(selectedCategory.sort || 0);
+      setVendorBranchSearch(selectedCategory?.branch?.name)
+      setVendor_branch_id(selectedCategory?.branch?.id)
     }
   }, [selectedCategory, isEditing]);
+
+  const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    //setFormData({ ...formData, vendor_branch_id: branch.id });
+    setVendor_branch_id(branch.id);
+    setShowVendorBranchDropdown(false);
+    // setErrors((prevErrors) => {
+    //   const newErrors = { ...prevErrors };
+    //   delete newErrors.vendor_branch_id;
+    //   return newErrors;
+    // });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,8 +117,17 @@ export default function ExpenseCategoryList() {
       sort,
     };
 
+    if (vendor_branch_id) {
+      categoryData.vendor_branch_id = vendor_branch_id;
+    }
+
     try {
-      await getExpenseCategorySchema(t).validate(categoryData,{abortEarly:false})
+      await getExpenseCategorySchema(t, userType().role).validate(
+        categoryData,
+        {
+          abortEarly: false,
+        }
+      );
 
       if (isEditing) {
         const resultAction = await dispatch(
@@ -115,6 +164,8 @@ export default function ExpenseCategoryList() {
       setIsModalOpen(false);
       setIsEditing(false);
       setCurrentCategoryId(null);
+      setVendorBranchSearch("")
+      setVendor_branch_id("")
       setErrors({});
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -157,7 +208,7 @@ export default function ExpenseCategoryList() {
             Swal.fire(t("DELETED"), t("ITEM_DELETED_SUCCESSFULLY"), "success");
           })
           .catch((error) => {
-            console.log(error)
+            console.log(error);
             Swal.fire(
               t("ERROR"),
               error.message || t("FAILED_TO_DELETE_ITEM"),
@@ -250,8 +301,77 @@ export default function ExpenseCategoryList() {
                 />
               </div> */}
 
+              {/* branch id */}
+
+              {!isBranch && (
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t("BRANCH")}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={t("SEARCH_BRANCH")}
+                    value={vendorBranchSearch} // Always use driverSearch for the value
+                    onChange={(e) => {
+                      setVendorBranchSearch(e.target.value);
+                      setShowVendorBranchDropdown(true);
+                      if (
+                        selectedVendorBranch &&
+                        e.target.value !== `${selectedVendorBranch?.name}`
+                      ) {
+                        setSelectedVendorBranch(null);
+                        //setFormData({ ...formData, vendor_branch_id: "" });
+                        setVendor_branch_id("");
+                      }
+                    }}
+                    onFocus={() => setShowVendorBranchDropdown(true)}
+                    onBlur={() =>
+                      setTimeout(() => setShowVendorBranchDropdown(false), 200)
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  />
+                  {showVendorBranchDropdown && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                      {branches
+                        .filter((branch) =>
+                          `${branch?.branch?.name} || ""}`
+                            .toLowerCase()
+                            .includes(vendorBranchSearch.toLowerCase())
+                        )
+                        .map((branch) => (
+                          <div
+                            key={branch?.branch?.id}
+                            onClick={() => {
+                              handleVendorBranchSelect(branch?.branch);
+                              setVendorBranchSearch(`${branch?.branch?.name}`);
+                            }}
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                          >
+                            {branch?.branch?.name}
+                          </div>
+                        ))}
+                      {branches.filter((branch) =>
+                        `${branch?.branch?.name} || ""}`
+                          .toLowerCase()
+                          .includes(vendorBranchSearch.toLowerCase())
+                      ).length === 0 && (
+                        <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                          {t("NO_BRANCH_FOUND")}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {errors.vendor_branch_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.vendor_branch_id}
+                    </p>
+                  )}
+                </div>
+              )}
+              {/* branch id */}
+
               {/* Buttons */}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 mt-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -311,16 +431,16 @@ export default function ExpenseCategoryList() {
               <option value="office">Office</option>
             </select>
           </div>
-            {useHasPermission("v1.vendor.expense_categories.create")&&(
-          <button
-            onClick={() => {
-              setIsModalOpen(true);
-              setIsEditing(false);
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            {t("ADD_CATEGORY")}
-          </button>
+          {useHasPermission("v1.vendor.expense_categories.create") && (
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+                setIsEditing(false);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              {t("ADD_CATEGORY")}
+            </button>
           )}
         </div>
       </div>
@@ -386,21 +506,25 @@ export default function ExpenseCategoryList() {
 
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
-                      {useHasPermission("v1.vendor.expense_categories.update")&&(
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                        onClick={() => handleEdit(category.id)}
-                      >
-                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                      </div>
+                      {useHasPermission(
+                        "v1.vendor.expense_categories.update"
+                      ) && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                          onClick={() => handleEdit(category.id)}
+                        >
+                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                        </div>
                       )}
-                      {useHasPermission("v1.vendor.expense_categories.delete")&&(
-                      <div
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
-                        onClick={() => handleDelete(category.id)}
-                      >
-                        <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
-                      </div>
+                      {useHasPermission(
+                        "v1.vendor.expense_categories.delete"
+                      ) && (
+                        <div
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
+                          onClick={() => handleDelete(category.id)}
+                        >
+                          <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
+                        </div>
                       )}
                     </div>
                   </TableCell>

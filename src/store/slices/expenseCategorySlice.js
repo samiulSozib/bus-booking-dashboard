@@ -11,13 +11,13 @@ export const fetchExpenseCategories = createAsyncThunk(
   async ({ search = "", type = "", page = 1 }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = userType();
-      if (type.role === "vendor_user") {
-        type.role = "vendor";
+      const _type = userType();
+      if (_type.role === "vendor_user") {
+        _type.role = "vendor";
       }
 
       const response = await axios.get(
-        `${base_url}/${type.role}/expense-categories`,
+        `${base_url}/${_type.role}/expense-categories`,
         {
           params: {
             search,
@@ -85,6 +85,10 @@ export const createExpenseCategory = createAsyncThunk(
         formData.append("parent_id", categoryData.parent_id);
       if (categoryData.sort) formData.append("sort", categoryData.sort);
 
+      if(categoryData.vendor_branch_id){
+        formData.append('vendor_branch_id',categoryData.vendor_branch_id)
+      }
+
       const response = await axios.post(
         `${base_url}/${type.role}/expense-categories`,
         formData,
@@ -120,6 +124,9 @@ export const updateExpenseCategory = createAsyncThunk(
       if (updatedData.parent_id)
         formData.append("parent_id", updatedData.parent_id);
       if (updatedData.sort) formData.append("sort", updatedData.sort);
+      if(updatedData.vendor_branch_id){
+        formData.append('vendor_branch_id',updatedData.vendor_branch_id)
+      }
 
       const response = await axios.post(
         `${base_url}/${type.role}/expense-categories/update`,

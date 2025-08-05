@@ -8,7 +8,7 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 export const fetchUsers = createAsyncThunk(
   "users/fetch",
   async (
-    { searchTag = "", role = "", page = 1, vendorId = "" },
+    { searchTag = "", role = "", page = 1, vendorId = "",branch_id },
     { rejectWithValue }
   ) => {
     try {
@@ -17,6 +17,10 @@ export const fetchUsers = createAsyncThunk(
       let url = `${base_url}/admin/users?search=${searchTag}&role=${role}&page=${page}`;
       if (role === "driver" && vendorId) {
         url += `&vendor-id=${vendorId}`;
+      }
+
+      if(branch_id){
+        url+=`&branch-id=${branch_id}`
       }
 
       const response = await axios.get(url, {

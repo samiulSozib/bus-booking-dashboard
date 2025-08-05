@@ -10,9 +10,14 @@ import {
 } from "../../store/slices/busSlice";
 import { useTranslation } from "react-i18next";
 import { fetchUsers } from "../../store/slices/userSlice";
-import { checkPermission, userType, useUserPermissions } from "../../utils/utils";
+import {
+  checkPermission,
+  userType,
+  useUserPermissions,
+} from "../../utils/utils";
 import { fetchDrivers } from "../../store/slices/driverSlice";
 import Swal from "sweetalert2";
+import { fetchBranches } from "../../store/slices/branchSlice";
 
 // Yup validation schema for bus information
 
@@ -22,11 +27,10 @@ const AddBus = () => {
   const { busId } = useParams(); // Get busId from URL if editing
   const { t } = useTranslation();
 
-  
-
   const [formData, setFormData] = useState({
     driver_id: "",
     vendor_id: "",
+    vendor_branch_id: "",
     name: "",
     bus_number: "",
     image: null,
@@ -44,10 +48,17 @@ const AddBus = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
   const isVendor = userType().role === "vendor";
+  const isBranch = userType().role === "branch";
+  const isAdmin = userType().role === "admin";
 
   const [driverSearch, setDriverSearch] = useState("");
   const [showDriverDropdown, setShowDriverDropdown] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
+
+  const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
 
   const [vendorSearch, setVendorSearch] = useState("");
   const [showVendorDropdown, setShowVendorDropdown] = useState(false);
@@ -56,23 +67,59 @@ const AddBus = () => {
   const { bus } = useSelector((state) => state.buses); // Fetch bus data if editing
   const { driverList, vendorList } = useSelector((state) => state.users); // Assuming you have a drivers slice
   const { drivers } = useSelector((state) => state.drivers);
+  const { branches } = useSelector((state) => state.branch);
+
+  //
+
+  // 1️⃣ Fetch vendors for admin
+  useEffect(() => {
+    if (isAdmin) {
+      dispatch(fetchUsers({ searchTag: vendorSearch, role: "vendor" }));
+    }
+  }, [dispatch, isAdmin, vendorSearch]);
+
+  // 2️⃣ Fetch branches for admin (only after vendor selected)
+  useEffect(() => {
+    if (isAdmin && selectedVendor?.id) {
+      dispatch(
+        fetchBranches({
+          searchTag: vendorBranchSearch,
+          vendor_id: selectedVendor.id,
+        })
+      );
+    } else {
+      dispatch(
+        fetchBranches({
+          searchTag: vendorBranchSearch,
+        })
+      );
+    }
+  }, [dispatch, vendorBranchSearch, selectedVendor]);
+
+  //
+
+  // fetch drivers
 
   useEffect(() => {
-    if (!isVendor) {
-      if (selectedVendor) {
+    if (isAdmin) {
+      dispatch(fetchUsers({ searchTag: driverSearch, role: "driver",branch_id:formData?.vendor_branch_id }));
+    } else {
+      if (formData.vendor_branch_id) {
         dispatch(
-          fetchUsers({
+          fetchDrivers({
             searchTag: driverSearch,
-            role: "driver",
-            vendorId: selectedVendor.id,
+            branch_id: formData.vendor_branch_id,
+          })
+        );
+      } else {
+        dispatch(
+          fetchDrivers({
+            searchTag: driverSearch,
           })
         );
       }
-      dispatch(fetchUsers({ searchTag: vendorSearch, role: "vendor" }));
-    } else {
-      dispatch(fetchDrivers({ searchTag: driverSearch }));
     }
-  }, [dispatch, isVendor, driverSearch, vendorSearch]);
+  }, [dispatch,isAdmin,driverSearch,formData.vendor_branch_id,selectedVendor]);
 
   // Fetch bus data if busId is provided (editing mode)
   useEffect(() => {
@@ -93,6 +140,7 @@ const AddBus = () => {
       setFormData({
         driver_id: bus.driver_id,
         vendor_id: bus.vendor_id,
+        vendor_branch_id: bus.vendor_branch_id,
         name: bus.name,
         bus_number: bus.bus_number,
         image: bus.image,
@@ -108,6 +156,9 @@ const AddBus = () => {
       });
       setDriverSearch(bus.driver.first_name);
       setVendorSearch(bus.vendor.name);
+      //
+      setVendorBranchSearch(bus.branch.name);
+      //
       if (bus.image) {
         setImagePreview(bus.image);
       }
@@ -137,6 +188,17 @@ const AddBus = () => {
     setErrors((prevErrors) => {
       const newErrors = { ...prevErrors };
       delete newErrors.driver_id;
+      return newErrors;
+    });
+  };
+
+  const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    setFormData({ ...formData, vendor_branch_id: branch.id });
+    setShowVendorBranchDropdown(false);
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      delete newErrors.vendor_branch_id;
       return newErrors;
     });
   };
@@ -463,6 +525,7 @@ const AddBus = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       // First validate all fields except berth configuration
       const schema = getBusInfoSchema(isVendor, t).omit([
@@ -493,7 +556,10 @@ const AddBus = () => {
         ? await dispatch(editBus({ busId, busData: formData }))
         : await dispatch(addBus({ busData: formData }));
 
-      if (addBus.fulfilled.match(resultAction)) {
+      if (
+        addBus.fulfilled.match(resultAction) ||
+        editBus.fulfilled.match(resultAction)
+      ) {
         Swal.fire({
           icon: "success",
           title: t("bus.successTitle"),
@@ -544,6 +610,11 @@ const AddBus = () => {
         .required(t("bus.driverRequired"))
         .positive(t("bus.driverRequired"))
         .integer(t("bus.driverRequired")),
+      vendor_branch_id: Yup.number()
+        .typeError(t("bus.vendorBranchRequired"))
+        .required(t("bus.vendorBranchRequired"))
+        .positive(t("bus.vendorBranchRequired"))
+        .integer(t("bus.vendorBranchRequired")),
 
       vendor_id: isVendor
         ? Yup.mixed().notRequired()
@@ -625,7 +696,7 @@ const AddBus = () => {
                         )}
                     </div> */}
 
-          {!isVendor && (
+          {!isVendor && !isBranch && (
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("VENDOR")}
@@ -639,10 +710,7 @@ const AddBus = () => {
                   setShowVendorDropdown(true);
                   if (
                     selectedVendor &&
-                    e.target.value !==
-                      `${selectedVendor.first_name} ${
-                        selectedVendor.last_name || ""
-                      }`
+                    e.target.value !== `${selectedVendor?.vendor?.name}`
                   ) {
                     setSelectedVendor(null);
                     setFormData({ ...formData, vendor_id: "" });
@@ -657,31 +725,27 @@ const AddBus = () => {
               {showVendorDropdown && (
                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
                   {vendorList
-                    .filter(
-                      (vendor) =>
-                        vendor.role === "vendor" &&
-                        `${vendor.first_name} ${vendor.last_name || ""}`
-                          .toLowerCase()
-                          .includes(vendorSearch.toLowerCase())
-                    )
+                    .filter((vendor) => {
+                      const name = vendor?.vendor?.name?.toLowerCase() ?? "";
+                      const search = vendorSearch?.toLowerCase() ?? "";
+                      return name && name.includes(search);
+                    })
                     .map((vendor) => (
                       <div
                         key={vendor.id}
                         onClick={() => {
                           handleVendorSelect(vendor.vendor);
-                          setVendorSearch(
-                            `${vendor.first_name} ${vendor.last_name || ""}`
-                          );
+                          setVendorSearch(`${vendor?.vendor?.name}`);
                         }}
                         className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
                       >
-                        {vendor.first_name} {vendor.last_name || ""}
+                        {vendor?.vendor?.name}
                       </div>
                     ))}
                   {vendorList.filter(
                     (vendor) =>
                       vendor.role === "vendor" &&
-                      `${vendor.first_name} ${vendor.last_name || ""}`
+                      `${vendor?.vendor?.name}`
                         .toLowerCase()
                         .includes(vendorSearch.toLowerCase())
                   ).length === 0 && (
@@ -693,6 +757,73 @@ const AddBus = () => {
               )}
             </div>
           )}
+
+          {/* branch id */}
+          {!isBranch && (
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("BRANCH")}
+              </label>
+              <input
+                type="text"
+                placeholder={t("SEARCH_BRANCH")}
+                value={vendorBranchSearch} // Always use driverSearch for the value
+                onChange={(e) => {
+                  setVendorBranchSearch(e.target.value);
+                  setShowVendorBranchDropdown(true);
+                  if (
+                    selectedVendorBranch &&
+                    e.target.value !== `${selectedVendorBranch?.name}`
+                  ) {
+                    setSelectedVendorBranch(null);
+                    setFormData({ ...formData, vendor_branch_id: "" });
+                  }
+                }}
+                onFocus={() => setShowVendorBranchDropdown(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowVendorBranchDropdown(false), 200)
+                }
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              />
+              {showVendorBranchDropdown && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                  {branches
+                    .filter((branch) =>
+                      `${branch?.branch?.name} || ""}`
+                        .toLowerCase()
+                        .includes(vendorBranchSearch.toLowerCase())
+                    )
+                    .map((branch) => (
+                      <div
+                        key={branch?.branch?.id}
+                        onClick={() => {
+                          handleVendorBranchSelect(branch?.branch);
+                          setVendorBranchSearch(`${branch?.branch?.name}`);
+                        }}
+                        className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                      >
+                        {branch?.branch?.name}
+                      </div>
+                    ))}
+                  {branches.filter((branch) =>
+                    `${branch?.branch?.name} || ""}`
+                      .toLowerCase()
+                      .includes(vendorBranchSearch.toLowerCase())
+                  ).length === 0 && (
+                    <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                      {t("NO_BRANCH_FOUND")}
+                    </div>
+                  )}
+                </div>
+              )}
+              {errors.vendor_branch_id && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.vendor_branch_id}
+                </p>
+              )}
+            </div>
+          )}
+          {/* branch id */}
 
           <div className="relative">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -722,7 +853,7 @@ const AddBus = () => {
             />
             {showDriverDropdown && (
               <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
-                {(isVendor ? drivers : driverList)
+                {(isAdmin?driverList:drivers)
                   .filter((driver) =>
                     `${driver.first_name} ${driver.last_name || ""}`
                       .toLowerCase()
@@ -742,7 +873,7 @@ const AddBus = () => {
                       {driver.first_name} {driver.last_name || ""}
                     </div>
                   ))}
-                {(isVendor ? drivers : driverList).filter((driver) =>
+                {(isAdmin?driverList:drivers).filter((driver) =>
                   `${driver.first_name} ${driver.last_name || ""}`
                     .toLowerCase()
                     .includes(driverSearch.toLowerCase())
@@ -874,15 +1005,13 @@ const AddBus = () => {
           {/* Berth Type Configuration */}
           <div className="md:col-span-2 lg:col-span-3">
             <div className="flex gap-4">
-              
-                <button
-                  type="button"
-                  onClick={() => setOpenDialog(true)}
-                  className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
-                >
-                  {t("CONFIGURE_BERTH")}
-                </button>
-              
+              <button
+                type="button"
+                onClick={() => setOpenDialog(true)}
+                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+              >
+                {t("CONFIGURE_BERTH")}
+              </button>
             </div>
           </div>
         </div>

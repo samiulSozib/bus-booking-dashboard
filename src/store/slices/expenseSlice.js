@@ -58,8 +58,9 @@ export const showExpense = createAsyncThunk(
   async (expenseId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
+      const type=userType()
       const response = await axios.get(
-        `${base_url}/vendor/expenses/${expenseId}/show`,
+        `${base_url}/${type.role}/expenses/${expenseId}/show`,
         {
           headers: {
             Authorization: `${token}`,
@@ -157,6 +158,10 @@ export const updateExpense = createAsyncThunk(
       formData.append("description", updatedData.description);
       formData.append("amount", updatedData.amount);
       formData.append("expense_date", updatedData.expense_date);
+
+      if(updatedData.vendor_branch_id){
+        formData.append('vendor_branch_id',updatedData.vendor_branch_id)
+      }
 
       const response = await axios.post(
         `${base_url}/${type.role}/expenses/update`,

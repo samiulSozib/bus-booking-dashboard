@@ -1,13 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
-export function user_type() {
-  // return JSON.parse(localStorage.getItem("profile")||"{}");
-  const profile = localStorage.getItem("profile");
-  return profile ? JSON.parse(profile) : null;
-}
 
 // Async Thunks
 
@@ -18,7 +14,7 @@ export const addBus = createAsyncThunk(
     try {
       //console.log(busData)
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
 
       if (type.role === "vendor_user") {
         type.role = "vendor";
@@ -68,7 +64,7 @@ export const editBus = createAsyncThunk(
       //console.log("Bus Data:", busData);
 
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -82,6 +78,10 @@ export const editBus = createAsyncThunk(
       formData.append("ticket_price", busData.ticket_price);
       formData.append("status", busData.status);
       formData.append("facilities", JSON.stringify(busData.facilities));
+
+      if(busData.vendor_branch_id){
+        formData.append('vendor_branch_id',busData.vendor_branch_id)
+      }
 
       // Check if a new image file is uploaded
       const isNewImage = busData.image instanceof File;
@@ -115,7 +115,7 @@ export const editBus = createAsyncThunk(
       //console.log("Response:", response.data);
       return response.data.body.item;
     } catch (error) {
-      //console.error("Error:", error);
+      console.error("Error:", error);
       return rejectWithValue(error?.response?.statusText || "Request failed");
     }
   }
@@ -140,7 +140,7 @@ export const updateSeat = createAsyncThunk(
   async ({ busId, busData }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
@@ -175,21 +175,28 @@ export const updateSeat = createAsyncThunk(
 export const fetchBuses = createAsyncThunk(
   "bus/fetchBuses",
   async (
-    { searchTag = "", vendor_id = "", page = 1, filters = {} },
+    { searchTag = "", vendor_id = "", page = 1, filters = {},branch_id },
     { rejectWithValue }
   ) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
+      
       if (filters["vendor-id"]) {
         vendor_id = filters["vendor-id"];
       }
+
+      let url=`${base_url}/${type.role}/buses?search=${searchTag}&vendor-id=${vendor_id}&page=${page}`
+      if(branch_id){
+        url+=`&branch-id=${branch_id}`
+      }
+
       //console.log("vendor-id",vendor_id)
       const response = await axios.get(
-        `${base_url}/${type.role}/buses?search=${searchTag}&vendor-id=${vendor_id}&page=${page}`,
+        url,
         { headers: { Authorization: `${token}` } }
       );
       //console.log(searchTag)
@@ -213,10 +220,12 @@ export const fetchBusById = createAsyncThunk(
       //console.log("fdf")
       //console.log(busId)
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
+
+
       const response = await axios.get(
         `${base_url}/${type.role}/buses/${busId}/show`,
         {
@@ -238,7 +247,7 @@ export const deleteBus = createAsyncThunk(
   async (busId, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const type = user_type();
+      const type = userType();
       const response = await axios.delete(
         `${base_url}/${type.role}/buses/${busId}/delete`,
         {
