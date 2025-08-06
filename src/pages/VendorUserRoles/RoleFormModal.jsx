@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 
 import { useTranslation } from "react-i18next";
 import Checkbox from "../../components/form/input/Checkbox";
+import { fetchBranches } from "../../store/slices/branchSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { userType } from "../../utils/utils";
 
 // Validation schema
 
@@ -9,6 +12,7 @@ export const RoleFormModal = ({
   isOpen,
   onClose,
   formData,
+  setFormData,
   errors,
   permissions,
   selectedPermissions,
@@ -16,9 +20,20 @@ export const RoleFormModal = ({
   onInputChange,
   onPermissionChange,
   onSubmit,
+  vendorBranchSearch,
+  setVendorBranchSearch
 }) => {
   const { t } = useTranslation();
+    const dispatch = useDispatch();
+  
   const [selectAll, setSelectAll] = useState(false);
+  const { branches } = useSelector((state) => state.branch);
+
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
+
+  const isBranch = userType().role === "branch";
   // Effect to update selectAll state based on selectedPermissions
   useEffect(() => {
     if (permissions?.length > 0) {
@@ -28,6 +43,10 @@ export const RoleFormModal = ({
       setSelectAll(allSelected);
     }
   }, [selectedPermissions, permissions]);
+
+  useEffect(() => {
+    dispatch(fetchBranches({ searchTag: vendorBranchSearch }));
+  }, [dispatch, vendorBranchSearch]);
 
   // Handle select all/deselect all
   const handleSelectAllChange = () => {
@@ -49,6 +68,18 @@ export const RoleFormModal = ({
     setSelectAll(!selectAll);
   };
 
+  const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    //setFormData({ ...formData, vendor_branch_id: branch.id });
+    setFormData({...formData,vendor_branch_id:branch.id})
+    setShowVendorBranchDropdown(false);
+    // setErrors((prevErrors) => {
+    //   const newErrors = { ...prevErrors };
+    //   delete newErrors.vendor_branch_id;
+    //   return newErrors;
+    // });
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -59,7 +90,76 @@ export const RoleFormModal = ({
         </h2>
 
         <form onSubmit={onSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+            {/* branch id */}
+
+            {!isBranch && (
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("BRANCH")}
+                </label>
+                <input
+                  type="text"
+                  placeholder={t("SEARCH_BRANCH")}
+                  value={vendorBranchSearch} // Always use driverSearch for the value
+                  onChange={(e) => {
+                    setVendorBranchSearch(e.target.value);
+                    setShowVendorBranchDropdown(true);
+                    if (
+                      selectedVendorBranch &&
+                      e.target.value !== `${selectedVendorBranch?.name}`
+                    ) {
+                      setSelectedVendorBranch(null);
+                      //setFormData({ ...formData, vendor_branch_id: "" });
+                      setVendor_branch_id("");
+                    }
+                  }}
+                  onFocus={() => setShowVendorBranchDropdown(true)}
+                  onBlur={() =>
+                    setTimeout(() => setShowVendorBranchDropdown(false), 200)
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                />
+                {showVendorBranchDropdown && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                    {branches
+                      .filter((branch) =>
+                        `${branch?.branch?.name} || ""}`
+                          .toLowerCase()
+                          .includes(vendorBranchSearch.toLowerCase())
+                      )
+                      .map((branch) => (
+                        <div
+                          key={branch?.branch?.id}
+                          onClick={() => {
+                            handleVendorBranchSelect(branch?.branch);
+                            setVendorBranchSearch(`${branch?.branch?.name}`);
+                          }}
+                          className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        >
+                          {branch?.branch?.name}
+                        </div>
+                      ))}
+                    {branches.filter((branch) =>
+                      `${branch?.branch?.name} || ""}`
+                        .toLowerCase()
+                        .includes(vendorBranchSearch.toLowerCase())
+                    ).length === 0 && (
+                      <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                        {t("NO_BRANCH_FOUND")}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {errors.vendor_branch_id && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.vendor_branch_id}
+                  </p>
+                )}
+              </div>
+            )}
+            {/* branch id */}
+
             {/* Title */}
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -103,7 +203,7 @@ export const RoleFormModal = ({
                 name="description"
                 value={formData.description}
                 onChange={onInputChange}
-                rows={3}
+                rows={1}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               />
             </div>

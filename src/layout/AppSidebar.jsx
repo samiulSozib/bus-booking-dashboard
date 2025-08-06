@@ -123,13 +123,13 @@ const navItems = useMemo(
         icon: <User_Group />,
         name: "VENDOR_USER",
         path: "/vendor-users",
-        roles: ["vendor", "vendor_user"],
+        roles: ["vendor", "vendor_user","branch"],
       },
       {
         icon: <User_Group />,
         name: "ROLES",
         path: "/vendor-users-roles",
-        roles: ["vendor", "vendor_user"],
+        roles: ["vendor", "vendor_user","branch"],
       },
       {
         icon: <Ticket />,

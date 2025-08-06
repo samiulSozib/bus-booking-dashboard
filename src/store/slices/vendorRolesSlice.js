@@ -44,6 +44,7 @@ export const addRole = createAsyncThunk(
       }
 
       const formData = new FormData();
+      formData.append("vendor_branch_id",roleData.vendor_branch_id)
       formData.append("title", roleData.title);
       formData.append("name", roleData.name);
       formData.append("description", roleData.description || "");
@@ -110,6 +111,7 @@ export const updateRole = createAsyncThunk(
 
       const formData = new FormData();
       formData.append("id", id);
+      formData.append("vendor_branch_id",roleData.vendor_branch_id)
       formData.append("title", roleData.title);
       formData.append("name", roleData.name);
       formData.append("description", roleData.description || "");

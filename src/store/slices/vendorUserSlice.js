@@ -74,10 +74,11 @@ export const addVendorUser = createAsyncThunk(
       }
 
       const formData = new FormData();
-      formData.append(
-        "vendor_user_role_id",
-        userData.vendor_user_role_id || ""
-      );
+      // formData.append(
+      //   "vendor_user_role_id",
+      //   userData.vendor_user_role_id || ""
+      // );
+      formData.append("vendor_branch_id",userData.vendor_branch_id)
       formData.append("first_name", userData.first_name);
       formData.append("last_name", userData.last_name);
       formData.append("email", userData.email || "");
@@ -129,6 +130,7 @@ export const updateVendorUser = createAsyncThunk(
         "vendor_user_role_id",
         updatedData.vendor_user_role_id || ""
       );
+      formData.append("vendor_branch_id",updatedData.vendor_branch_id)
       formData.append("first_name", updatedData.first_name);
       formData.append("last_name", updatedData.last_name);
       formData.append("email", updatedData.email || "");
@@ -160,7 +162,7 @@ export const updateVendorUser = createAsyncThunk(
 // Fetch Permissions
 export const fetchPermissions = createAsyncThunk(
   "vendorUserPermission/fetchPermissions",
-  async (_, { rejectWithValue }) => {
+  async ({branch_permissions}, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const type = userType();
@@ -168,8 +170,16 @@ export const fetchPermissions = createAsyncThunk(
         type.role = "vendor";
       }
 
+      
+
+      let url=`${base_url}/${type.role}/users/permissions`
+
+      if(branch_permissions){
+        url+=`?branch-permissions=${branch_permissions}`
+      }
+
       const response = await axios.get(
-        `${base_url}/${type.role}/users/permissions`,
+        url,
         {
           headers: {
             Authorization: `${token}`,

@@ -23,7 +23,7 @@ import {
 } from "../../store/slices/vendorRolesSlice";
 import { fetchPermissions } from "../../store/slices/vendorUserSlice";
 import { RoleFormModal } from "./RoleFormModal";
-import { useHasPermission } from "../../utils/utils";
+import { useHasPermission, userType } from "../../utils/utils";
 
 // Validation schema for roles
 const roleSchema = Yup.object().shape({
@@ -45,20 +45,34 @@ export default function VendorUserRolesList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentRoleId, setCurrentRoleId] = useState(null);
+    const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+
 
   const [formData, setFormData] = useState({
+    vendor_branch_id:"",
     title: "",
     name: "",
     description: "",
   });
   const [errors, setErrors] = useState({});
   const [selectedPermissions, setSelectedPermissions] = useState([]);
+    const isBranch = userType().role === "branch";
+  
 
   // Fetch roles and permissions on component mount
   useEffect(() => {
     dispatch(fetchRoles({ searchTag, page: currentPage }));
-    dispatch(fetchPermissions());
   }, [dispatch, currentPage, searchTag]);
+
+  useEffect(() => {
+    if(formData.vendor_branch_id){
+      dispatch(fetchPermissions({branch_permissions:formData.vendor_branch_id}));
+    }else if(isBranch){
+      dispatch(fetchPermissions({}));
+    }
+  }, [dispatch, formData?.vendor_branch_id]);
+
+  
 
   // Load role data when editing
   useEffect(() => {
@@ -121,6 +135,8 @@ export default function VendorUserRolesList() {
         ...formData,
         permissions: selectedPermissions,
       };
+
+      
       //console.log(roleData);
       //return
 
@@ -174,10 +190,12 @@ export default function VendorUserRolesList() {
 
   const resetForm = () => {
     setFormData({
+      vendor_branch_id:"",
       title: "",
       name: "",
       description: "",
     });
+    setVendorBranchSearch("")
     setSelectedPermissions([]);
     setErrors({});
     setIsEditing(false);
@@ -201,6 +219,7 @@ export default function VendorUserRolesList() {
             resetForm();
           }}
           formData={formData}
+          setFormData={setFormData}
           errors={errors}
           permissions={permissions}
           selectedPermissions={selectedPermissions}
@@ -208,6 +227,8 @@ export default function VendorUserRolesList() {
           onInputChange={handleInputChange}
           onPermissionChange={handlePermissionChange}
           onSubmit={handleSubmit}
+          vendorBranchSearch={vendorBranchSearch}
+          setVendorBranchSearch={setVendorBranchSearch}
         />
       )}
 

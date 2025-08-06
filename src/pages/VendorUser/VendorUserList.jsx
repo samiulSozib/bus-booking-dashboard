@@ -36,6 +36,7 @@ import {
   useUserPermissions,
 } from "../../utils/utils";
 import { fetchRoles } from "../../store/slices/vendorRolesSlice";
+import { fetchBranches } from "../../store/slices/branchSlice";
 
 // Validation schema
 
@@ -56,6 +57,7 @@ export default function VendorUserList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [vendor_branch_id, setVendor_branch_id] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -67,6 +69,17 @@ export default function VendorUserList() {
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
+
+  const { branches } = useSelector((state) => state.branch);
+
+  const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
+
+  const isBranch=userType().role==="branch"
+
+
 
   const vendorUserSchema = Yup.object().shape({
     firstName: Yup.string().required(
@@ -102,6 +115,10 @@ export default function VendorUserList() {
     dispatch(fetchRoles());
   }, [dispatch]);
 
+      useEffect(() => {
+      dispatch(fetchBranches({ searchTag: vendorBranchSearch }));
+    }, [dispatch, vendorBranchSearch]);
+
   useEffect(() => {
     if (selectedUser && isEditing) {
       setFirstName(selectedUser.first_name);
@@ -113,11 +130,24 @@ export default function VendorUserList() {
     }
   }, [selectedUser, isEditing]);
 
+    const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    //setFormData({ ...formData, vendor_branch_id: branch.id });
+    setVendor_branch_id(branch.id);
+    setShowVendorBranchDropdown(false);
+    // setErrors((prevErrors) => {
+    //   const newErrors = { ...prevErrors };
+    //   delete newErrors.vendor_branch_id;
+    //   return newErrors;
+    // });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({}); // Clear previous errors
 
     const userData = {
+      vendor_branch_id,
       first_name: firstName,
       last_name: lastName,
       email: email || null,
@@ -126,7 +156,8 @@ export default function VendorUserList() {
       status,
       role,
     };
-
+    //console.log(userData)
+    //return
     try {
       // Validate with Yup first
       await vendorUserSchema.validate(
@@ -192,12 +223,14 @@ export default function VendorUserList() {
   };
 
   const resetForm = () => {
+    setVendor_branch_id("")
     setFirstName("");
     setLastName("");
     setEmail("");
     setMobile("");
     setPassword("");
     setStatus("pending");
+    setVendorBranchSearch("")
     setRole();
     setIsEditing(false);
     setCurrentUserId(null);
@@ -255,6 +288,76 @@ export default function VendorUserList() {
               {isEditing ? t("EDIT_VENDOR_USER") : t("ADD_VENDOR_USER")}
             </h2>
             <form onSubmit={handleSubmit}>
+
+              {/* branch id */}
+
+              {!isBranch && (
+              <div className="relative mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("BRANCH")}
+                </label>
+                <input
+                  type="text"
+                  placeholder={t("SEARCH_BRANCH")}
+                  value={vendorBranchSearch} // Always use driverSearch for the value
+                  onChange={(e) => {
+                    setVendorBranchSearch(e.target.value);
+                    setShowVendorBranchDropdown(true);
+                    if (
+                      selectedVendorBranch &&
+                      e.target.value !== `${selectedVendorBranch?.name}`
+                    ) {
+                      setSelectedVendorBranch(null);
+                      //setFormData({ ...formData, vendor_branch_id: "" });
+                      setVendor_branch_id("");
+                    }
+                  }}
+                  onFocus={() => setShowVendorBranchDropdown(true)}
+                  onBlur={() =>
+                    setTimeout(() => setShowVendorBranchDropdown(false), 200)
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                />
+                {showVendorBranchDropdown && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                    {branches
+                      .filter((branch) =>
+                        `${branch?.branch?.name} || ""}`
+                          .toLowerCase()
+                          .includes(vendorBranchSearch.toLowerCase())
+                      )
+                      .map((branch) => (
+                        <div
+                          key={branch?.branch?.id}
+                          onClick={() => {
+                            handleVendorBranchSelect(branch?.branch);
+                            setVendorBranchSearch(`${branch?.branch?.name}`);
+                          }}
+                          className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        >
+                          {branch?.branch?.name}
+                        </div>
+                      ))}
+                    {branches.filter((branch) =>
+                      `${branch?.branch?.name} || ""}`
+                        .toLowerCase()
+                        .includes(vendorBranchSearch.toLowerCase())
+                    ).length === 0 && (
+                      <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                        {t("NO_BRANCH_FOUND")}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {errors.vendor_branch_id && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.vendor_branch_id}
+                  </p>
+                )}
+              </div>
+              )}
+              {/* branch id */}
+
               {/* First Name */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
