@@ -163,6 +163,7 @@ export function userType() {
   // return JSON.parse(localStorage.getItem("profile")||"{}");
   const profile = localStorage.getItem("profile");
   let data = profile ? JSON.parse(profile) : null;
+  if(!data) return
   if (data.role === "vendor_branch") {
     return { ...data, role: "branch" }; // Return full object with modified role
   }
@@ -230,3 +231,5 @@ export function useHasPermission(permissionName) {
     (p) => p.name === permissionName && p.has_permission
   );
 }
+
+

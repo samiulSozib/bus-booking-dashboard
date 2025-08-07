@@ -84,9 +84,22 @@ const navItems = useMemo(
       {
         icon: <User_Group />,
         name: "USERS",
-        path: "/users",
         roles: ["admin"],
+        subItems: [
+          { name: "ADMIN", path: "/users/admin" },
+          { name: "AGENT", path: "/users/agent" },
+          { name: "BRANCH", path: "/users/branch" },
+          { name: "CUSTOMER", path: "/users/customer" },
+          { name: "DRIVER", path: "/users/driver" },
+          { name: "VENDOR", path: "/users/vendor" }
+        ],
       },
+      // {
+      //   icon: <User_Group />,
+      //   name: "USERS",
+      //   path: "/users",
+      //   roles: ["admin"],
+      // },
       {
         icon: <Wallet />,
         name: "WALLET",
@@ -159,7 +172,7 @@ const navItems = useMemo(
         icon: <Wallet />,
         name: "BRANCH",
         path: "/branch",
-        roles: ["admin","vendor", "vendor_user"],
+        roles: ["vendor", "vendor_user"],
       },
       {
         icon: <Settings />,

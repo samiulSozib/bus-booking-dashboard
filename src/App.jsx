@@ -40,6 +40,11 @@ import VendorUserRoles from "./pages/VendorUserRoles/VendorUserRoles";
 import ExpenseCategory from "./pages/ExpenseCategory/ExpenseCategory";
 import Expense from "./pages/Expense/Expense";
 import Branch from "./pages/Branch/Branch";
+import Vendor from "./pages/User/Vendor/Vendor";
+import Admin from "./pages/User/Admin/Admin"
+import Customer from "./pages/User/Customer/Customer"
+import Agent from "./pages/User/Agent/Agent"
+import AdminDriver from "./pages/User/Driver/AdminDriver"
 
 export default function App() {
   return (
@@ -49,10 +54,28 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
+
+
+            {/* Location Routes */}
+            <Route path="/location">
+              <Route path="countries" element={<ProtectedRoute><Country /></ProtectedRoute>} />
+              <Route path="provinces" element={<ProtectedRoute><Province/></ProtectedRoute>}/>
+              <Route path="cities" element={<ProtectedRoute><City/></ProtectedRoute>}/>
+            </Route>
+
+            {/* User Management Routes */}
+            <Route path="/users">
+              <Route index element={<ProtectedRoute><User/></ProtectedRoute>}/>
+              <Route path="admin" element={<ProtectedRoute><Admin/></ProtectedRoute>}/>
+              <Route path="vendor" element={<ProtectedRoute><Vendor/></ProtectedRoute>}/>
+              <Route path="driver" element={<ProtectedRoute><AdminDriver/></ProtectedRoute>}/>
+              <Route path="agent" element={<ProtectedRoute><Agent/></ProtectedRoute>}/>
+              <Route path="customer" element={<ProtectedRoute><Customer/></ProtectedRoute>}/>
+              <Route path="branch" element={<ProtectedRoute><Branch/></ProtectedRoute>}/>
+            </Route>
+
             <Route index path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route index path="/location/countries" element={<ProtectedRoute><Country /></ProtectedRoute>} />
-            <Route index path="/location/provinces" element={<ProtectedRoute><Province/></ProtectedRoute>}/>
-            <Route index path="/location/cities" element={<ProtectedRoute><City/></ProtectedRoute>}/>
+            
             <Route index path="/routes" element={<ProtectedRoute><BusRoute/></ProtectedRoute>}/>
             <Route index path="/stations" element={<ProtectedRoute><Station/></ProtectedRoute>}/>
             <Route index path="/users" element={<ProtectedRoute><User/></ProtectedRoute>}/>
@@ -74,6 +97,9 @@ export default function App() {
             <Route index path="/expense-category" element={<ProtectedRoute><ExpenseCategory/></ProtectedRoute>}/>
             <Route index path="/expense" element={<ProtectedRoute><Expense/></ProtectedRoute>}/>
             <Route index path="/branch" element={<ProtectedRoute><Branch/></ProtectedRoute>}/>
+
+
+            
 
 
 

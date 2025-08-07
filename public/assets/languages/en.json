@@ -795,5 +795,31 @@
   "v1.branch.role.delete": "Delete Role",
   "v1.branch.user.permissions": "User Permissions",
   "v1.branch.user.sync_user_permissions": "Sync User Permissions",
-  "v1.branch.user.user_permissions": "Get User Permissions"
+  "v1.branch.user.user_permissions": "Get User Permissions",
+
+  "AGENT":"Agent",
+  "CUSTOMER":"Customer",
+  "ADMIN":"Admin",
+  "vendor_list":"Vendor List",
+  "add_vendor":"Add Vendor",
+  "edit_vendor":"Edit Vendor",
+
+  "driver_list":"Driver List",
+  "add_driver":"Add Driver",
+  "edit_driver":"Edit Driver",
+
+  "agent_list":"Agent List",
+  "add_agent":"Add Agent",
+  "edit_agent":"Edit Agent",
+
+  "customer_list":"Customer List",
+  "add_customer":"Add Customer",
+  "edit_customer":"Edit Customer",
+
+
+  "admin_list":"Admin List",
+  "add_admin":"Add Admin",
+  "edit_admin":"Edit Admin",
+
+  "AGENT_NAME":"Agent Name"
 }
