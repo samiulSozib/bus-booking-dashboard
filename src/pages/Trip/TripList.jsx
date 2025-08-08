@@ -179,10 +179,9 @@ export default function TripList() {
       fetchBuses({
         searchTag: modalBusSearchTag,
         vendor_id: vendorId,
-        branch_id: vendor_branch_id,
       })
     );
-  }, [dispatch, modalBusSearchTag, vendorId, vendor_branch_id]);
+  }, [dispatch, modalBusSearchTag, vendorId]);
 
   useEffect(() => {
     if (isAdmin && vendorId) {
