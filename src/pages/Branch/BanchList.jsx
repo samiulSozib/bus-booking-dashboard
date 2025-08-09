@@ -153,7 +153,7 @@ export default function BranchList() {
         password: "",
         vendor_id: selectedBranch?.branch?.vendor?.id,
       });
-      setModalVendorSearchTag(selectedBranch?.branch?.vendor?.name);
+      setModalVendorSearchTag(selectedBranch?.branch?.vendor?.short_name);
       setProvinceSearch(selectedBranch?.branch?.province?.name)
     }
   }, [selectedBranch]);
@@ -168,7 +168,7 @@ export default function BranchList() {
 
   const handleModalVendorSelect = (vendor) => {
     setFormData({ ...formData, vendor_id: vendor.id });
-    setModalVendorSearchTag(vendor.name);
+    setModalVendorSearchTag(vendor.short_name);
     setShowModalVendorDropdown(false);
 
     setErrors((prevErrors) => {
@@ -324,7 +324,7 @@ export default function BranchList() {
                             {vendorList
                               .filter((vendor) => {
                                 const name =
-                                  vendor?.vendor?.name?.toLowerCase() ?? "";
+                                  vendor?.vendor?.short_name?.toLowerCase() ?? "";
                                 const search =
                                   modalVendorSearchTag?.toLowerCase() ?? "";
                                 return name && name.includes(search);
@@ -338,7 +338,7 @@ export default function BranchList() {
                                   }
                                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                 >
-                                  {vendor?.vendor?.name}
+                                  {vendor?.vendor?.short_name}
                                 </div>
                               ))}
                           </div>

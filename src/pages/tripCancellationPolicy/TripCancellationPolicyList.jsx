@@ -203,7 +203,7 @@ export default function TripCancellationPolicyList() {
   // Handle vendor selection for viewing policy
   const handleVendorSelect = (vendor) => {
     setSelectedVendorId(vendor.id);
-    setVendorSearchTerm(vendor.name);
+    setVendorSearchTerm(vendor.short_name);
     setShowVendorDropdown(false);
   };
 
@@ -375,7 +375,7 @@ export default function TripCancellationPolicyList() {
                       onClick={() => handleVendorSelect(vendor?.vendor)}
                       className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                     >
-                      {vendor?.vendor?.name}
+                      {vendor?.vendor?.short_name}
                     </div>
                   ))}
                 </div>
@@ -432,7 +432,7 @@ export default function TripCancellationPolicyList() {
             <div className="mb-4">
               <h4 className="text-md font-semibold">
                 {t("POLICY_FOR_VENDOR")}:{" "}
-                {vendorList.find((u) => u?.id === selectedVendorId)?.name ||
+                {vendorList.find((u) => u?.id === selectedVendorId)?.short_name ||
                   selectedVendorId}
               </h4>
             </div>

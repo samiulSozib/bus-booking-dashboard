@@ -14,6 +14,7 @@ import { Delete, Edit, SearchIcon, View } from "../../../icons";
 import {
   addUser,
   editUser,
+  editVendor,
   fetchUsers,
   showUser,
 } from "../../../store/slices/userSlice";
@@ -22,7 +23,6 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../../components/pagination/pagination";
 import useOutsideClick from "../../../hooks/useOutSideClick";
 import StatusBadge from "../../../components/ui/badge/StatusBadge";
-
 
 export default function VendorList() {
   const dropdownRef = useRef(null);
@@ -39,6 +39,7 @@ export default function VendorList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentVendorId, setCurrentVendorId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,13 +80,19 @@ export default function VendorList() {
     logo: "",
     description: "",
     vendor_id: 0,
+    short_name: "",
+    long_name: "",
+    representative_name: "",
+    representative_phone: "",
+    representative_email: "",
+    representative_nid: "",
+    representative_position: "",
+    settlement_period: "",
   });
 
   useEffect(() => {
     dispatch(fetchUsers({ searchTag, page: currentPage, role: "vendor" }));
   }, [dispatch, searchTag, currentPage, selectedRole]);
-
-
 
   useEffect(() => {
     if (selectedUser) {
@@ -112,8 +119,8 @@ export default function VendorList() {
 
         // Vendor-specific fields
         ...(selectedUser.role === "vendor" && {
-          name: selectedUser.vendor?.name || "",
-          phone: selectedUser.vendor?.phone || "",
+          short_name: selectedUser.vendor?.short_name || "",
+          long_name: selectedUser.vendor?.long_name || "",
           registration_number: selectedUser.vendor?.registration_number || "",
           license_number: selectedUser.vendor?.license_number || "",
           rating: selectedUser.vendor?.rating || 0,
@@ -125,6 +132,12 @@ export default function VendorList() {
           agent_comission_type: selectedUser.vendor?.agent_comission_type || "",
           logo: selectedUser.vendor?.logo || "",
           description: selectedUser.vendor?.description || "",
+          representative_name:selectedUser.vendor?.representative_name||"",
+          representative_phone:selectedUser.vendor?.representative_phone||"",
+          representative_email:selectedUser.vendor?.representative_email||"",
+          representative_nid:selectedUser.vendor?.representative_nid||"",
+          representative_position:selectedUser.vendor?.representative_position||"",
+          settlement_period:selectedUser.vendor?.settlement_period||""
         }),
 
         // Driver-specific field
@@ -236,6 +249,51 @@ export default function VendorList() {
   //   }
   // };
 
+
+ const getValidationSchema = (t) =>
+  Yup.object().shape({
+    // Basic user info
+    first_name: Yup.string().required(t("user.firstNameRequired")),
+    last_name: Yup.string().required(t("user.lastNameRequired")),
+    email: Yup.string()
+      .email(t("user.invalidEmail"))
+      .required(t("user.emailRequired")),
+    mobile: Yup.string()
+      .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
+      .required(t("user.mobileRequired")),
+    password: Yup.string()
+      .required(t("user.passwordRequired"))
+      .min(6, t("user.passwordMin")),
+    status: Yup.string().required(t("user.statusRequired")),
+
+    // Vendor organization info
+    short_name: Yup.string().required(t("user.shortNameRequired")),
+    long_name: Yup.string().required(t("user.longNameRequired")),
+    registration_number: Yup.string().required(t("user.registrationNumberRequired")),
+    license_number: Yup.string().required(t("user.licenseNumberRequired")),
+    rating: Yup.number().required(t("user.ratingRequired")),
+    description: Yup.string().required(t("user.descriptionRequired")),
+    logo: Yup.mixed().required(t("user.logoRequired")),
+    settlement_period: Yup.string().required(t("user.settlementPeriodRequired")),
+
+    // Vendor representative info
+    representative_name: Yup.string().required(t("user.representativeNameRequired")),
+    representative_phone: Yup.string()
+      .matches(/^[0-9]{10}$/, t("user.representativePhoneInvalid"))
+      .required(t("user.representativePhoneRequired")),
+    representative_email: Yup.string()
+      .email(t("user.representativeEmailInvalid"))
+      .required(t("user.representativeEmailRequired")),
+    representative_nid: Yup.string().required(t("user.representativeNidRequired")),
+    representative_position: Yup.string().required(t("user.representativePositionRequired")),
+
+    // Commission info
+    admin_comission_amount: Yup.number().required(t("user.adminCommissionAmountRequired")),
+    admin_comission_type: Yup.string().required(t("user.adminCommissionTypeRequired")),
+    agent_comission_amount: Yup.number().required(t("user.agentCommissionAmountRequired")),
+    agent_comission_type: Yup.string().required(t("user.agentCommissionTypeRequired"))
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -248,10 +306,10 @@ export default function VendorList() {
 
       const userData = { ...formData };
       let result;
-
+      
       if (isEditing) {
         result = await dispatch(
-          editUser({ userId: currentUserId, updatedData: userData })
+          editVendor({ vendorId: currentVendorId, updatedData: userData })
         );
       } else {
         result = await dispatch(addUser(userData));
@@ -306,10 +364,19 @@ export default function VendorList() {
         logo: "",
         description: "",
         vendor_id: 0,
+        short_name: "",
+        long_name: "",
+        representative_name: "",
+        representative_phone: "",
+        representative_email: "",
+        representative_nid: "",
+        representative_position: "",
+        settlement_period: "",
       });
       setIsModalOpen(false);
       setIsEditing(false);
       setCurrentUserId(null);
+      setCurrentVendorId(null)
     } catch (err) {
       console.error("Submission error:", err);
 
@@ -332,96 +399,13 @@ export default function VendorList() {
       }
     }
   };
-  const handleEdit = (userId) => {
-    dispatch(showUser(userId));
+  const handleEdit = (user) => {
+    dispatch(showUser(user.id));
     setIsEditing(true);
-    setCurrentUserId(userId);
+    setCurrentUserId(user.id);
+    setCurrentVendorId(user?.vendor?.id)
     setIsModalOpen(true);
   };
-
-  const getValidationSchema = (t) =>
-    Yup.object().shape({
-      first_name: Yup.string().required(t("user.firstNameRequired")),
-      last_name: Yup.string().required(t("user.lastNameRequired")),
-      email: Yup.string()
-        .email(t("user.invalidEmail"))
-        .required(t("user.emailRequired")),
-      mobile: Yup.string().matches(/^[0-9]{10}$/, t("user.mobileInvalid")),
-      role: Yup.string().required(t("user.roleRequired")),
-      password: Yup.string()
-        .required(t("user.passwordRequired"))
-        .min(6, t("user.passwordMin")),
-      status: Yup.string().required(t("user.statusRequired")),
-
-      // Conditional fields based on role
-      name: Yup.string().when("role", (role, schema) =>
-        role === "agent" || role === "vendor"
-          ? schema.required(t("user.nameRequired"))
-          : schema
-      ),
-      phone: Yup.string().when("role", (role, schema) =>
-        role === "agent" || role === "vendor"
-          ? schema.required(t("user.phoneRequired"))
-          : schema
-      ),
-      code: Yup.string().when("role", (role, schema) =>
-        role === "agent" ? schema.required(t("user.codeRequired")) : schema
-      ),
-      comission_amount: Yup.number().when("role", (role, schema) =>
-        role === "agent"
-          ? schema.required(t("user.commissionAmountRequired"))
-          : schema
-      ),
-      comission_type: Yup.string().when("role", (role, schema) =>
-        role === "agent"
-          ? schema.required(t("user.commissionTypeRequired"))
-          : schema
-      ),
-      registration_number: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.registrationNumberRequired"))
-          : schema
-      ),
-      license_number: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.licenseNumberRequired"))
-          : schema
-      ),
-      rating: Yup.number().when("role", (role, schema) =>
-        role === "vendor" ? schema.required(t("user.ratingRequired")) : schema
-      ),
-      admin_comission_amount: Yup.number().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.adminCommissionAmountRequired"))
-          : schema
-      ),
-      admin_comission_type: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.adminCommissionTypeRequired"))
-          : schema
-      ),
-      agent_comission_amount: Yup.number().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.agentCommissionAmountRequired"))
-          : schema
-      ),
-      agent_comission_type: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.agentCommissionTypeRequired"))
-          : schema
-      ),
-      logo: Yup.mixed().when("role", (role, schema) =>
-        role === "vendor" ? schema.required(t("user.logoRequired")) : schema
-      ),
-      description: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.descriptionRequired"))
-          : schema
-      ),
-      vendor_id: Yup.number().when("role", (role, schema) =>
-        role === "driver" ? schema.required(t("user.vendorIdRequired")) : schema
-      ),
-    });
 
 
 
@@ -438,10 +422,10 @@ export default function VendorList() {
             <div className="overflow-y-auto flex-1">
               <form
                 onSubmit={handleSubmit}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-2"
               >
                 {/* First Name */}
-                <div className="mb-4">
+                <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700">
                     {t("FIRST_NAME")} *
                   </label>
@@ -461,7 +445,7 @@ export default function VendorList() {
                 </div>
 
                 {/* Last Name */}
-                <div className="mb-4">
+                <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700">
                     {t("LAST_NAME")} *
                   </label>
@@ -481,7 +465,7 @@ export default function VendorList() {
                 </div>
 
                 {/* Email */}
-                <div className="mb-4">
+                <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700">
                     {t("EMAIL")}
                   </label>
@@ -499,7 +483,7 @@ export default function VendorList() {
                 </div>
 
                 {/* Mobile */}
-                <div className="mb-4">
+                <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700">
                     {t("MOBILE")}
                   </label>
@@ -517,7 +501,7 @@ export default function VendorList() {
                 </div>
 
                 {/* Role */}
-                <div className="mb-4">
+                <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700">
                     {t("ROLE")} *
                   </label>
@@ -542,7 +526,7 @@ export default function VendorList() {
                 </div>
 
                 {/* Password */}
-                <div className="mb-4">
+                <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700">
                     {t("PASSWORD")} *
                   </label>
@@ -562,7 +546,7 @@ export default function VendorList() {
                 </div>
 
                 {/* Status */}
-                <div className="mb-4">
+                <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700">
                     {t("STATUS")} *
                   </label>
@@ -584,122 +568,157 @@ export default function VendorList() {
                   )}
                 </div>
 
-                {/* Conditional Fields Based on Role */}
-                {(formData.role === "agent" || formData.role === "vendor") && (
-                  <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("NAME")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.name : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.name && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.name}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("PHONE")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.phone : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.phone && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.phone}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                {formData.role === "agent" && (
-                  <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("CODE")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.code : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, code: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.code && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.code}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("COMMISSION_AMOUNT")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.comission_amount : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            comission_amount: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.comission_amount && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.comission_amount}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("COMMISSION_TYPE")}
-                      </label>
-                      <select
-                        value={formData ? formData.comission_type : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            comission_type: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
-                        <option value="fixed">Fixed</option>
-                        <option value="percentage">Percentage</option>
-                      </select>
-                      {formErrors?.comission_type && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.comission_type}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-
                 {formData.role === "vendor" && (
                   <>
-                    <div className="mb-4">
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("SHORT_NAME")}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData ? formData.short_name : ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            short_name: e.target.value,
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.short_name && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.short_name}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("LONG_NAME")}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData ? formData.long_name : ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            long_name: e.target.value,
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.long_name && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.long_name}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("REPRESENTATIVE_NAME")}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData ? formData.representative_name : ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            representative_name: e.target.value,
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.representative_name && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.representative_name}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("REPRESENTATIVE_PHONE")}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData ? formData.representative_phone : ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            representative_phone: e.target.value,
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.representative_phone && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.representative_phone}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("REPRESENTATIVE_EMAIL")}
+                      </label>
+                      <input
+                        type="email"
+                        value={formData ? formData.representative_email : ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            representative_email: e.target.value,
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.representative_email && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.representative_email}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("REPRESENTATIVE_NID")}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData ? formData.representative_nid : ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            representative_nid: e.target.value,
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.representative_nid && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.representative_nid}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("REPRESENTATIVE_POSITION")}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData ? formData.representative_position : ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            representative_position: e.target.value,
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.representative_position && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.representative_position}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("REGISTRATION_NUMBER")}
                       </label>
@@ -721,7 +740,7 @@ export default function VendorList() {
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("LICENSE_NUMBER")}
                       </label>
@@ -743,7 +762,7 @@ export default function VendorList() {
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("RATING")}
                       </label>
@@ -765,7 +784,7 @@ export default function VendorList() {
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("ADMIN_COMMISSION_AMOUNT")}
                       </label>
@@ -787,7 +806,7 @@ export default function VendorList() {
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("ADMIN_COMMISSION_TYPE")}
                       </label>
@@ -812,7 +831,7 @@ export default function VendorList() {
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("AGENT_COMMISSION_AMOUNT")}
                       </label>
@@ -834,7 +853,7 @@ export default function VendorList() {
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("AGENT_COMMISSION_TYPE")}
                       </label>
@@ -858,26 +877,35 @@ export default function VendorList() {
                         </p>
                       )}
                     </div>
-
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
-                        {t("LOGO")}
+                        {t("SETTLEMENT_PERIOD")}
                       </label>
-                      <input
-                        type="file"
+                      <select
+                        value={formData ? formData.settlement_period : ""}
                         onChange={(e) =>
-                          setFormData({ ...formData, logo: e.target.files[0] })
+                          setFormData({
+                            ...formData,
+                            settlement_period: e.target.value,
+                          })
                         }
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.logo && (
+                      >
+                        <option value="">
+                          {t("SELECT_SETTLEMENT_PERIOD")}
+                        </option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                      </select>
+                      {formErrors?.settlement_period && (
                         <p className="text-red-500 text-sm">
-                          {formErrors?.logo}
+                          {formErrors?.settlement_period}
                         </p>
                       )}
                     </div>
 
-                    <div className="mb-4">
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
                         {t("DESCRIPTION")}
                       </label>
@@ -897,58 +925,25 @@ export default function VendorList() {
                         </p>
                       )}
                     </div>
-                  </>
-                )}
 
-                {formData.role === "driver" && (
-                  <div className="mb-4">
-                    {/*  */}
-                    <div className="mb-4" ref={dropdownRef}>
+                    <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-700">
-                        {t("VENDOR")} *
+                        {t("LOGO")}
                       </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder={t("SEARCH_VENDOR")}
-                          value={modalVendorSearchTag}
-                          onChange={(e) => {
-                            setModalVendorSearchTag(e.target.value);
-                            setShowModalVendorDropdown(true);
-                          }}
-                          onFocus={() => setShowModalVendorDropdown(true)}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                        {showModalVendorDropdown && (
-                          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {vendorList
-                              .filter((vendor) =>
-                                vendor?.vendor.name.includes(
-                                  modalVendorSearchTag
-                                )
-                              )
-                              .map((vendor) => (
-                                <div
-                                  key={vendor.vendor.id}
-                                  onClick={() =>
-                                    handleModalVendorSelect(vendor.vendor)
-                                  }
-                                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                >
-                                  {vendor.vendor.name}
-                                </div>
-                              ))}
-                          </div>
-                        )}
-                      </div>
+                      <input
+                        type="file"
+                        onChange={(e) =>
+                          setFormData({ ...formData, logo: e.target.files[0] })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {formErrors?.logo && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.logo}
+                        </p>
+                      )}
                     </div>
-                    {/*  */}
-                    {formErrors?.vendor_id && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors?.vendor_id}
-                      </p>
-                    )}
-                  </div>
+                  </>
                 )}
 
                 <div>
@@ -960,6 +955,7 @@ export default function VendorList() {
                         setIsModalOpen(false);
                         setIsEditing(false);
                         setCurrentUserId({});
+                        setCurrentVendorId({})
                       }}
                       className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
@@ -1000,7 +996,6 @@ export default function VendorList() {
             />
           </div>
 
-
           {/* Add User Button */}
           <button
             onClick={() => {
@@ -1029,6 +1024,14 @@ export default function VendorList() {
                 logo: "",
                 description: "",
                 vendor_id: 0,
+                short_name: "",
+                long_name: "",
+                representative_name: "",
+                representative_phone: "",
+                representative_email: "",
+                representative_nid: "",
+                representative_position: "",
+                settlement_period: "",
               });
             }}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -1048,35 +1051,30 @@ export default function VendorList() {
           <Table>
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
-                {/* <TableCell
+                
+                <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("FIRST_NAME")}
+                  {t("SHORT_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("LAST_NAME")}
-                </TableCell> */}
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  {t("NAME")}
+                  {t("REP_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("EMAIL")}
+                  {t("REP_PHONE")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("PHONE")}
+                  {t("REP_EMAIL")}
                 </TableCell>
                 <TableCell
                   isHeader
@@ -1096,12 +1094,7 @@ export default function VendorList() {
                 >
                   {t("SETTLEMENT_PERIOD")}
                 </TableCell>
-                <TableCell
-                  isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  {t("ROLE")}
-                </TableCell>
+                
                 <TableCell
                   isHeader
                   className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -1120,35 +1113,29 @@ export default function VendorList() {
               {(selectedRole === "vendor" ? vendorList : users).map(
                 (user, index) => (
                   <TableRow key={index} className="hover:bg-yellow-50">
-                    {/* <TableCell className="py-3 text-black-500 text-theme-sm dark:text-gray-400">
-                      {user?.first_name}
+                    
+                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {user?.vendor?.short_name||"n/a"}
                     </TableCell>
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.last_name}
-                    </TableCell> */}
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.vendor?.name}
+                      {user?.vendor?.representative_name||"n/a"}
                     </TableCell>
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.vendor?.email}
+                      {user?.vendor?.representative_phone||"n/a"}
+                    </TableCell>
+                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {user?.vendor?.representative_email||"n/a"}
                     </TableCell>
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.vendor?.phone}
+                      {user?.vendor?.registration_number||"n/a"}
                     </TableCell>
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.vendor?.registration_number}
+                      {user?.vendor?.license_number||"n/a"}
                     </TableCell>
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.vendor?.license_number}
+                      {user?.vendor?.settlement_period||"n/a"}
                     </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.vendor?.settlement_period}
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div>
-                        {user?.role}
-                      </div>
-                    </TableCell>
+                    
 
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       <StatusBadge status={user?.status} />
@@ -1157,7 +1144,7 @@ export default function VendorList() {
                       <div className="flex flex-row items-center justify-start gap-2">
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                          onClick={() => handleEdit(user.id)}
+                          onClick={() => handleEdit(user)}
                         >
                           <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                         </div>

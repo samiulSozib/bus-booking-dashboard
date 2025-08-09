@@ -51,7 +51,7 @@ export default function DriverList() {
       ...formData,
       vendor_id: vendor.id,
     });
-    setModalVendorSearchTag(vendor.name);
+    setModalVendorSearchTag(vendor.short_name);
     setShowModalVendorDropdown(false);
   };
 
@@ -85,6 +85,10 @@ export default function DriverList() {
     dispatch(fetchUsers({ searchTag, page: currentPage, role: "driver" }));
   }, [dispatch, searchTag, currentPage, selectedRole]);
 
+    useEffect(() => {
+      dispatch(fetchUsers({ searchTag: modalVendorSearchTag, role: "vendor" }));
+    
+  }, [dispatch]);
 
 
   useEffect(() => {
@@ -585,320 +589,7 @@ export default function DriverList() {
                 </div>
 
                 {/* Conditional Fields Based on Role */}
-                {(formData.role === "agent" || formData.role === "vendor") && (
-                  <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("NAME")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.name : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.name && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.name}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("PHONE")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.phone : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.phone && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.phone}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                {formData.role === "agent" && (
-                  <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("CODE")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.code : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, code: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.code && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.code}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("COMMISSION_AMOUNT")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.comission_amount : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            comission_amount: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.comission_amount && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.comission_amount}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("COMMISSION_TYPE")}
-                      </label>
-                      <select
-                        value={formData ? formData.comission_type : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            comission_type: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
-                        <option value="fixed">Fixed</option>
-                        <option value="percentage">Percentage</option>
-                      </select>
-                      {formErrors?.comission_type && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.comission_type}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                {formData.role === "vendor" && (
-                  <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REGISTRATION_NUMBER")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.registration_number : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            registration_number: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.registration_number && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.registration_number}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LICENSE_NUMBER")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.license_number : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            license_number: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.license_number && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.license_number}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("RATING")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.rating : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            rating: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.rating && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.rating}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("ADMIN_COMMISSION_AMOUNT")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.admin_comission_amount : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            admin_comission_amount: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.admin_comission_amount && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.admin_comission_amount}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("ADMIN_COMMISSION_TYPE")}
-                      </label>
-                      <select
-                        value={formData ? formData.admin_comission_type : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            admin_comission_type: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
-                        <option value="fixed">Fixed</option>
-                        <option value="percentage">Percentage</option>
-                      </select>
-                      {formErrors?.admin_comission_type && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.admin_comission_type}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("AGENT_COMMISSION_AMOUNT")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.agent_comission_amount : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            agent_comission_amount: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.agent_comission_amount && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.agent_comission_amount}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("AGENT_COMMISSION_TYPE")}
-                      </label>
-                      <select
-                        value={formData ? formData.agent_comission_type : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            agent_comission_type: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
-                        <option value="fixed">Fixed</option>
-                        <option value="percentage">Percentage</option>
-                      </select>
-                      {formErrors?.agent_comission_type && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.agent_comission_type}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LOGO")}
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) =>
-                          setFormData({ ...formData, logo: e.target.files[0] })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.logo && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.logo}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("DESCRIPTION")}
-                      </label>
-                      <textarea
-                        value={formData ? formData.description : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            description: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.description && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.description}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
+              
 
                 {formData.role === "driver" && (
                   <div className="mb-4">
@@ -922,20 +613,22 @@ export default function DriverList() {
                         {showModalVendorDropdown && (
                           <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                             {vendorList
-                              .filter((vendor) =>
-                                vendor?.vendor.name.includes(
-                                  modalVendorSearchTag
-                                )
-                              )
+                              .filter((vendor) => {
+                                const name =
+                                  vendor?.vendor?.short_name?.toLowerCase() ?? "";
+                                const search =
+                                  modalVendorSearchTag?.toLowerCase() ?? "";
+                                return name && name.includes(search);
+                              })
                               .map((vendor) => (
                                 <div
-                                  key={vendor.vendor.id}
+                                  key={vendor?.vendor?.id}
                                   onClick={() =>
-                                    handleModalVendorSelect(vendor.vendor)
+                                    handleModalVendorSelect(vendor?.vendor)
                                   }
                                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                 >
-                                  {vendor.vendor.name}
+                                  {vendor?.vendor?.short_name}
                                 </div>
                               ))}
                           </div>

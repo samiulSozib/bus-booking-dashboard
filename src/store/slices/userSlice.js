@@ -8,7 +8,7 @@ const getAuthToken = () => localStorage.getItem("token") || "";
 export const fetchUsers = createAsyncThunk(
   "users/fetch",
   async (
-    { searchTag = "", role = "", page = 1, vendorId = "",branch_id },
+    { searchTag = "", role = "", page = 1, vendorId = "", branch_id },
     { rejectWithValue }
   ) => {
     try {
@@ -19,8 +19,8 @@ export const fetchUsers = createAsyncThunk(
         url += `&vendor-id=${vendorId}`;
       }
 
-      if(branch_id){
-        url+=`&branch-id=${branch_id}`
+      if (branch_id) {
+        url += `&branch-id=${branch_id}`;
       }
 
       const response = await axios.get(url, {
@@ -182,6 +182,50 @@ export const editUser = createAsyncThunk(
   }
 );
 
+// Edit vendor
+export const editVendor = createAsyncThunk(
+  "users/editVendor",
+  async ({ vendorId, updatedData }, { rejectWithValue }) => {
+    try {
+      const token = getAuthToken();
+      const formData = new FormData();
+
+      //console.log(updatedData)
+
+      // Append all fields to formData
+      Object.keys(updatedData).forEach((key) => {
+        if (updatedData[key] !== null && updatedData[key] !== undefined) {
+          formData.append(key, updatedData[key]);
+        }
+      });
+      formData.append("id", vendorId);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      const response = await axios.post(
+        `${base_url}/admin/users/vendors/update`,
+        formData,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data.body.item;
+    } catch (error) {
+      //console.log(error)
+      if (error.response?.data?.errors) {
+        // Return the entire error response data
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 // Delete User
 export const deleteUser = createAsyncThunk(
   "users/delete",
@@ -273,6 +317,23 @@ const userSlice = createSlice({
       .addCase(editUser.rejected, (state, action) => {
         state.error = action.payload;
       })
+      // vendor update
+      .addCase(editVendor.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(editVendor.fulfilled, (state, action) => {
+        state.users = state.users.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+        state.vendorList = state.vendorList.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+      })
+
+      .addCase(editVendor.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      //
 
       .addCase(deleteUser.pending, (state) => {
         state.error = null;

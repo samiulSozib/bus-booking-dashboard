@@ -821,5 +821,29 @@
   "add_admin":"Add Admin",
   "edit_admin":"Edit Admin",
 
-  "AGENT_NAME":"Agent Name"
+  "AGENT_NAME":"Agent Name",
+
+  "SHORT_NAME":"Short Name",
+  "LONG_NAME":"Long Name",
+  "SELECT_SETTLEMENT_PERIOD":"Select Settlement Period",
+
+  
+    "user.shortNameRequired": "Short name is required",
+    "user.longNameRequired": "Long name is required",
+    "user.representativeNameRequired": "Representative name is required",
+    "user.representativePhoneRequired": "Representative phone is required",
+    "user.representativePhoneInvalid": "Representative phone must be 10 digits",
+    "user.representativeEmailRequired": "Representative email is required",
+    "user.representativeEmailInvalid": "Representative email must be valid",
+    "user.representativeNidRequired": "Representative NID is required",
+    "user.representativePositionRequired": "Representative position is required",
+    "user.settlementPeriodRequired": "Settlement period is required",
+    
+    "REP_NAME":"Repr. Name",
+    "REP_PHONE":"Repr. Phone",
+    "REP_EMAIL":"Repr. Email"
+    
+  
+  
+
 }

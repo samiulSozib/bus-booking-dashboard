@@ -200,7 +200,7 @@ export default function TripList() {
   useEffect(() => {
     if (selectedTrip && isEditMode) {
       setVendorId(selectedTrip.vendor.id);
-      setModalVendorSearchTag(selectedTrip.vendor.name);
+      setModalVendorSearchTag(selectedTrip?.vendor?.short_name);
       setRouteId(selectedTrip.route.id);
       setModalRouteSearchTag(selectedTrip.route.name);
       setBusId(selectedTrip.bus.id);
@@ -254,7 +254,7 @@ export default function TripList() {
   // Handle vendor selection in modal
   const handleModalVendorSelect = (vendor) => {
     setVendorId(vendor.id);
-    setModalVendorSearchTag(vendor.name);
+    setModalVendorSearchTag(vendor.short_name);
     setShowModalVendorDropdown(false);
 
     setErrors((prevErrors) => {
@@ -784,7 +784,7 @@ export default function TripList() {
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                          {trip?.vendor.name}
+                          {trip?.vendor.short_name||"n/a"}
                         </p>
                       </div>
                     </div>
@@ -880,7 +880,7 @@ export default function TripList() {
                         {vendorList
                           .filter((vendor) => {
                             const name =
-                              vendor?.vendor?.name?.toLowerCase() ?? "";
+                              vendor?.vendor?.short_name?.toLowerCase() ?? "";
                             const search =
                               modalVendorSearchTag?.toLowerCase() ?? "";
                             return name && name.includes(search);
@@ -894,7 +894,7 @@ export default function TripList() {
                               }
                               className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                             >
-                              {vendor?.vendor?.name}
+                              {vendor?.vendor?.short_name}
                             </div>
                           ))}
                       </div>

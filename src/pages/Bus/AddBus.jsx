@@ -155,7 +155,7 @@ const AddBus = () => {
         seats: bus?.seats?.seats,
       });
       setDriverSearch(bus.driver.first_name);
-      setVendorSearch(bus.vendor.name);
+      setVendorSearch(bus.vendor.short_name);
       //
       setVendorBranchSearch(bus.branch.name);
       //
@@ -710,7 +710,7 @@ const AddBus = () => {
                   setShowVendorDropdown(true);
                   if (
                     selectedVendor &&
-                    e.target.value !== `${selectedVendor?.vendor?.name}`
+                    e.target.value !== `${selectedVendor?.vendor?.short_name}`
                   ) {
                     setSelectedVendor(null);
                     setFormData({ ...formData, vendor_id: "" });
@@ -726,7 +726,7 @@ const AddBus = () => {
                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
                   {vendorList
                     .filter((vendor) => {
-                      const name = vendor?.vendor?.name?.toLowerCase() ?? "";
+                      const name = vendor?.vendor?.short_name?.toLowerCase() ?? "";
                       const search = vendorSearch?.toLowerCase() ?? "";
                       return name && name.includes(search);
                     })
@@ -735,17 +735,17 @@ const AddBus = () => {
                         key={vendor.id}
                         onClick={() => {
                           handleVendorSelect(vendor.vendor);
-                          setVendorSearch(`${vendor?.vendor?.name}`);
+                          setVendorSearch(`${vendor?.vendor?.short_name}`);
                         }}
                         className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
                       >
-                        {vendor?.vendor?.name}
+                        {vendor?.vendor?.short_name}
                       </div>
                     ))}
                   {vendorList.filter(
                     (vendor) =>
                       vendor.role === "vendor" &&
-                      `${vendor?.vendor?.name}`
+                      `${vendor?.vendor?.short_name}`
                         .toLowerCase()
                         .includes(vendorSearch.toLowerCase())
                   ).length === 0 && (
