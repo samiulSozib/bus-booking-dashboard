@@ -226,6 +226,94 @@ export const editVendor = createAsyncThunk(
   }
 );
 
+// Edit agent
+export const editAgent = createAsyncThunk(
+  "users/editAgent",
+  async ({ agentId, updatedData }, { rejectWithValue }) => {
+    try {
+      const token = getAuthToken();
+      const formData = new FormData();
+
+      //console.log(updatedData)
+
+      // Append all fields to formData
+      Object.keys(updatedData).forEach((key) => {
+        if (updatedData[key] !== null && updatedData[key] !== undefined) {
+          formData.append(key, updatedData[key]);
+        }
+      });
+      formData.append("id", agentId);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      const response = await axios.post(
+        `${base_url}/admin/users/agents/update`,
+        formData,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data.body.item;
+    } catch (error) {
+      //console.log(error)
+      if (error.response?.data?.errors) {
+        // Return the entire error response data
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// Edit driver
+export const editDriver = createAsyncThunk(
+  "users/editDriver",
+  async ({ driverId, updatedData }, { rejectWithValue }) => {
+    try {
+      const token = getAuthToken();
+      const formData = new FormData();
+
+      //console.log(updatedData)
+
+      // Append all fields to formData
+      Object.keys(updatedData).forEach((key) => {
+        if (updatedData[key] !== null && updatedData[key] !== undefined) {
+          formData.append(key, updatedData[key]);
+        }
+      });
+      formData.append("id", driverId);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      const response = await axios.post(
+        `${base_url}/admin/users/drivers/update`,
+        formData,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data.body.item;
+    } catch (error) {
+      //console.log(error)
+      if (error.response?.data?.errors) {
+        // Return the entire error response data
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 // Delete User
 export const deleteUser = createAsyncThunk(
   "users/delete",
@@ -301,6 +389,12 @@ const userSlice = createSlice({
       })
       .addCase(addUser.fulfilled, (state, action) => {
         state.users.push(action.payload);
+        if (action.payload.role === "vendor") {
+          state.vendorList.push(action.payload);
+        }
+        if (action.payload.role === "driver") {
+          state.driverList.push(action.payload);
+        }
       })
       .addCase(addUser.rejected, (state, action) => {
         state.error = action.payload;
@@ -311,6 +405,12 @@ const userSlice = createSlice({
       })
       .addCase(editUser.fulfilled, (state, action) => {
         state.users = state.users.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+        state.vendorList = state.vendorList.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+        state.driverList = state.driverList.map((user) =>
           user.id === action.payload.id ? action.payload : user
         );
       })
@@ -331,6 +431,39 @@ const userSlice = createSlice({
       })
 
       .addCase(editVendor.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      //
+
+      // update agent
+      .addCase(editAgent.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(editAgent.fulfilled, (state, action) => {
+        state.users = state.users.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+      })
+
+      .addCase(editAgent.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      //
+
+      // update driver
+      .addCase(editDriver.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(editDriver.fulfilled, (state, action) => {
+        state.users = state.users.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+        state.driverList = state.driverList.map((user) =>
+          user.id === action.payload.id ? action.payload : user
+        );
+      })
+
+      .addCase(editDriver.rejected, (state, action) => {
         state.error = action.payload;
       })
       //

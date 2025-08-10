@@ -13,6 +13,7 @@ import {
 import { Delete, Edit, SearchIcon, View } from "../../../icons";
 import {
   addUser,
+  editDriver,
   editUser,
   fetchUsers,
   showUser,
@@ -23,7 +24,6 @@ import Pagination from "../../../components/pagination/pagination";
 import useOutsideClick from "../../../hooks/useOutSideClick";
 import StatusBadge from "../../../components/ui/badge/StatusBadge";
 
-
 export default function DriverList() {
   const dropdownRef = useRef(null);
   useOutsideClick(dropdownRef, () => {
@@ -31,14 +31,17 @@ export default function DriverList() {
   });
 
   const dispatch = useDispatch();
-  const { users, vendorList, selectedUser, loading, pagination } = useSelector(
-    (state) => state.users
-  );
+  const { users, driverList, vendorList, selectedUser, loading, pagination } =
+    useSelector((state) => state.users);
 
   const [searchTag, setSearchTag] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingDriver, setIsEditingDriver] = useState(false);
+
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentDriverId, setCurrentDriverId] = useState(null);
+
   const [formErrors, setFormErrors] = useState({});
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,13 +86,11 @@ export default function DriverList() {
 
   useEffect(() => {
     dispatch(fetchUsers({ searchTag, page: currentPage, role: "driver" }));
-  }, [dispatch, searchTag, currentPage, selectedRole]);
+  }, [dispatch, searchTag, currentPage]);
 
-    useEffect(() => {
-      dispatch(fetchUsers({ searchTag: modalVendorSearchTag, role: "vendor" }));
-    
+  useEffect(() => {
+    dispatch(fetchUsers({ searchTag: modalVendorSearchTag, role: "vendor" }));
   }, [dispatch]);
-
 
   useEffect(() => {
     if (selectedUser) {
@@ -144,102 +145,7 @@ export default function DriverList() {
     }
   }, [selectedUser]);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     // Validate form data
-  //     await getValidationSchema(t).validate(formData, { abortEarly: false });
-
-  //     const userData = { ...formData };
-  //     //console.log(userData)
-  //     //return
-  //     if (isEditing) {
-  //       // Dispatch the edit action
-  //       const editAction = await dispatch(
-  //         editUser({ userId: currentUserId, updatedData: userData })
-  //       );
-  //       if (editUser.fulfilled.match(editAction)) {
-  //         Swal.fire({
-  //           icon: "success",
-  //           title: t('success'),
-  //           text: t('userUpdateSuccessfully'),
-  //         });
-  //       } else {
-  //         throw new Error(editAction.payload || t('failedToUpdateUser'));
-  //       }
-  //     } else {
-  //       // Dispatch the add action
-  //       const addAction = await dispatch(addUser(userData));
-  //       if (addUser.fulfilled.match(addAction)) {
-  //         Swal.fire({
-  //           icon: "success",
-  //           title: t('success'),
-  //           text: t('userAddedSuccessfully'),
-  //         });
-  //       } else {
-  //         throw new Error(addAction.payload || t('failedToAddUser'));
-  //       }
-  //     }
-
-  //     // Reset form data and close modal
-  //     setFormData({
-  //       first_name: "",
-  //       last_name: "",
-  //       email: "",
-  //       mobile: "",
-  //       role: "",
-  //       password: "",
-  //       status: "",
-  //       name: "",
-  //       phone: "",
-  //       code: "",
-  //       comission_amount: 0,
-  //       comission_type: "",
-  //       registration_number: "",
-  //       license_number: "",
-  //       rating: 0,
-  //       admin_comission_amount: 0,
-  //       admin_comission_type: "",
-  //       agent_comission_amount: 0,
-  //       agent_comission_type: "",
-  //       logo: "",
-  //       description: "",
-  //       vendor_id: 0,
-  //     });
-
-  //     setIsModalOpen(false);
-  //     setIsEditing(false);
-  //     setCurrentUserId(null);
-  //     setFormErrors({}); // Clear any previous errors
-  //   } catch (err) {
-  //     if (err instanceof ValidationError) {
-  //       const errors = {};
-  //       err.inner.forEach((error) => {
-  //         if (!errors[error.path]) {
-  //           errors[error.path] = error.message;
-  //         }
-  //       });
-  //       setFormErrors(errors);
-  //       return; // Prevent further error handling
-  //     } else if (err.type === "api") {
-  //       const newErrors = {};
-  //       Object.entries(err.errors).forEach(([field, messages]) => {
-  //         newErrors[field] = Array.isArray(messages)
-  //           ? messages.join(" ")
-  //           : messages;
-  //       });
-  //       setFormErrors(newErrors);
-  //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: t('error'),
-  //         text: err.message || t('failedToAddUpdateUser'),
-  //       });
-  //     }
-  //   }
-  // };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -248,7 +154,7 @@ export default function DriverList() {
       setFormErrors({});
 
       // Validate form data
-      await getValidationSchema(t).validate(formData, { abortEarly: false });
+      await getValidationSchema(t,isEditingDriver,isEditing).validate(formData, { abortEarly: false });
 
       const userData = { ...formData };
       let result;
@@ -256,6 +162,10 @@ export default function DriverList() {
       if (isEditing) {
         result = await dispatch(
           editUser({ userId: currentUserId, updatedData: userData })
+        );
+      }else if(isEditingDriver){
+        result = await dispatch(
+          editDriver({ driverId: currentDriverId, updatedData: userData })
         );
       } else {
         result = await dispatch(addUser(userData));
@@ -313,7 +223,11 @@ export default function DriverList() {
       });
       setIsModalOpen(false);
       setIsEditing(false);
+      setIsEditingDriver(false)
       setCurrentUserId(null);
+      setCurrentDriverId(null)
+      setModalVendorSearchTag("")
+      
     } catch (err) {
       console.error("Submission error:", err);
 
@@ -336,98 +250,50 @@ export default function DriverList() {
       }
     }
   };
-  const handleEdit = (userId) => {
-    dispatch(showUser(userId));
+
+  const handleEdit = (user) => {
+    dispatch(showUser(user.id));
     setIsEditing(true);
-    setCurrentUserId(userId);
+    setCurrentUserId(user.id);
+    setCurrentDriverId(user?.driver?.id);
     setIsModalOpen(true);
   };
 
-  const getValidationSchema = (t) =>
+  const handleEditDriver = (user) => {
+    dispatch(showUser(user.id));
+    setIsEditingDriver(true);
+    setCurrentUserId(user.id);
+    setCurrentDriverId(user?.driver?.id);
+    setIsModalOpen(true);
+  };
+
+  const getValidationSchema = (t, isEditingDriver = false,isEditing=false) =>
     Yup.object().shape({
+      // Basic user info (always required)
       first_name: Yup.string().required(t("user.firstNameRequired")),
       last_name: Yup.string().required(t("user.lastNameRequired")),
       email: Yup.string()
         .email(t("user.invalidEmail"))
         .required(t("user.emailRequired")),
-      mobile: Yup.string().matches(/^[0-9]{10}$/, t("user.mobileInvalid")),
+      mobile: Yup.string()
+        .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
+        .required(t("user.mobileRequired")),
       role: Yup.string().required(t("user.roleRequired")),
-      password: Yup.string()
-        .required(t("user.passwordRequired"))
-        .min(6, t("user.passwordMin")),
+
+      // Password only required when creating new driver
+      password: isEditingDriver
+        ? Yup.string() // Not required when editing
+        : Yup.string()
+            .required(t("user.passwordRequired"))
+            .min(6, t("user.passwordMin")),
+
       status: Yup.string().required(t("user.statusRequired")),
 
-      // Conditional fields based on role
-      name: Yup.string().when("role", (role, schema) =>
-        role === "agent" || role === "vendor"
-          ? schema.required(t("user.nameRequired"))
-          : schema
-      ),
-      phone: Yup.string().when("role", (role, schema) =>
-        role === "agent" || role === "vendor"
-          ? schema.required(t("user.phoneRequired"))
-          : schema
-      ),
-      code: Yup.string().when("role", (role, schema) =>
-        role === "agent" ? schema.required(t("user.codeRequired")) : schema
-      ),
-      comission_amount: Yup.number().when("role", (role, schema) =>
-        role === "agent"
-          ? schema.required(t("user.commissionAmountRequired"))
-          : schema
-      ),
-      comission_type: Yup.string().when("role", (role, schema) =>
-        role === "agent"
-          ? schema.required(t("user.commissionTypeRequired"))
-          : schema
-      ),
-      registration_number: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.registrationNumberRequired"))
-          : schema
-      ),
-      license_number: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.licenseNumberRequired"))
-          : schema
-      ),
-      rating: Yup.number().when("role", (role, schema) =>
-        role === "vendor" ? schema.required(t("user.ratingRequired")) : schema
-      ),
-      admin_comission_amount: Yup.number().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.adminCommissionAmountRequired"))
-          : schema
-      ),
-      admin_comission_type: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.adminCommissionTypeRequired"))
-          : schema
-      ),
-      agent_comission_amount: Yup.number().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.agentCommissionAmountRequired"))
-          : schema
-      ),
-      agent_comission_type: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.agentCommissionTypeRequired"))
-          : schema
-      ),
-      logo: Yup.mixed().when("role", (role, schema) =>
-        role === "vendor" ? schema.required(t("user.logoRequired")) : schema
-      ),
-      description: Yup.string().when("role", (role, schema) =>
-        role === "vendor"
-          ? schema.required(t("user.descriptionRequired"))
-          : schema
-      ),
-      vendor_id: Yup.number().when("role", (role, schema) =>
-        role === "driver" ? schema.required(t("user.vendorIdRequired")) : schema
-      ),
+      // Driver-specific fields
+      vendor_id:isEditingDriver || (!isEditingDriver && !isEditing)? Yup.number()
+        .required(t("user.vendorIdRequired"))
+        .positive(t("user.vendorIdRequired")):Yup.string(""),
     });
-
-        
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
@@ -436,223 +302,255 @@ export default function DriverList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] flex flex-col">
             <h2 className="text-lg font-semibold mb-4">
-              {isEditing ? t("edit_driver") : t("add_driver")}
+              {isEditing
+                ? t("edit_user")
+                : isEditingDriver
+                ? t("edit_driver")
+                : t("add_driver")}
             </h2>
 
-            <div className="overflow-y-auto flex-1">
+            <div
+              className={`overflow-y-auto flex-1 ${
+                isEditingDriver ? "min-h-[200px]" : ""
+              }`}
+            >
               <form
                 onSubmit={handleSubmit}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                
               >
-                {/* First Name */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("FIRST_NAME")} *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData ? formData.first_name : ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, first_name: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {formErrors?.first_name && (
-                    <p className="text-red-500 text-sm">
-                      {formErrors?.first_name}
-                    </p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {!isEditing && (
+                    <div>
+                      {/*  */}
+                      <div className="mb-4" ref={dropdownRef}>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("VENDOR")} *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder={t("SEARCH_VENDOR")}
+                            value={modalVendorSearchTag}
+                            onChange={(e) => {
+                              setModalVendorSearchTag(e.target.value);
+                              setShowModalVendorDropdown(true);
+                            }}
+                            onFocus={() => setShowModalVendorDropdown(true)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          />
+                          {showModalVendorDropdown && (
+                            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              {vendorList
+                                .filter((vendor) => {
+                                  const name =
+                                    vendor?.vendor?.short_name?.toLowerCase() ??
+                                    "";
+                                  const search =
+                                    modalVendorSearchTag?.toLowerCase() ?? "";
+                                  return name && name.includes(search);
+                                })
+                                .map((vendor) => (
+                                  <div
+                                    key={vendor?.vendor?.id}
+                                    onClick={() =>
+                                      handleModalVendorSelect(vendor?.vendor)
+                                    }
+                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                  >
+                                    {vendor?.vendor?.short_name}
+                                  </div>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {formErrors?.vendor_id && (
+                        <p className="text-red-500 text-sm">
+                          {formErrors?.vendor_id}
+                        </p>
+                      )}
+                    </div>
                   )}
-                </div>
 
-                {/* Last Name */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("LAST_NAME")} *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData ? formData.last_name : ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, last_name: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {formErrors?.last_name && (
-                    <p className="text-red-500 text-sm">
-                      {formErrors?.last_name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Email */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("EMAIL")}
-                  </label>
-                  <input
-                    type="email"
-                    value={formData ? formData.email : ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {formErrors?.email && (
-                    <p className="text-red-500 text-sm">{formErrors?.email}</p>
-                  )}
-                </div>
-
-                {/* Mobile */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("MOBILE")}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData ? formData.mobile : ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, mobile: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {formErrors?.mobile && (
-                    <p className="text-red-500 text-sm">{formErrors?.mobile}</p>
-                  )}
-                </div>
-
-                {/* Role */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("ROLE")} *
-                  </label>
-                  <select
-                    value={formData ? formData.role : "driver"}
-                    disabled
-                    onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  >
-                    <option value="">{t("SELECT_ROLE")}</option>
-                    <option value="admin">Admin</option>
-                    <option value="customer">Customer</option>
-                    <option value="vendor">Vendor</option>
-                    <option value="agent">Agent</option>
-                    <option value="driver">Driver</option>
-                  </select>
-                  {formErrors?.role && (
-                    <p className="text-red-500 text-sm">{formErrors?.role}</p>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("PASSWORD")} *
-                  </label>
-                  <input
-                    type="password"
-                    value={formData ? formData.password : ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {formErrors?.password && (
-                    <p className="text-red-500 text-sm">
-                      {formErrors?.password}
-                    </p>
-                  )}
-                </div>
-
-                {/* Status */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("STATUS")} *
-                  </label>
-                  <select
-                    value={formData ? formData.status : ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, status: e.target.value })
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  >
-                    <option value="">{t("SELECT_STATUS")}</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="pending">Pending</option>
-                    <option value="banned">Banned</option>
-                  </select>
-                  {formErrors?.status && (
-                    <p className="text-red-500 text-sm">{formErrors?.status}</p>
-                  )}
-                </div>
-
-                {/* Conditional Fields Based on Role */}
-              
-
-                {formData.role === "driver" && (
-                  <div className="mb-4">
-                    {/*  */}
-                    <div className="mb-4" ref={dropdownRef}>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("VENDOR")} *
-                      </label>
-                      <div className="relative">
+                  {!isEditingDriver && (
+                    <>
+                      {/* First Name */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("FIRST_NAME")} *
+                        </label>
                         <input
                           type="text"
-                          placeholder={t("SEARCH_VENDOR")}
-                          value={modalVendorSearchTag}
-                          onChange={(e) => {
-                            setModalVendorSearchTag(e.target.value);
-                            setShowModalVendorDropdown(true);
-                          }}
-                          onFocus={() => setShowModalVendorDropdown(true)}
+                          value={formData ? formData.first_name : ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              first_name: e.target.value,
+                            })
+                          }
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         />
-                        {showModalVendorDropdown && (
-                          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                            {vendorList
-                              .filter((vendor) => {
-                                const name =
-                                  vendor?.vendor?.short_name?.toLowerCase() ?? "";
-                                const search =
-                                  modalVendorSearchTag?.toLowerCase() ?? "";
-                                return name && name.includes(search);
-                              })
-                              .map((vendor) => (
-                                <div
-                                  key={vendor?.vendor?.id}
-                                  onClick={() =>
-                                    handleModalVendorSelect(vendor?.vendor)
-                                  }
-                                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                >
-                                  {vendor?.vendor?.short_name}
-                                </div>
-                              ))}
-                          </div>
+                        {formErrors?.first_name && (
+                          <p className="text-red-500 text-sm">
+                            {formErrors?.first_name}
+                          </p>
                         )}
                       </div>
-                    </div>
-                    {/*  */}
-                    {formErrors?.vendor_id && (
-                      <p className="text-red-500 text-sm">
-                        {formErrors?.vendor_id}
-                      </p>
-                    )}
-                  </div>
-                )}
 
-                <div>
+                      {/* Last Name */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("LAST_NAME")} *
+                        </label>
+                        <input
+                          type="text"
+                          value={formData ? formData.last_name : ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              last_name: e.target.value,
+                            })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                        {formErrors?.last_name && (
+                          <p className="text-red-500 text-sm">
+                            {formErrors?.last_name}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Email */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("EMAIL")}
+                        </label>
+                        <input
+                          type="email"
+                          value={formData ? formData.email : ""}
+                          onChange={(e) =>
+                            setFormData({ ...formData, email: e.target.value })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                        {formErrors?.email && (
+                          <p className="text-red-500 text-sm">
+                            {formErrors?.email}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Mobile */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("MOBILE")}
+                        </label>
+                        <input
+                          type="text"
+                          value={formData ? formData.mobile : ""}
+                          onChange={(e) =>
+                            setFormData({ ...formData, mobile: e.target.value })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                        {formErrors?.mobile && (
+                          <p className="text-red-500 text-sm">
+                            {formErrors?.mobile}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Role */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("ROLE")} *
+                        </label>
+                        <select
+                          value={formData ? formData.role : "driver"}
+                          disabled
+                          onChange={(e) =>
+                            setFormData({ ...formData, role: e.target.value })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        >
+                          <option value="">{t("SELECT_ROLE")}</option>
+                          <option value="admin">Admin</option>
+                          <option value="customer">Customer</option>
+                          <option value="vendor">Vendor</option>
+                          <option value="agent">Agent</option>
+                          <option value="driver">Driver</option>
+                        </select>
+                        {formErrors?.role && (
+                          <p className="text-red-500 text-sm">
+                            {formErrors?.role}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Password */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("PASSWORD")} *
+                        </label>
+                        <input
+                          type="password"
+                          value={formData ? formData.password : ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              password: e.target.value,
+                            })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                        {formErrors?.password && (
+                          <p className="text-red-500 text-sm">
+                            {formErrors?.password}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Status */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("STATUS")} *
+                        </label>
+                        <select
+                          value={formData ? formData.status : ""}
+                          onChange={(e) =>
+                            setFormData({ ...formData, status: e.target.value })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        >
+                          <option value="">{t("SELECT_STATUS")}</option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                          <option value="pending">Pending</option>
+                          <option value="banned">Banned</option>
+                        </select>
+                        {formErrors?.status && (
+                          <p className="text-red-500 text-sm">
+                            {formErrors?.status}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {/* Conditional Fields Based on Role */}
+
                   <div className="flex justify-end gap-2 mt-4">
                     <button
                       type="button"
                       onClick={() => {
                         setFormErrors(null);
                         setIsModalOpen(false);
+                        setIsEditingDriver(false)
                         setIsEditing(false);
                         setCurrentUserId({});
+                        setCurrentDriverId(null)
+                        setModalVendorSearchTag("")
                       }}
                       className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
@@ -662,10 +560,9 @@ export default function DriverList() {
                       type="submit"
                       className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                      {isEditing ? t("UPDATE") : t("ADD")}
+                      {isEditing || isEditingDriver ? t("UPDATE") : t("ADD")}
                     </button>
                   </div>
-                </div>
               </form>
             </div>
           </div>
@@ -693,13 +590,12 @@ export default function DriverList() {
             />
           </div>
 
-          
-
           {/* Add User Button */}
           <button
             onClick={() => {
               setIsModalOpen(true);
               setIsEditing(false);
+              setIsEditingDriver(false)
               setFormData({
                 first_name: "",
                 last_name: "",
@@ -787,57 +683,47 @@ export default function DriverList() {
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {(selectedRole === "vendor" ? vendorList : users).map(
-                (user, index) => (
-                  <TableRow key={index} className="hover:bg-yellow-50">
-                    <TableCell className="py-3 text-black-500 text-theme-sm dark:text-gray-400">
-                      {user?.driver?.first_name}
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.driver?.last_name}
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.driver?.email}
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.driver?.mobile}
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div>
-                        {user?.role}
-                        {user?.role === "vendor" && user?.vendor && (
-                          <div>
-                            (<strong>{user.vendor.name}</strong>)
-                            <div className="text-[14px] text-gray-400">
-                              {user.vendor.email}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
+              {driverList.map((user, index) => (
+                <TableRow key={index} className="hover:bg-yellow-50">
+                  <TableCell className="py-3 text-black-500 text-theme-sm dark:text-gray-400">
+                    {user.driver?.first_name}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {user.driver?.last_name}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {user.driver?.email}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    {user.driver?.mobile}
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <div>{user?.role}</div>
+                  </TableCell>
 
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <StatusBadge status={user?.status} />
-                    </TableCell>
-                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div className="flex flex-row items-center justify-start gap-2">
-                        <div
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                          onClick={() => handleEdit(user.id)}
-                        >
-                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                        </div>
-                        {/* <div
-      className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
-      onClick={() => handleDelete(bus.id)}
-    >
-      <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
-    </div> */}
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <StatusBadge status={user?.status} />
+                  </TableCell>
+                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                    <div className="flex flex-row items-center justify-start gap-2">
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                        onClick={() => handleEdit(user)}
+                        title={t("edit_user")}
+                      >
+                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                        onClick={() => handleEditDriver(user)}
+                        title={t("edit_driver")}
+                      >
+                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}

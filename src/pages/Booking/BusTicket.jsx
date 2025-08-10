@@ -356,7 +356,7 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">{t('booking.traveler')}</span>
-                  <span className="font-bold">Reza Pahlavi</span>
+                  <span className="font-bold">{bookingDetails?.user?.first_name} {bookingDetails?.user?.last_name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">{t("booking.totalAmount")}</span>
@@ -366,17 +366,17 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
                   <span className="text-gray-500">{t("booking.remainingAmount")}</span>
                   <span className="font-bold">{bookingDetails?.remaining_amount}</span>
                 </div>
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span className="text-gray-500">{t("BOOKING_TIME")}</span>
                   <span className="font-bold">17:30</span>
-                </div>
+                </div> */}
                 <div className="flex justify-between">
                   <span className="text-gray-500">{t("DEPARTURE_TIME")}</span>
-                  <span className="font-bold">17:30</span>
+                  <span className="font-bold">{bookingDetails?.trip?.departure_time}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">{t("ARRIVAL_TIME")}</span>
-                  <span className="font-bold">17:30</span>
+                  <span className="font-bold">{bookingDetails?.trip?.arrival_time}</span>
                 </div>
               </div>
             </div>
