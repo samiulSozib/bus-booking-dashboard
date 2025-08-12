@@ -300,6 +300,7 @@ const RouteForm = ({
   const handleSubmitForm = (e) => {
     e.preventDefault();
     onSubmit(formData);
+    
   };
 
   const resetForm = () => {

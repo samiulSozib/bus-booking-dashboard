@@ -610,11 +610,11 @@ const AddBus = () => {
         .required(t("bus.driverRequired"))
         .positive(t("bus.driverRequired"))
         .integer(t("bus.driverRequired")),
-      vendor_branch_id: Yup.number()
-        .typeError(t("bus.vendorBranchRequired"))
-        .required(t("bus.vendorBranchRequired"))
-        .positive(t("bus.vendorBranchRequired"))
-        .integer(t("bus.vendorBranchRequired")),
+      // vendor_branch_id: Yup.number()
+      //   .typeError(t("bus.vendorBranchRequired"))
+      //   .required(t("bus.vendorBranchRequired"))
+      //   .positive(t("bus.vendorBranchRequired"))
+      //   .integer(t("bus.vendorBranchRequired")),
 
       vendor_id: isVendor
         ? Yup.mixed().notRequired()
@@ -816,11 +816,11 @@ const AddBus = () => {
                   )}
                 </div>
               )}
-              {errors.vendor_branch_id && (
+              {/* {errors.vendor_branch_id && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.vendor_branch_id}
                 </p>
-              )}
+              )} */}
             </div>
           )}
           {/* branch id */}

@@ -208,28 +208,62 @@ export function useUserPermissions(userId) {
   return userPermissions;
 }
 
-export function useHasPermission(permissionName) {
-  // const dispatch = useDispatch();
-  // const { userPermissions } = useSelector((state) => state.vendorUser);
+// export function useHasPermission(permissionName) {
+//   // const dispatch = useDispatch();
+//   // const { userPermissions } = useSelector((state) => state.vendorUser);
 
-  const profile = localStorage.getItem("profile");
-  const user = profile ? JSON.parse(profile) : null;
+//   const profile = localStorage.getItem("profile");
+//   const user = profile ? JSON.parse(profile) : null;
 
-  // useEffect(() => {
-  //   if (user?.id && (user.role === 'vendor_user')) {
-  //     dispatch(fetchUserPermissions(user.id));
-  //   }
-  // }, [dispatch, user?.id]);
-  const userPermissions = profile ? JSON.parse(profile)?.permissions || [] : [];
+//   // useEffect(() => {
+//   //   if (user?.id && (user.role === 'vendor_user')) {
+//   //     dispatch(fetchUserPermissions(user.id));
+//   //   }
+//   // }, [dispatch, user?.id]);
+//   const userPermissions = profile ? JSON.parse(profile)?.permissions || [] : [];
 
-  // Admin and Vendor have full access
-  if (!user) return false;
-  if (user.role === "admin" || user.role === "vendor" || user.role==="branch" || user.role==="vendor_branch") return true;
+//   // Admin and Vendor have full access
+//   if (!user) return false;
+//   if (user.role === "admin" || user.role === "vendor" || user.role==="branch" || user.role==="vendor_branch") return true;
 
-  // Vendor_user: check permission from list
-  return userPermissions.some(
-    (p) => p.name === permissionName && p.has_permission
-  );
+//   // Vendor_user: check permission from list
+//   return userPermissions.some(
+//     (p) => p.name === permissionName && p.has_permission
+//   );
+// }
+
+
+// hooks/useHasPermission.js
+export function useHasPermission(permissionNames) {
+  const profileStr = localStorage.getItem("profile");
+  if (!profileStr) return false;
+
+  let user;
+  try {
+    user = JSON.parse(profileStr);
+  } catch {
+    return false;
+  }
+
+  const { role, permissions = [] } = user;
+
+  // Roles with full access
+  const fullAccessRoles = ["admin", "vendor", "branch", "vendor_branch"];
+  if (fullAccessRoles.includes(role)) return true;
+
+  // Ensure we always work with an array
+  const requiredPermissions = Array.isArray(permissionNames)
+    ? permissionNames
+    : [permissionNames];
+
+  // Vendor_user: check permission list
+  if (role === "vendor_user") {
+    return permissions.some(
+      (p) => requiredPermissions.includes(p.name) && p.has_permission
+    );
+  }
+
+  // Default: no access
+  return false;
 }
-
 

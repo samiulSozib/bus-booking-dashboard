@@ -1229,6 +1229,7 @@ const RouteList = () => {
     setActiveFilters(filters);
     setCurrentPage(1);
   };
+  
 
   const resetModal = () => {
     setIsModalOpen(false);
