@@ -72,6 +72,9 @@ export const editBus = createAsyncThunk(
 
       // Append basic fields
       formData.append("id", busId);
+      if(busData.vendor_id){
+        formData.append("vendor_id",busData.vendor_id)
+      }
       formData.append("driver_id", busData.driver_id);
       formData.append("name", busData.name);
       formData.append("bus_number", busData.bus_number);

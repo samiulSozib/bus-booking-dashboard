@@ -528,6 +528,8 @@ const AddBus = () => {
 
     try {
       // First validate all fields except berth configuration
+      //console.log(formData)
+      //return
       const schema = getBusInfoSchema(isVendor, t).omit([
         "berth_type",
         "rows",
