@@ -157,7 +157,7 @@ const AddBus = () => {
       setDriverSearch(bus.driver.first_name);
       setVendorSearch(bus.vendor.short_name);
       //
-      setVendorBranchSearch(bus.branch.name);
+      setVendorBranchSearch(bus?.branch?.name);
       //
       if (bus.image) {
         setImagePreview(bus.image);

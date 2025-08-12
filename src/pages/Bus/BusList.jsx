@@ -227,7 +227,7 @@ const BusList = () => {
                   </TableCell>
                   {user_type.role == "admin" && (
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {bus?.vendor?.name}
+                      {bus?.vendor?.short_name}
                     </TableCell>
                   )}
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
