@@ -45,7 +45,7 @@ const navItems = useMemo(
         icon: <Dashboard />,
         name: "DASHBOARD",
         path: "/",
-        roles: ["admin", "vendor", "branch", "vendor_user"],
+        roles: ["admin", "vendor", "branch", "vendor_user","vendor_branch_user"],
       },
       {
         icon: <Location />,
@@ -61,13 +61,13 @@ const navItems = useMemo(
         icon: <Station />,
         name: "STATIONS",
         path: "/stations",
-        roles: ["admin","branch"],
+        roles: ["admin","branch","vendor_branch_user"]
       },
       {
         icon: <Direction />,
         name: "ROUTES",
         path: "/routes",
-        roles: ["admin", "vendor", "vendor_user","branch"],
+        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"]
       },
       {
         icon: <Discount />,
@@ -79,7 +79,7 @@ const navItems = useMemo(
         icon: <Trip />,
         name: "TRIPS",
         path: "/trips",
-        roles: ["admin", "vendor", "vendor_user","branch"],
+        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <User_Group />,
@@ -112,7 +112,7 @@ const navItems = useMemo(
               { name: "WALLET_TRANSACTION", path: "/wallet-transactions" }
             );
           }
-          if (role === "vendor" || role === "vendor_user" || role==="branch") {
+          if (role === "vendor" || role === "vendor_user" || role==="branch" || role==="vendor_branch_user") {
             
               items.push({ name: "WALLET", path: "/vendor-wallet" });
             
@@ -124,31 +124,31 @@ const navItems = useMemo(
         icon: <Bus />,
         name: "BUS",
         path: "/buses",
-        roles: ["admin", "vendor", "vendor_user","branch"],
+        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <User_Group />,
         name: "DRIVERS",
         path: "/drivers",
-        roles: ["vendor", "vendor_user","branch"],
+        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <User_Group />,
         name: "VENDOR_USER",
         path: "/vendor-users",
-        roles: ["vendor", "vendor_user","branch"],
+        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <User_Group />,
         name: "ROLES",
         path: "/vendor-users-roles",
-        roles: ["vendor", "vendor_user","branch"],
+        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <Ticket />,
         name: "BOOKING",
         path: "/bookings",
-        roles: ["admin", "vendor", "vendor_user","branch"],
+        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <Settings />,
@@ -160,13 +160,13 @@ const navItems = useMemo(
         icon: <Wallet />,
         name: "EXPENSE_CATEGORY",
         path: "/expense-category",
-        roles: ["vendor", "vendor_user","branch"],
+        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <Wallet />,
         name: "EXPENSE",
         path: "/expense",
-        roles: ["vendor", "vendor_user","branch"],
+        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
       },
       {
         icon: <Wallet />,

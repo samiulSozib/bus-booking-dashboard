@@ -366,7 +366,7 @@ useOutsideClick(dropdownRefs.city, () => {
             {/* Station Latitude */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
-                {t('STATION_LAT')} *
+                {t('STATION_LAT')}
               </label>
               <input
                 type="text"
@@ -375,15 +375,13 @@ useOutsideClick(dropdownRefs.city, () => {
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
-              {errors.stationLat && (
-                <p className="text-red-500 text-sm mt-1">{errors.stationLat}</p>
-              )}
+              
             </div>
 
             {/* Station Longitude */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
-                {t('STATION_LONG')} *
+                {t('STATION_LONG')}
               </label>
               <input
                 type="text"
@@ -392,9 +390,7 @@ useOutsideClick(dropdownRefs.city, () => {
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
-              {errors.stationLong && (
-                <p className="text-red-500 text-sm mt-1">{errors.stationLong}</p>
-              )}
+              
             </div>
 
             {/* Buttons */}

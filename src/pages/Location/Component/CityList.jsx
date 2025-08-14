@@ -89,6 +89,11 @@ export default function CityList() {
     dispatch(fetchCountries({ searchTag: countrySearchTag }));
   }, [dispatch, countrySearchTag]);
 
+    // Fetch countries on component mount
+  useEffect(() => {
+    dispatch(fetchCountries({ searchTag: modalCountrySearchTag }));
+  }, [dispatch, modalCountrySearchTag]);
+
   // Fetch provinces when a country is selected (for table filtering)
   useEffect(() => {
     if (selectedCountryId) {
@@ -273,6 +278,8 @@ export default function CityList() {
     setCityName({ en: "", ps: "", fa: "" });
     setCityCode("");
     setModalSelectedCountryId(null);
+    setModalCountrySearchTag("")
+    setModalProvinceSearchTag("")
     setModalSelectedProvinceId(null);
     setIsModalOpen(false);
     setCurrentCityId(null);

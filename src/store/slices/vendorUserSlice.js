@@ -78,7 +78,9 @@ export const addVendorUser = createAsyncThunk(
       //   "vendor_user_role_id",
       //   userData.vendor_user_role_id || ""
       // );
-      formData.append("vendor_branch_id",userData.vendor_branch_id)
+      if(userData.vendor_branch_id){
+        formData.append("vendor_branch_id",userData.vendor_branch_id)
+      }
       formData.append("first_name", userData.first_name);
       formData.append("last_name", userData.last_name);
       formData.append("email", userData.email || "");
@@ -130,7 +132,10 @@ export const updateVendorUser = createAsyncThunk(
         "vendor_user_role_id",
         updatedData.vendor_user_role_id || ""
       );
-      formData.append("vendor_branch_id",updatedData.vendor_branch_id)
+      if(updatedData.vendor_branch_id){
+        formData.append("vendor_branch_id",updatedData.vendor_branch_id)
+      }
+      
       formData.append("first_name", updatedData.first_name);
       formData.append("last_name", updatedData.last_name);
       formData.append("email", updatedData.email || "");

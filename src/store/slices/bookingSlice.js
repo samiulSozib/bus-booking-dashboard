@@ -88,7 +88,11 @@ export const createBooking = createAsyncThunk(
       return response.data.body.item;
     } catch (error) {
       console.log(error);
-      return rejectWithValue(error.response?.data?.message || error.message);
+      if (error.response?.data?.errors) {
+        // Return the entire error response data
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue(error.message);
     }
   }
 );

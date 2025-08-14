@@ -53,6 +53,12 @@ const StationTable = ({ stations, loading, onEdit, onDelete }) => {
               isHeader
               className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
+              {t("PROVINCE_NAME")}
+            </TableCell>
+            <TableCell
+              isHeader
+              className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+            >
               {t("ACTION")}
             </TableCell>
           </TableRow>
@@ -78,6 +84,9 @@ const StationTable = ({ stations, loading, onEdit, onDelete }) => {
               </TableCell>
               <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                 {station.city.name}
+              </TableCell>
+              <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                {station.city?.province?.name}
               </TableCell>
               <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                 <div className="flex flex-row items-center justify-start gap-2">

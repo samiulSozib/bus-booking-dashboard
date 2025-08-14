@@ -145,7 +145,6 @@ export default function DriverList() {
     }
   }, [selectedUser]);
 
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -154,7 +153,10 @@ export default function DriverList() {
       setFormErrors({});
 
       // Validate form data
-      await getValidationSchema(t,isEditingDriver,isEditing).validate(formData, { abortEarly: false });
+      await getValidationSchema(t, isEditingDriver, isEditing).validate(
+        formData,
+        { abortEarly: false }
+      );
 
       const userData = { ...formData };
       let result;
@@ -163,7 +165,7 @@ export default function DriverList() {
         result = await dispatch(
           editUser({ userId: currentUserId, updatedData: userData })
         );
-      }else if(isEditingDriver){
+      } else if (isEditingDriver) {
         result = await dispatch(
           editDriver({ driverId: currentDriverId, updatedData: userData })
         );
@@ -223,11 +225,10 @@ export default function DriverList() {
       });
       setIsModalOpen(false);
       setIsEditing(false);
-      setIsEditingDriver(false)
+      setIsEditingDriver(false);
       setCurrentUserId(null);
-      setCurrentDriverId(null)
-      setModalVendorSearchTag("")
-      
+      setCurrentDriverId(null);
+      setModalVendorSearchTag("");
     } catch (err) {
       console.error("Submission error:", err);
 
@@ -267,7 +268,7 @@ export default function DriverList() {
     setIsModalOpen(true);
   };
 
-  const getValidationSchema = (t, isEditingDriver = false,isEditing=false) =>
+  const getValidationSchema = (t, isEditingDriver = false, isEditing = false) =>
     Yup.object().shape({
       // Basic user info (always required)
       first_name: Yup.string().required(t("user.firstNameRequired")),
@@ -290,9 +291,12 @@ export default function DriverList() {
       status: Yup.string().required(t("user.statusRequired")),
 
       // Driver-specific fields
-      vendor_id:isEditingDriver || (!isEditingDriver && !isEditing)? Yup.number()
-        .required(t("user.vendorIdRequired"))
-        .positive(t("user.vendorIdRequired")):Yup.string(""),
+      vendor_id:
+        isEditingDriver || (!isEditingDriver && !isEditing)
+          ? Yup.number()
+              .required(t("user.vendorIdRequired"))
+              .positive(t("user.vendorIdRequired"))
+          : Yup.string(""),
     });
 
   return (
@@ -314,10 +318,7 @@ export default function DriverList() {
                 isEditingDriver ? "min-h-[200px]" : ""
               }`}
             >
-              <form
-                onSubmit={handleSubmit}
-                
-              >
+              <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {!isEditing && (
                     <div>
@@ -540,29 +541,53 @@ export default function DriverList() {
                 </div>
                 {/* Conditional Fields Based on Role */}
 
-                  <div className="flex justify-end gap-2 mt-4">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormErrors(null);
-                        setIsModalOpen(false);
-                        setIsEditingDriver(false)
-                        setIsEditing(false);
-                        setCurrentUserId({});
-                        setCurrentDriverId(null)
-                        setModalVendorSearchTag("")
-                      }}
-                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                      {t("CANCEL")}
-                    </button>
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                      {isEditing || isEditingDriver ? t("UPDATE") : t("ADD")}
-                    </button>
-                  </div>
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormErrors(null);
+                      setIsModalOpen(false);
+                      setIsEditingDriver(false);
+                      setIsEditing(false);
+                      setCurrentUserId({});
+                      setCurrentDriverId(null);
+                      setModalVendorSearchTag("");
+                      setFormData({
+                        first_name: "",
+                        last_name: "",
+                        email: "",
+                        mobile: "",
+                        role: "agent",
+                        password: "",
+                        status: "",
+                        name: "",
+                        phone: "",
+                        code: "",
+                        comission_amount: 0,
+                        comission_type: "",
+                        registration_number: "",
+                        license_number: "",
+                        rating: 0,
+                        admin_comission_amount: 0,
+                        admin_comission_type: "",
+                        agent_comission_amount: 0,
+                        agent_comission_type: "",
+                        logo: "",
+                        description: "",
+                        vendor_id: 0,
+                      });
+                    }}
+                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    {t("CANCEL")}
+                  </button>
+                  <button
+                    type="submit"
+                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    {isEditing || isEditingDriver ? t("UPDATE") : t("ADD")}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
@@ -595,7 +620,7 @@ export default function DriverList() {
             onClick={() => {
               setIsModalOpen(true);
               setIsEditing(false);
-              setIsEditingDriver(false)
+              setIsEditingDriver(false);
               setFormData({
                 first_name: "",
                 last_name: "",

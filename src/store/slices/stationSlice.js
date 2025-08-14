@@ -17,7 +17,6 @@
 //     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
 //     .join('&');
 
-
 //     const response = await axios.get(`${base_url}/admin/stations?city-id=${cityId}&search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`, {
 //       headers: {
 //         Authorization: `Bearer ${token}`,
@@ -220,112 +219,140 @@
 
 // export default stationSlice.reducer;
 
-
-// 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+//
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 import { base_url } from "../../utils/const";
 import { userType } from "../../utils/utils";
-
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
 const buildFilterQuery = (filters) => {
   return Object.entries(filters)
-    .filter(([_, value]) => value !== null && value !== undefined && value !== "")
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&');
+    .filter(
+      ([_, value]) => value !== null && value !== undefined && value !== ""
+    )
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    )
+    .join("&");
 };
 
 export const fetchStations = createAsyncThunk(
-  'stations/fetchStations',
+  "stations/fetchStations",
   async ({ cityId, searchTag = "", page = 1, filters = {} }) => {
     const token = getAuthToken();
-    const type=userType()
+    const type = userType();
     if (type.role === "vendor_user") {
-        type.role = "vendor";
-      }
+      type.role = "vendor";
+    }
     const filterQuery = buildFilterQuery(filters);
     const response = await axios.get(
-      `${base_url}/${type.role}/stations?city-id=${cityId}&search=${searchTag}&page=${page}${filterQuery ? `&${filterQuery}` : ''}`,
+      `${base_url}/${
+        type.role
+      }/stations?city-id=${cityId}&search=${searchTag}&page=${page}${
+        filterQuery ? `&${filterQuery}` : ""
+      }`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
-    return { items: response.data.body.items, pagination: response.data.body.data };
+    return {
+      items: response.data.body.items,
+      pagination: response.data.body.data,
+    };
   }
 );
 
 export const showStation = createAsyncThunk(
-  'stations/showStation',
+  "stations/showStation",
   async (stationId) => {
     const token = getAuthToken();
-    const response = await axios.get(`${base_url}/admin/stations/${stationId}/show`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axios.get(
+      `${base_url}/admin/stations/${stationId}/show`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data.body.item;
   }
 );
 
 export const addStation = createAsyncThunk(
-  'stations/addStation',
+  "stations/addStation",
   async (stationData, { rejectWithValue }) => {
     const token = getAuthToken();
     const formData = new FormData();
 
     formData.append("city_id", stationData.cityId);
-    formData.append('name', JSON.stringify({
-      en: stationData.stationName.en || '',
-      ps: stationData.stationName.ps || '',
-      fa: stationData.stationName.fa || '',
-    }));
-    formData.append('latitude', stationData.stationLat);
-    formData.append('longitude', stationData.stationLong);
+    formData.append(
+      "name",
+      JSON.stringify({
+        en: stationData.stationName.en || "",
+        ps: stationData.stationName.ps || "",
+        fa: stationData.stationName.fa || "",
+      })
+    );
+
+    formData.append("latitude", stationData.stationLat);
+    formData.append("longitude", stationData.stationLong);
 
     try {
-      const response = await axios.post(`${base_url}/admin/stations`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        `${base_url}/admin/stations`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data.body.item;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return rejectWithValue(error.message);
     }
   }
 );
 
 export const editStation = createAsyncThunk(
-  'stations/editStation',
+  "stations/editStation",
   async ({ id, stationData }, { rejectWithValue }) => {
     const token = getAuthToken();
     const formData = new FormData();
 
-    formData.append('id', id);
+    formData.append("id", id);
     formData.append("city_id", stationData.cityId);
-    formData.append('name', JSON.stringify({
-      en: stationData.stationName.en || '',
-      ps: stationData.stationName.ps || '',
-      fa: stationData.stationName.fa || '',
-    }));
-    formData.append('latitude', stationData.stationLat);
-    formData.append('longitude', stationData.stationLong);
+    formData.append(
+      "name",
+      JSON.stringify({
+        en: stationData.stationName.en || "",
+        ps: stationData.stationName.ps || "",
+        fa: stationData.stationName.fa || "",
+      })
+    );
+    formData.append("latitude", stationData.stationLat);
+    formData.append("longitude", stationData.stationLong);
 
     try {
-      const response = await axios.post(`${base_url}/admin/stations/update`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        `${base_url}/admin/stations/update`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -334,7 +361,7 @@ export const editStation = createAsyncThunk(
 );
 
 export const deleteStation = createAsyncThunk(
-  'stations/deleteStation',
+  "stations/deleteStation",
   async (stationId, { rejectWithValue }) => {
     const token = getAuthToken();
     try {
@@ -351,7 +378,7 @@ export const deleteStation = createAsyncThunk(
 );
 
 const stationSlice = createSlice({
-  name: 'stations',
+  name: "stations",
   initialState: {
     loading: false,
     stations: [],
@@ -360,8 +387,8 @@ const stationSlice = createSlice({
     pagination: {
       current_page: 1,
       last_page: 1,
-      total: 0
-    }
+      total: 0,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -394,9 +421,13 @@ const stationSlice = createSlice({
         state.error = null;
       })
       .addCase(addStation.fulfilled, (state, action) => {
-        state.stations.push(action.payload);
-        state.error = null;
+        state.stations.unshift(action.payload); // add to start
+        if (state.stations.length > 20) {
+          state.stations.pop(); // remove last
+        }
+
         state.pagination.total += 1;
+        state.error = null;
       })
       .addCase(addStation.rejected, (state, action) => {
         state.error = action.payload;
@@ -417,7 +448,9 @@ const stationSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteStation.fulfilled, (state, action) => {
-        state.stations = state.stations.filter((station) => station.id !== action.payload);
+        state.stations = state.stations.filter(
+          (station) => station.id !== action.payload
+        );
         state.error = null;
       })
       .addCase(deleteStation.rejected, (state, action) => {

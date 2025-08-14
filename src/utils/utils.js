@@ -164,7 +164,7 @@ export function userType() {
   const profile = localStorage.getItem("profile");
   let data = profile ? JSON.parse(profile) : null;
   if(!data) return
-  if (data.role === "vendor_branch") {
+  if (data.role === "vendor_branch" || data.role==="vendor_branch_user") {
     return { ...data, role: "branch" }; // Return full object with modified role
   }
   return data;
@@ -267,3 +267,21 @@ export function useHasPermission(permissionNames) {
   return false;
 }
 
+
+
+  export function formatSeatNumber(num) {
+    const str = num.toString();
+    const rowNumber = parseInt(str.slice(0, -1), 10);
+    const seatNumber = parseInt(str.slice(-1), 10);
+
+    // Convert rowNumber to letter(s)
+    let rowLabel = "";
+    let n = rowNumber;
+    while (n > 0) {
+      n--; // adjust for 0-based index
+      rowLabel = String.fromCharCode(65 + (n % 26)) + rowLabel;
+      n = Math.floor(n / 26);
+    }
+
+    return `${rowLabel}${seatNumber}`;
+  }

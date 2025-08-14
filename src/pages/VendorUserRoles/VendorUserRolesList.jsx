@@ -65,11 +65,11 @@ export default function VendorUserRolesList() {
   }, [dispatch, currentPage, searchTag]);
 
   useEffect(() => {
-    if(formData.vendor_branch_id){
+    //if(formData.vendor_branch_id){
       dispatch(fetchPermissions({branch_permissions:formData.vendor_branch_id}));
-    }else if(isBranch){
-      dispatch(fetchPermissions({}));
-    }
+    //}else if(isBranch){
+      //dispatch(fetchPermissions({}));
+    //}
   }, [dispatch, formData?.vendor_branch_id]);
 
   
@@ -84,10 +84,12 @@ export default function VendorUserRolesList() {
   useEffect(() => {
     if (selectedRole && isEditing) {
       setFormData({
+        vendor_branch_id:selectedRole?.branch?.id,
         title: selectedRole.title,
         name: selectedRole.name,
         description: selectedRole.description || "",
       });
+      setVendorBranchSearch(selectedRole?.branch?.name)
       setSelectedPermissions(
         selectedRole.permissions
       );

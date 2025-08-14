@@ -199,10 +199,11 @@ export const editVendor = createAsyncThunk(
         }
       });
       formData.append("id", vendorId);
+      
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
 
       const response = await axios.post(
         `${base_url}/admin/users/vendors/update`,

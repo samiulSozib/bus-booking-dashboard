@@ -23,7 +23,6 @@ import Pagination from "../../../components/pagination/pagination";
 import useOutsideClick from "../../../hooks/useOutSideClick";
 import StatusBadge from "../../../components/ui/badge/StatusBadge";
 
-
 export default function CustomerList() {
   const dropdownRef = useRef(null);
   useOutsideClick(dropdownRef, () => {
@@ -84,8 +83,6 @@ export default function CustomerList() {
   useEffect(() => {
     dispatch(fetchUsers({ searchTag, page: currentPage, role: "customer" }));
   }, [dispatch, searchTag, currentPage]);
-
-
 
   useEffect(() => {
     if (selectedUser) {
@@ -958,6 +955,30 @@ export default function CustomerList() {
                         setIsModalOpen(false);
                         setIsEditing(false);
                         setCurrentUserId({});
+                        setFormData({
+                          first_name: "",
+                          last_name: "",
+                          email: "",
+                          mobile: "",
+                          role: "agent",
+                          password: "",
+                          status: "",
+                          name: "",
+                          phone: "",
+                          code: "",
+                          comission_amount: 0,
+                          comission_type: "",
+                          registration_number: "",
+                          license_number: "",
+                          rating: 0,
+                          admin_comission_amount: 0,
+                          admin_comission_type: "",
+                          agent_comission_amount: 0,
+                          agent_comission_type: "",
+                          logo: "",
+                          description: "",
+                          vendor_id: 0,
+                        });
                       }}
                       className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
@@ -997,8 +1018,6 @@ export default function CustomerList() {
               onChange={(e) => setSearchTag(e.target.value)}
             />
           </div>
-
-          
 
           {/* Add User Button */}
           <button
@@ -1122,7 +1141,7 @@ export default function CustomerList() {
                     </TableCell>
 
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      <StatusBadge status={user?.status}/>
+                      <StatusBadge status={user?.status} />
                     </TableCell>
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       <div className="flex flex-row items-center justify-start gap-2">

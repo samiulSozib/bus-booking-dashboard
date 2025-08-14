@@ -69,12 +69,11 @@ export default function ProvinceList() {
   useEffect(() => {
     dispatch(
       fetchProvinces({
-        countryId: selectedCountryId,
         searchTag: searchTag,
         page: currentPage,
       })
     );
-  }, [dispatch, currentPage, selectedCountryId, searchTag]);
+  }, [dispatch, currentPage, searchTag]);
 
   useEffect(() => {
     dispatch(fetchCountries({ searchTag: countrySearchTag }));
@@ -217,6 +216,7 @@ export default function ProvinceList() {
   };
 
   const handleModalCountrySelect = (country) => {
+    console.log(country)
     setModalSelectedCountryId(country.id);
     setCountrySearchTag(country.name); // Set the selected country name in the search input
     setShowCountryDropdown(false); // Hide the dropdown after selection
@@ -320,11 +320,11 @@ export default function ProvinceList() {
                   {showCountryDropdown && (
                     <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                       {countries
-                        .filter((country) =>
-                          country.name
-                            .toLowerCase()
-                            .includes(countrySearchTag.toLowerCase())
-                        )
+                        // .filter((country) =>
+                        //   country.name
+                        //     .toLowerCase()
+                        //     .includes(countrySearchTag.toLowerCase())
+                        // )
                         .map((country) => (
                           <div
                             key={country.id}
@@ -354,6 +354,8 @@ export default function ProvinceList() {
                     setIsModalOpen(false);
                     setIsEditing(false);
                     setCurrentProvinceId(null);
+                    setModalSelectedCountryId(null)
+                    setCountrySearchTag("")
                     setErrors({}); // Clear errors
                   }}
                   className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -408,7 +410,7 @@ export default function ProvinceList() {
 
       <hr />
 
-      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-end mt-1">
+      {/* <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-end mt-1">
         <div className="relative" ref={dropdownRef}>
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -444,7 +446,7 @@ export default function ProvinceList() {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Table */}
       <div className="max-w-full overflow-x-auto">

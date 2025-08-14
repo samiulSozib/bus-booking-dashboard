@@ -111,9 +111,9 @@ export default function VendorUserList() {
   }, [dispatch, currentPage, searchTag]);
 
   useEffect(() => {
-    dispatch(fetchPermissions());
+    dispatch(fetchPermissions({branch_permissions:vendor_branch_id}));
     dispatch(fetchRoles());
-  }, [dispatch]);
+  }, [dispatch,vendor_branch_id]);
 
       useEffect(() => {
       dispatch(fetchBranches({ searchTag: vendorBranchSearch }));
@@ -127,6 +127,9 @@ export default function VendorUserList() {
       setMobile(selectedUser.mobile);
       setPassword(selectedUser.password || "");
       setStatus(selectedUser.status);
+      setRole(selectedUser?.user_role?.id)
+      setVendorBranchSearch(selectedUser?.branch?.name)
+      setVendor_branch_id(selectedUser?.branch?.id)
     }
   }, [selectedUser, isEditing]);
 
@@ -499,6 +502,8 @@ export default function VendorUserList() {
                     setIsModalOpen(false);
                     setIsEditing(false);
                     setErrors({}); // Clear errors
+                    setVendorBranchSearch("")
+                    setVendor_branch_id(null)
                   }}
                   className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
@@ -654,14 +659,14 @@ export default function VendorUserList() {
                         <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </div>
                       )}
-                      {useHasPermission("v1.vendor.user.permissions")&&(
+                      {/* {useHasPermission("v1.vendor.user.permissions")&&(
                       <button
                         onClick={() => handleManagePermissions(user.id)}
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-200 hover:bg-blue-300 dark:bg-blue-700 dark:hover:bg-blue-600 cursor-pointer text-sm"
                       >
                         🔒
                       </button>
-                      )}
+                      )} */}
                     </div>
                   </TableCell>
                 </TableRow>

@@ -120,7 +120,7 @@ export const showTrip = createAsyncThunk(
           },
         }
       );
-      console.log(response);
+      //console.log(response);
       return response.data.body.item;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -196,7 +196,7 @@ export const editTrip = createAsyncThunk(
       if (type.role === "vendor_user") {
         type.role = "vendor";
       }
-      console.log(updatedData);
+      //console.log(updatedData);
       const formData = new FormData();
       if (updatedData.vendor_id) {
         formData.append("vendor_id", updatedData.vendor_id);
@@ -239,7 +239,7 @@ export const editTrip = createAsyncThunk(
       );
       return response.data.body.item;
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       return rejectWithValue(error?.response?.statusText);
     }
   }
@@ -263,10 +263,10 @@ export const deleteTrip = createAsyncThunk(
           },
         }
       );
-      console.log(response);
+      //console.log(response);
       return tripId;
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       return rejectWithValue(error.message);
     }
   }

@@ -102,7 +102,13 @@ const AddBus = () => {
 
   useEffect(() => {
     if (isAdmin) {
-      dispatch(fetchUsers({ searchTag: driverSearch, role: "driver",branch_id:formData?.vendor_branch_id }));
+      dispatch(
+        fetchUsers({
+          searchTag: driverSearch,
+          role: "driver",
+          branch_id: formData?.vendor_branch_id,
+        })
+      );
     } else {
       if (formData.vendor_branch_id) {
         dispatch(
@@ -119,7 +125,13 @@ const AddBus = () => {
         );
       }
     }
-  }, [dispatch,isAdmin,driverSearch,formData.vendor_branch_id,selectedVendor]);
+  }, [
+    dispatch,
+    isAdmin,
+    driverSearch,
+    formData.vendor_branch_id,
+    selectedVendor,
+  ]);
 
   // Fetch bus data if busId is provided (editing mode)
   useEffect(() => {
@@ -602,7 +614,27 @@ const AddBus = () => {
   };
   const handleSaveChangeSeat = async (e) => {
     //console.log(formData.seats)
-    await dispatch(updateSeat({ busId, busData: formData }));
+    const resultAction = await dispatch(
+      updateSeat({ busId, busData: formData })
+    );
+    if (updateSeat.fulfilled.match(resultAction)) {
+      Swal.fire({
+        icon: "success",
+        title: t("bus.successTitle"),
+        text: t("seatUpdatedSuccessfully"),
+        confirmButtonText: t("common.ok"),
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      setOpenDialog(false);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: t("common.errorOccurred") || "Error!",
+        text: t("common.somethingWentWrong"),
+      });
+      setOpenDialog(false);
+    }
   };
 
   const getBusInfoSchema = (isVendor, t) =>
@@ -728,7 +760,8 @@ const AddBus = () => {
                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
                   {vendorList
                     .filter((vendor) => {
-                      const name = vendor?.vendor?.short_name?.toLowerCase() ?? "";
+                      const name =
+                        vendor?.vendor?.short_name?.toLowerCase() ?? "";
                       const search = vendorSearch?.toLowerCase() ?? "";
                       return name && name.includes(search);
                     })
@@ -855,7 +888,7 @@ const AddBus = () => {
             />
             {showDriverDropdown && (
               <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
-                {(isAdmin?driverList:drivers)
+                {(isAdmin ? driverList : drivers)
                   .filter((driver) =>
                     `${driver.first_name} ${driver.last_name || ""}`
                       .toLowerCase()
@@ -875,7 +908,7 @@ const AddBus = () => {
                       {driver.first_name} {driver.last_name || ""}
                     </div>
                   ))}
-                {(isAdmin?driverList:drivers).filter((driver) =>
+                {(isAdmin ? driverList : drivers).filter((driver) =>
                   `${driver.first_name} ${driver.last_name || ""}`
                     .toLowerCase()
                     .includes(driverSearch.toLowerCase())

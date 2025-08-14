@@ -665,8 +665,8 @@ const StationList = () => {
 
     const [formData, setFormData] = useState({
       stationName: { en: '', ps: '', fa: '' },
-      stationLat: '',
-      stationLong: '',
+      stationLat: 0,
+      stationLong: 0,
       countryId: null,
       provinceId: null,
       cityId: null,

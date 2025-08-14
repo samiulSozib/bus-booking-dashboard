@@ -148,7 +148,9 @@ export default function AgentList() {
       setFormErrors({});
 
       // Validate form data
-      await getValidationSchema(t,isEditingAgent).validate(formData, { abortEarly: false });
+      await getValidationSchema(t, isEditingAgent).validate(formData, {
+        abortEarly: false,
+      });
 
       const userData = { ...formData };
       let result;
@@ -157,7 +159,7 @@ export default function AgentList() {
         result = await dispatch(
           editUser({ userId: currentUserId, updatedData: userData })
         );
-      }else if(isEditingAgent){
+      } else if (isEditingAgent) {
         result = await dispatch(
           editAgent({ agentId: currentAgentId, updatedData: userData })
         );
@@ -185,7 +187,7 @@ export default function AgentList() {
       Swal.fire({
         icon: "success",
         title: t("success"),
-        text: isEditing
+        text: isEditing||isEditingAgent
           ? t("userUpdateSuccessfully")
           : t("userAddedSuccessfully"),
       });
@@ -217,9 +219,9 @@ export default function AgentList() {
       });
       setIsModalOpen(false);
       setIsEditing(false);
-      setIsEditingAgent(false)
+      setIsEditingAgent(false);
       setCurrentUserId(null);
-      setCurrentAgentId(null)
+      setCurrentAgentId(null);
     } catch (err) {
       console.error("Submission error:", err);
 
@@ -259,7 +261,7 @@ export default function AgentList() {
     setIsModalOpen(true);
   };
 
-  const getValidationSchema = (t,isEditingAgent) =>
+  const getValidationSchema = (t, isEditingAgent) =>
     Yup.object().shape({
       // Basic user info (required for all users)
       first_name: Yup.string().required(t("user.firstNameRequired")),
@@ -270,9 +272,11 @@ export default function AgentList() {
       mobile: Yup.string()
         .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
         .required(t("user.mobileRequired")),
-      password:isEditingAgent?Yup.string(): Yup.string()
-        .required(t("user.passwordRequired"))
-        .min(6, t("user.passwordMin")),
+      password: isEditingAgent
+        ? Yup.string()
+        : Yup.string()
+            .required(t("user.passwordRequired"))
+            .min(6, t("user.passwordMin")),
       status: Yup.string().required(t("user.statusRequired")),
 
       // Agent-specific fields (all required)
@@ -301,108 +305,111 @@ export default function AgentList() {
 
             <div className="overflow-y-auto flex-1">
               <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {!isEditingAgent && (
-                    <>
+                {/* User Information Section */}
+                {!isEditingAgent && (
+                  <div className="mb-4 p-2 bg-white rounded-lg shadow">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">
+                      {t("USER_INFORMATION")}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {/* First Name */}
-
-                      <div className="mb-4">
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("FIRST_NAME")} *
                         </label>
                         <input
                           type="text"
-                          value={formData ? formData.first_name : ""}
+                          value={formData?.first_name || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
                               first_name: e.target.value,
                             })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.first_name && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.first_name}
                           </p>
                         )}
                       </div>
 
                       {/* Last Name */}
-                      <div className="mb-4">
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("LAST_NAME")} *
                         </label>
                         <input
                           type="text"
-                          value={formData ? formData.last_name : ""}
+                          value={formData?.last_name || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
                               last_name: e.target.value,
                             })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.last_name && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.last_name}
                           </p>
                         )}
                       </div>
 
                       {/* Email */}
-                      <div className="mb-4">
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("EMAIL")}
                         </label>
                         <input
                           type="email"
-                          value={formData ? formData.email : ""}
+                          value={formData?.email || ""}
                           onChange={(e) =>
                             setFormData({ ...formData, email: e.target.value })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.email && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.email}
                           </p>
                         )}
                       </div>
 
                       {/* Mobile */}
-                      <div className="mb-4">
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("MOBILE")}
                         </label>
                         <input
                           type="text"
-                          value={formData ? formData.mobile : ""}
+                          value={formData?.mobile || ""}
                           onChange={(e) =>
                             setFormData({ ...formData, mobile: e.target.value })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.mobile && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.mobile}
                           </p>
                         )}
                       </div>
 
                       {/* Role */}
-                      <div className="mb-4">
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("ROLE")} *
                         </label>
                         <select
-                          value={formData ? formData.role : "agent"}
                           disabled
+                          value={formData?.role || "agent"}
                           onChange={(e) =>
                             setFormData({ ...formData, role: e.target.value })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border bg-gray-100"
                         >
                           <option value="">{t("SELECT_ROLE")}</option>
                           <option value="admin">Admin</option>
@@ -412,46 +419,48 @@ export default function AgentList() {
                           <option value="driver">Driver</option>
                         </select>
                         {formErrors?.role && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.role}
                           </p>
                         )}
                       </div>
 
                       {/* Password */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">
-                          {t("PASSWORD")} *
-                        </label>
-                        <input
-                          type="password"
-                          value={formData ? formData.password : ""}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              password: e.target.value,
-                            })
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                        {formErrors?.password && (
-                          <p className="text-red-500 text-sm">
-                            {formErrors?.password}
-                          </p>
-                        )}
-                      </div>
+                      {!isEditingAgent && (
+                        <div className="mb-1.5">
+                          <label className="block text-sm font-medium text-gray-700">
+                            {t("PASSWORD")} *
+                          </label>
+                          <input
+                            type="password"
+                            value={formData?.password || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                password: e.target.value,
+                              })
+                            }
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
+                          />
+                          {formErrors?.password && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {formErrors?.password}
+                            </p>
+                          )}
+                        </div>
+                      )}
 
                       {/* Status */}
-                      <div className="mb-4">
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("STATUS")} *
                         </label>
                         <select
-                          value={formData ? formData.status : ""}
+                          value={formData?.status || ""}
                           onChange={(e) =>
                             setFormData({ ...formData, status: e.target.value })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         >
                           <option value="">{t("SELECT_STATUS")}</option>
                           <option value="active">Active</option>
@@ -460,107 +469,128 @@ export default function AgentList() {
                           <option value="banned">Banned</option>
                         </select>
                         {formErrors?.status && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.status}
                           </p>
                         )}
                       </div>
-                    </>
-                  )}
+                    </div>
+                  </div>
+                )}
 
-                  {!isEditing && (
-                    <>
-                      <div className="mb-4">
+                {/* Agent Information Section */}
+                {!isEditing && (
+                  <div className="mb-4 p-2 bg-white rounded-lg shadow">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">
+                      {t("AGENT_INFORMATION")}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {/* Name */}
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("NAME")}
                         </label>
                         <input
                           type="text"
-                          value={formData ? formData.name : ""}
+                          value={formData?.name || ""}
                           onChange={(e) =>
-                            setFormData({ ...formData, name: e.target.value })
+                            setFormData({
+                              ...formData,
+                              name: e.target.value,
+                            })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.name && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.name}
                           </p>
                         )}
                       </div>
 
-                      <div className="mb-4">
+                      {/* Phone */}
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("PHONE")}
                         </label>
                         <input
                           type="text"
-                          value={formData ? formData.phone : ""}
+                          value={formData?.phone || ""}
                           onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
+                            setFormData({
+                              ...formData,
+                              phone: e.target.value,
+                            })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.phone && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.phone}
                           </p>
                         )}
                       </div>
-                      <div className="mb-4">
+
+                      {/* Code */}
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("CODE")}
                         </label>
                         <input
                           type="text"
-                          value={formData ? formData.code : ""}
+                          value={formData?.code || ""}
                           onChange={(e) =>
-                            setFormData({ ...formData, code: e.target.value })
+                            setFormData({
+                              ...formData,
+                              code: e.target.value,
+                            })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.code && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.code}
                           </p>
                         )}
                       </div>
 
-                      <div className="mb-4">
+                      {/* Commission Amount */}
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("COMMISSION_AMOUNT")}
                         </label>
                         <input
                           type="number"
-                          value={formData ? formData.comission_amount : 0}
+                          value={formData?.comission_amount || 0}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
                               comission_amount: parseFloat(e.target.value),
                             })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
                         {formErrors?.comission_amount && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.comission_amount}
                           </p>
                         )}
                       </div>
 
-                      <div className="mb-4">
+                      {/* Commission Type */}
+                      <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t("COMMISSION_TYPE")}
                         </label>
                         <select
-                          value={formData ? formData.comission_type : ""}
+                          value={formData?.comission_type || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
                               comission_type: e.target.value,
                             })
                           }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         >
                           <option value="">
                             {t("SELECT_COMMISSION_TYPE")}
@@ -569,15 +599,16 @@ export default function AgentList() {
                           <option value="percentage">Percentage</option>
                         </select>
                         {formErrors?.comission_type && (
-                          <p className="text-red-500 text-sm">
+                          <p className="text-red-500 text-xs mt-1">
                             {formErrors?.comission_type}
                           </p>
                         )}
                       </div>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </div>
+                )}
 
+                {/* Form Actions */}
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     type="button"
@@ -586,16 +617,40 @@ export default function AgentList() {
                       setIsModalOpen(false);
                       setIsEditing(false);
                       setCurrentUserId({});
-                      setCurrentAgentId(null)
-                      setIsEditingAgent(false)
+                      setCurrentAgentId(null);
+                      setIsEditingAgent(false);
+                      setFormData({
+                        first_name: "",
+                        last_name: "",
+                        email: "",
+                        mobile: "",
+                        role: "agent",
+                        password: "",
+                        status: "",
+                        name: "",
+                        phone: "",
+                        code: "",
+                        comission_amount: 0,
+                        comission_type: "",
+                        registration_number: "",
+                        license_number: "",
+                        rating: 0,
+                        admin_comission_amount: 0,
+                        admin_comission_type: "",
+                        agent_comission_amount: 0,
+                        agent_comission_type: "",
+                        logo: "",
+                        description: "",
+                        vendor_id: 0,
+                      });
                     }}
-                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
                   >
                     {t("CANCEL")}
                   </button>
                   <button
                     type="submit"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
                   >
                     {isEditing || isEditingAgent ? t("UPDATE") : t("ADD")}
                   </button>
@@ -632,7 +687,7 @@ export default function AgentList() {
             onClick={() => {
               setIsModalOpen(true);
               setIsEditing(false);
-              setIsEditingAgent(false)
+              setIsEditingAgent(false);
               setFormData({
                 first_name: "",
                 last_name: "",

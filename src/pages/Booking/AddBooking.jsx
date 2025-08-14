@@ -20,6 +20,7 @@ const AddBooking = () => {
     const [minPartialAmount,setMinPartialAmount]=useState(0)
     const [partialAmountType,setPartialAmountType]=useState("")
     const [totalAmount,setTotalAmount]=useState(0)
+    const [useCustomerInfo, setUseCustomerInfo] = useState(false);
 
     const [formData, setFormData] = useState({
         trip_id: '',
@@ -28,7 +29,7 @@ const AddBooking = () => {
         customer_mobile: '',
         customer_first_name: '',
         customer_last_name: '',
-        tickets: []
+        tickets: [],
     });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -38,18 +39,15 @@ const AddBooking = () => {
     const [amountError, setAmountError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch trips when component mounts or search term changes
     useEffect(() => {
         dispatch(fetchActiveTrips({ search: searchTerm }));
     }, [dispatch, searchTerm]);
 
-    // Set trip when selectedTrip changes
     useEffect(() => {
         if (selectedTripId) {
             dispatch(showTrip({ trip_id: selectedTripId }));
         }
     }, [selectedTripId, dispatch]);
-
 
     useEffect(() => {
         if (selectedTrip && selectedTrip.bus && selectedTrip.bus.id) {
@@ -60,7 +58,7 @@ const AddBooking = () => {
                 amount: selectedTrip.allow_partial_payment === "1" ? 
                     (selectedTrip.partial_payment_type === "total" ? 
                         selectedTrip.min_partial_payment : 
-                        selectedTrip.min_partial_payment * 0) // Will be updated when seats are selected
+                        selectedTrip.min_partial_payment * 0)
                     : 0
             }));
             setMinPartialAmount(selectedTrip.min_partial_payment);
@@ -70,63 +68,57 @@ const AddBooking = () => {
         }
     }, [selectedTrip, dispatch]);
 
-    
-    
-    
+    useEffect(() => {
+        const totalAmount = selectedSeats.reduce((sum, seat) => {
+            const seatPrice = ticketPrices?.find(tp => tp.seat_number === seat.seat_number);
+            return sum + (seatPrice ? Number(seatPrice.ticket_price) : 0);
+        }, 0);
+        setTotalAmount(totalAmount);
 
-    // useEffect(()=>{
-    //     setTrip(selectedTrip)
-    //     setTicketPrices(selectedTrip?.seat_prices)
-    // },[dispatch,selectedTrip,selectedTripId])
-
-
-// Calculate total amount and partial payment when selected seats change
-useEffect(() => {
-    const totalAmount = selectedSeats.reduce((sum, seat) => {
-        const seatPrice = ticketPrices?.find(tp => tp.seat_number === seat.seat_number);
-        return sum + (seatPrice ? Number(seatPrice.ticket_price) : 0);
-    }, 0);
-    setTotalAmount(totalAmount);
-
-    // For full payment, always set amount to totalAmount
-    if (formData.is_partial_payment !== "1") {
-        setFormData(prev => ({ 
-            ...prev, 
-            amount: totalAmount,
-        }));
-    } else {
-        // Partial payment calculation
-        let partialAmount = 0;
-        if (partialAmountType === "total") {
-            partialAmount = minPartialAmount;
-        } else if (partialAmountType === "per_seat") {
-            partialAmount = minPartialAmount * selectedSeats.length;
+        if (formData.is_partial_payment !== "1") {
+            setFormData(prev => ({ 
+                ...prev, 
+                amount: totalAmount,
+            }));
+        } else {
+            let partialAmount = 0;
+            if (partialAmountType === "total") {
+                partialAmount = minPartialAmount;
+            } else if (partialAmountType === "per_seat") {
+                partialAmount = minPartialAmount * selectedSeats.length;
+            }
+            setFormData(prev => ({ 
+                ...prev, 
+                amount: Math.min(partialAmount, totalAmount),
+            }));
         }
-        setFormData(prev => ({ 
-            ...prev, 
-            amount: Math.min(partialAmount, totalAmount),
-        }));
-    }
-}, [selectedSeats, ticketPrices, formData.is_partial_payment, minPartialAmount, partialAmountType]);
-    
+    }, [selectedSeats, ticketPrices, formData.is_partial_payment, minPartialAmount, partialAmountType]);
 
-    // Format trips for react-select
+    useEffect(() => {
+        if (useCustomerInfo && formData.customer_first_name && formData.customer_last_name && formData.customer_mobile) {
+            const updatedSeats = selectedSeats.map(seat => ({
+                ...seat,
+                first_name: formData.customer_first_name,
+                last_name: formData.customer_last_name,
+                phone: formData.customer_mobile
+            }));
+            setSelectedSeats(updatedSeats);
+        }
+    }, [useCustomerInfo, formData.customer_first_name, formData.customer_last_name, formData.customer_mobile]);
+    
     const tripOptions = activeTrips.map(trip => ({
         value: trip.id,
         label: `${trip?.route?.origin_station?.name} → ${trip?.route?.destination_station?.name} - ${new Date(trip.departure_time).toLocaleString()} (${trip.bus?.name})`
     }));
 
-    // Handle trip selection
     const handleTripSelect = (selectedOption) => {
         setFormData({...formData,trip_id:selectedOption.value})
-        
         setSelectedTripId(selectedOption.value);
-        setSelectedSeats([]); // Clear selected seats when trip changes
+        setSelectedSeats([]);
         setErrors({})
         setAmountError("")
     };
 
-    // Handle form input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -148,7 +140,6 @@ useEffect(() => {
                 setAmountError('');
             }
         } else {
-            // For full payment, automatically set to total amount
             setAmountError('');
         }
     
@@ -158,10 +149,8 @@ useEffect(() => {
         });
     };
 
-    // Handle seat selection
     const handleSeatSelect = (seat) => {
         setSelectedSeats(prev => {
-            // Check if the seat is already selected by comparing seat_number
             const isAlreadySelected = prev.some(s => s.seat_number === seat.seat_number);
             
             if (isAlreadySelected) {
@@ -171,19 +160,19 @@ useEffect(() => {
                     trip_seat_price_id: seat.trip_seat_price_id,
                     price: seat.price,
                     seat_number: seat.seat_number,
-                    first_name: '',
-                    last_name: '',
+                    first_name: useCustomerInfo ? formData.customer_first_name : '',
+                    last_name: useCustomerInfo ? formData.customer_last_name : '',
                     email: '',
-                    phone: '',
+                    phone: useCustomerInfo ? formData.customer_mobile : '',
                     national_id: '',
                     birthday: '',
-                    gender: 'male'
+                    gender: 'male',
+                    is_child: 0
                 }];
             }
         });
     };
 
-    // Handle passenger info changes
     const handlePassengerChange = (index, field, value) => {
         setSelectedSeats(prev => {
             const updated = [...prev];
@@ -192,7 +181,6 @@ useEffect(() => {
         });
     };
 
-    // Form validation schema
     const bookingSchema = Yup.object().shape({
         trip_id: Yup.number()
             .required(t('booking.tripRequired'))
@@ -222,27 +210,23 @@ useEffect(() => {
                     const { is_partial_payment } = this.parent;
                     
                     if (is_partial_payment === "1") {
-                        // For partial payments
                         const minAmount = partialAmountType === "total" 
                             ? minPartialAmount 
                             : minPartialAmount * selectedSeats.length;
                         
                         return value >= minAmount && value <= totalAmount;
                     } else {
-                        // For full payments - must exactly match total amount
                         return value === totalAmount;
                     }
                 }
             )
     });
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
     
         try {
-            // Prepare tickets data
             const ticketsData = selectedSeats.map(seat => ({
                 first_name: seat.first_name,
                 last_name: seat.last_name,
@@ -251,26 +235,20 @@ useEffect(() => {
                 national_id: seat.national_id || '',
                 birthday: seat.birthday || '',
                 gender: seat.gender,
-                trip_seat_price_id: seat.trip_seat_price_id
+                trip_seat_price_id: seat.trip_seat_price_id,
+                is_child: seat.is_child || 0
             }));
     
             const bookingData = {
                 ...formData,
                 tickets: ticketsData
             };
-
             
-            
-            
-            // Validate form data
             await bookingSchema.validate(bookingData, { abortEarly: false });
             if(bookingData.is_partial_payment==="0"){
                 bookingData.amount=0
             }
-            //console.log(bookingData)
-            //return
-            
-            // Submit booking
+
             const resultAction = await dispatch(createBooking(bookingData));
 
         if (createBooking.fulfilled.match(resultAction)) {
@@ -280,11 +258,12 @@ useEffect(() => {
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then(() => {
-                navigate('/bookings'); // Navigate after user clicks OK
+                navigate('/bookings');
             });
-        }  
+        }
     
         } catch (error) {
+            console.log(error)
             if (error instanceof Yup.ValidationError) {
                 const newErrors = {};
                 error.inner.forEach(err => {
@@ -292,10 +271,9 @@ useEffect(() => {
                 });
                 setErrors(newErrors);
             } else {
-                // Show error dialog
                 Swal.fire({
                     title: t('error'),
-                    text: error.message || t('bookingFailed'),
+                    text: error || t('bookingFailed'),
                     icon: 'error',
                     confirmButtonText: 'OK'
                 });
@@ -306,13 +284,13 @@ useEffect(() => {
     };
 
     const tooltipContent = (seat) => (
-        <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div className="p-2 bg-white border border-gray-200 rounded-md shadow-sm text-sm">
             <table className="min-w-full divide-y divide-gray-200">
                 <tbody className="bg-white divide-y divide-gray-200">
                     <tr>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">Type</td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        <td className="px-2 py-1 whitespace-nowrap font-medium text-gray-900">Type</td>
+                        <td className="px-2 py-1 whitespace-nowrap text-gray-500">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${
                                 seat.seat_type === 'window' ? 'bg-blue-100 text-blue-800' :
                                 seat.seat_type === 'aisle' ? 'bg-green-100 text-green-800' :
                                 'bg-gray-100 text-gray-800'
@@ -322,9 +300,9 @@ useEffect(() => {
                         </td>
                     </tr>
                     <tr>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">Class</td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        <td className="px-2 py-1 whitespace-nowrap font-medium text-gray-900">Class</td>
+                        <td className="px-2 py-1 whitespace-nowrap text-gray-500">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${
                                 seat.seat_class === 'economic' ? 'bg-purple-100 text-purple-800' :
                                 seat.seat_class === 'business' ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-gray-100 text-gray-800'
@@ -333,39 +311,29 @@ useEffect(() => {
                             </span>
                         </td>
                     </tr>
-                    {/* <tr>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">Status</td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                isBooked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                            }`}>
-                                {isBooked ? 'Booked' : 'Available'}
-                            </span>
-                        </td>
-                    </tr> */}
                     <tr>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">Recliner</td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-2 py-1 whitespace-nowrap font-medium text-gray-900">Recliner</td>
+                        <td className="px-2 py-1 whitespace-nowrap text-gray-500">
                             {seat.is_recliner ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800">
                                     Yes
                                 </span>
                             ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">
                                     No
                                 </span>
                             )}
                         </td>
                     </tr>
                     <tr>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">Sleeper</td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-2 py-1 whitespace-nowrap font-medium text-gray-900">Sleeper</td>
+                        <td className="px-2 py-1 whitespace-nowrap text-gray-500">
                             {seat.is_sleeper ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800">
                                     Yes
                                 </span>
                             ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800">
                                     No
                                 </span>
                             )}
@@ -374,9 +342,8 @@ useEffect(() => {
                 </tbody>
             </table>
         </div>
-    ) ;
+    );
 
-    // Render seat layout
     const renderSeatLayout = () => {
         if (!selectedTripId||!bus?.seats) return null;
     
@@ -386,10 +353,9 @@ useEffect(() => {
         const rightSeats = columns - leftSeats;
     
         return (
-            <div className="grid gap-4 mt-4">
+            <div className="grid gap-3 mt-3">
                 {Array.from({ length: rows }, (_, rowIndex) => (
-                    <div key={rowIndex} className="flex gap-4 justify-between mb-2 bg-gray-100 rounded-md p-2">
-                        {/* Left side seats */}
+                    <div key={rowIndex} className="flex gap-3 justify-between mb-2 bg-gray-100 rounded p-2">
                         <div className="flex gap-2">
                             {Array.from({ length: leftSeats }, (_, colIndex) => {
                                 const seatNumber = colIndex + 1;
@@ -412,19 +378,19 @@ useEffect(() => {
                                                 price: seat_price?.ticket_price,
                                                 seat_number: _seatNumber
                                             })}
-                                            className={`w-20 h-16 rounded-md p-1 flex flex-col items-center justify-center 
-                                                ${isBooked ? 'bg-red-200 cursor-not-allowed' : 
-                                                 isSelected ? 'bg-green-200' : 'bg-white border border-gray-300'}
-                                                hover:${isBooked ? '' : 'bg-blue-100'}`}
+                                            className={`w-14 h-12 rounded-sm p-1 flex flex-col items-center justify-center text-sm ${
+                                                isBooked ? 'bg-red-200 cursor-not-allowed' : 
+                                                isSelected ? 'bg-green-200' : 'bg-white border border-gray-300'
+                                            } hover:${isBooked ? '' : 'bg-blue-100'}`}
                                         >
-                                            <span className="text-xs font-medium">
+                                            <span className="font-medium text-xs">
                                                 {String.fromCharCode(65 + rowIndex)}{seatNumber}
                                             </span>
                                             {seat_price && (
                                                 <span className="text-xs">{seat_price.ticket_price}</span>
                                             )}
                                         </button>
-                                        <div className="absolute z-10 hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-lg w-48 text-left">
+                                        <div className="absolute z-10 hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-sm w-40 text-left">
                                             {tooltipContent(seat)}
                                         </div>
                                     </div>
@@ -432,10 +398,8 @@ useEffect(() => {
                             })}
                         </div>
     
-                        {/* Aisle space */}
-                        <div className="w-8"></div>
+                        <div className="w-6"></div>
     
-                        {/* Right side seats */}
                         <div className="flex gap-2">
                             {Array.from({ length: rightSeats }, (_, colIndex) => {
                                 const seatNumber = leftSeats + colIndex + 1;
@@ -458,19 +422,19 @@ useEffect(() => {
                                                 price: seat_price?.ticket_price,
                                                 seat_number: _seatNumber
                                             })}
-                                            className={`w-20 h-16 rounded-md p-1 flex flex-col items-center justify-center 
-                                                ${isBooked ? 'bg-red-200 cursor-not-allowed' : 
-                                                 isSelected ? 'bg-green-200' : 'bg-white border border-gray-300'}
-                                                hover:${isBooked ? '' : 'bg-blue-100'}`}
+                                            className={`w-14 h-12 rounded-sm p-1 flex flex-col items-center justify-center text-sm ${
+                                                isBooked ? 'bg-red-200 cursor-not-allowed' : 
+                                                isSelected ? 'bg-green-200' : 'bg-white border border-gray-300'
+                                            } hover:${isBooked ? '' : 'bg-blue-100'}`}
                                         >
-                                            <span className="text-xs font-medium">
+                                            <span className="font-medium text-xs">
                                                 {String.fromCharCode(65 + rowIndex)}{seatNumber}
                                             </span>
                                             {seat_price && (
                                                 <span className="text-xs">{seat_price.ticket_price}</span>
                                             )}
                                         </button>
-                                        <div className="absolute z-10 hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-lg w-48 text-left">
+                                        <div className="absolute z-10 hidden group-hover:block bg-white border border-gray-200 p-2 rounded shadow-sm w-40 text-left">
                                             {tooltipContent(seat)}
                                         </div>
                                     </div>
@@ -483,14 +447,13 @@ useEffect(() => {
         );
     };
 
-    // Render passenger forms for selected seats
     const renderPassengerForms = () => {
         return selectedSeats.map((seat, index) => (
-            <div key={seat.trip_seat_price_id} className="bg-gray-50 p-4 rounded-md mb-4">
-                <h3 className="text-lg font-medium mb-3">
+            <div key={seat.trip_seat_price_id} className="bg-gray-50 p-3 rounded-sm mb-3 text-base">
+                <h3 className="text-base font-medium mb-2">
                     {t('booking.passengerInfo')} - Seat {seat.seat_number}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             {t('booking.firstName')} *
@@ -499,7 +462,7 @@ useEffect(() => {
                             type="text"
                             value={seat.first_name}
                             onChange={(e) => handlePassengerChange(index, 'first_name', e.target.value)}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                             required
                         />
                         {errors[`tickets[${index}].first_name`] && (
@@ -514,7 +477,7 @@ useEffect(() => {
                             type="text"
                             value={seat.last_name}
                             onChange={(e) => handlePassengerChange(index, 'last_name', e.target.value)}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                             required
                         />
                         {errors[`tickets[${index}].last_name`] && (
@@ -529,7 +492,7 @@ useEffect(() => {
                             type="email"
                             value={seat.email}
                             onChange={(e) => handlePassengerChange(index, 'email', e.target.value)}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                         />
                     </div>
                     <div>
@@ -540,7 +503,7 @@ useEffect(() => {
                             type="tel"
                             value={seat.phone}
                             onChange={(e) => handlePassengerChange(index, 'phone', e.target.value)}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                             required
                         />
                         {errors[`tickets[${index}].phone`] && (
@@ -555,7 +518,7 @@ useEffect(() => {
                             type="text"
                             value={seat.national_id}
                             onChange={(e) => handlePassengerChange(index, 'national_id', e.target.value)}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                         />
                     </div>
                     <div>
@@ -566,7 +529,7 @@ useEffect(() => {
                             type="date"
                             value={seat.birthday}
                             onChange={(e) => handlePassengerChange(index, 'birthday', e.target.value)}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                         />
                     </div>
                     <div>
@@ -576,7 +539,7 @@ useEffect(() => {
                         <select
                             value={seat.gender}
                             onChange={(e) => handlePassengerChange(index, 'gender', e.target.value)}
-                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                             required
                         >
                             <option value="male">{t('booking.male')}</option>
@@ -587,21 +550,31 @@ useEffect(() => {
                             <p className="text-red-500 text-xs mt-1">{errors[`tickets[${index}].gender`]}</p>
                         )}
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            {t('is_child')}
+                        </label>
+                        <select
+                            value={seat.is_child}
+                            onChange={(e) => handlePassengerChange(index, 'is_child', e.target.value)}
+                            className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
+                        >
+                            <option value="0">{t('no')}</option>
+                            <option value="1">{t('yes')}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         ));
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-2xl font-bold mb-6">{t('booking.newBooking')}</h1>
+        <div className="container mx-auto px-4 py-6 text-base">
+            <h1 className="text-xl font-bold mb-4">{t('booking.newBooking')}</h1>
     
-            <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
-                {/* Grid Container: Information (Left) + Seat Layout (Right) */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* LEFT COLUMN - Booking Info */}
-                    <div className="space-y-6">
-                        {/* Trip Selection */}
+            <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 {t('booking.selectTrip')} *
@@ -612,22 +585,44 @@ useEffect(() => {
                                 onChange={handleTripSelect}
                                 onInputChange={setSearchTerm}
                                 placeholder={t('booking.searchTrip')}
-                                className="basic-multi-select"
+                                className="basic-multi-select text-sm"
                                 classNamePrefix="select"
                                 isSearchable
                                 isLoading={loading}
                                 noOptionsMessage={() => t('booking.noTripsFound')}
+                                styles={{
+                                    control: (base) => ({
+                                        ...base,
+                                        minHeight: '36px'
+                                    }),
+                                    dropdownIndicator: (base) => ({
+                                        ...base,
+                                        padding: '6px'
+                                    }),
+                                    clearIndicator: (base) => ({
+                                        ...base,
+                                        padding: '6px'
+                                    }),
+                                    valueContainer: (base) => ({
+                                        ...base,
+                                        padding: '2px 8px'
+                                    }),
+                                    input: (base) => ({
+                                        ...base,
+                                        margin: '0px',
+                                        padding: '0px'
+                                    })
+                                }}
                             />
                             {errors.trip_id && (
                                 <p className="text-red-500 text-xs mt-1">{errors.trip_id}</p>
                             )}
                         </div>
     
-                        {/* Trip Information */}
                         {(trip && selectedTripId) && (
-                            <div className="p-4 bg-blue-50 rounded-md">
-                                <h2 className="text-xl font-semibold mb-2">{t('booking.tripDetails')}</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="p-3 bg-blue-50 rounded-lg text-sm">
+                                <h2 className="text-base font-semibold mb-2">{t('booking.tripDetails')}</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                     <div>
                                         <p className="font-medium">{t('booking.route')}</p>
                                         <p>{trip?.route?.name} → {trip.end_point}</p>
@@ -643,19 +638,10 @@ useEffect(() => {
                                 </div>
                             </div>
                         )}
-    
-                        {/* Passenger Info */}
-                        {selectedSeats.length > 0 && (
-                            <div>
-                                <h2 className="text-xl font-semibold mb-4">{t('booking.passengerDetails')}</h2>
-                                {renderPassengerForms()}
-                            </div>
-                        )}
-    
-                        {/* Customer Info */}
-                        <div>
-                            <h2 className="text-xl font-semibold mb-4">{t('booking.customerDetails')}</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                         <div>
+                            <h2 className="text-base font-semibold mb-3">{t('booking.customerDetails')}</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         {t('booking.firstName')} *
@@ -665,7 +651,7 @@ useEffect(() => {
                                         name="customer_first_name"
                                         value={formData.customer_first_name}
                                         onChange={handleChange}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                                         required
                                     />
                                     {errors.customer_first_name && (
@@ -681,7 +667,7 @@ useEffect(() => {
                                         name="customer_last_name"
                                         value={formData.customer_last_name}
                                         onChange={handleChange}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                                         required
                                     />
                                     {errors.customer_last_name && (
@@ -697,7 +683,7 @@ useEffect(() => {
                                         name="customer_mobile"
                                         value={formData.customer_mobile}
                                         onChange={handleChange}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        className="w-full rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                                         required
                                     />
                                     {errors.customer_mobile && (
@@ -705,18 +691,39 @@ useEffect(() => {
                                     )}
                                 </div>
                             </div>
+                            <div className="mt-3">
+                                <label className="inline-flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={useCustomerInfo}
+                                        onChange={(e) => setUseCustomerInfo(e.target.checked)}
+                                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700">
+                                        {t('booking.useCustomerInfoForPassengers')}
+                                    </span>
+                                </label>
+                            </div>
                         </div>
     
-                        {/* Payment Info */}
-                        <div className="p-4 bg-gray-50 rounded-md">
-                            <h2 className="text-xl font-semibold mb-4">{t('booking.paymentDetails')}</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {selectedSeats.length > 0 && (
+                            <div>
+                                <h2 className="text-base font-semibold mb-3">{t('booking.passengerDetails')}</h2>
+                                {renderPassengerForms()}
+                            </div>
+                        )}
+    
+                       
+    
+                        <div className="p-3 bg-gray-50 rounded-lg text-sm">
+                            <h2 className="text-base font-semibold mb-3">{t('booking.paymentDetails')}</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         {t('booking.paymentType')}
                                     </label>
                                     <input 
-                                        className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                                        className="w-full rounded border-gray-300 shadow-sm bg-gray-100 text-sm p-2"
                                         value={(formData.is_partial_payment === "1")
                                             ? t("booking.partialPayment")
                                             : t("booking.fullPayment")}
@@ -743,8 +750,8 @@ useEffect(() => {
                                             (partialAmountType === "total" ? minPartialAmount : minPartialAmount * selectedSeats.length) 
                                             : totalAmount}
                                         max={totalAmount}
-                                        disabled={formData.is_partial_payment !== "1"} // Disabled for full payment
-                                        className={`w-full rounded-md border-gray-300 shadow-sm ${
+                                        disabled={formData.is_partial_payment !== "1"}
+                                        className={`w-full rounded border-gray-300 shadow-sm text-sm p-2 ${
                                             formData.is_partial_payment !== "1" ? 'bg-gray-100' : ''
                                         }`}
                                     />
@@ -753,7 +760,7 @@ useEffect(() => {
                                     )}
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         {t('booking.totalAmount')} 
@@ -762,7 +769,7 @@ useEffect(() => {
                                         readOnly
                                         type="text"
                                         value={totalAmount}
-                                        className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                                        className="w-full rounded border-gray-300 shadow-sm bg-gray-100 text-sm p-2"
                                     />
                                 </div>
                                 {formData.is_partial_payment === "1" && (
@@ -774,19 +781,17 @@ useEffect(() => {
                                             readOnly
                                             type="text"
                                             value={totalAmount - formData.amount}
-                                            className="w-full rounded-md border-gray-300 shadow-sm bg-gray-100"
+                                            className="w-full rounded border-gray-300 shadow-sm bg-gray-100 text-sm p-2"
                                         />
                                     </div>
                                 )}
                             </div>
                         </div>
-
                     </div>
     
-                    {/* RIGHT COLUMN - Seat Layout */}
-                    <div className="p-6 bg-white rounded-xl shadow-md border border-gray-200 max-h-[700px] overflow-y-auto">
-                    <h2 className="text-xl font-semibold mb-4">{t('booking.selectSeats')}</h2>
-                        <div className="flex items-center gap-4 mb-4">
+                    <div className="p-4 bg-white rounded-lg shadow border border-gray-200 max-h-[600px] overflow-y-auto">
+                        <h2 className="text-base font-semibold mb-3">{t('booking.selectSeats')}</h2>
+                        <div className="flex items-center gap-3 mb-3 text-sm">
                             <div className="flex items-center">
                                 <div className="w-4 h-4 bg-green-200 mr-2"></div>
                                 <span>{t('booking.selected')}</span>
@@ -807,12 +812,11 @@ useEffect(() => {
                     </div>
                 </div>
     
-                {/* Submit Button */}
-                <div className="mt-6 flex justify-end">
+                <div className="mt-4 flex justify-end">
                     <button
                         type="submit"
                         disabled={isLoading || selectedSeats.length === 0 || !selectedTrip}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                         {isLoading ? t('booking.creating') : t('booking.createBooking')}
                     </button>
@@ -820,8 +824,6 @@ useEffect(() => {
             </form>
         </div>
     );
-    
-    
 };
 
 export default AddBooking;

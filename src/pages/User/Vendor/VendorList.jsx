@@ -23,6 +23,9 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../../components/pagination/pagination";
 import useOutsideClick from "../../../hooks/useOutSideClick";
 import StatusBadge from "../../../components/ui/badge/StatusBadge";
+import { useNavigate } from "react-router-dom";
+import VendorModal from "./VendorModal";
+
 
 export default function VendorList() {
   const dropdownRef = useRef(null);
@@ -34,6 +37,9 @@ export default function VendorList() {
   const { users, vendorList, selectedUser, loading, pagination } = useSelector(
     (state) => state.users
   );
+
+    const navigate = useNavigate();
+  
 
   const [searchTag, setSearchTag] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,6 +53,8 @@ export default function VendorList() {
   const [selectedRole, setSelectedRole] = useState("vendor");
   const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
   const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
+    const [imagePreview, setImagePreview] = useState(null);
+  
 
   const handleModalVendorSelect = (vendor) => {
     setFormData({
@@ -251,7 +259,7 @@ export default function VendorList() {
   //   }
   // };
 
-  const getValidationSchema = (t,isEditingVendor=false) =>
+  const getValidationSchema = (t, isEditingVendor = false) =>
     Yup.object().shape({
       // Basic user info
       first_name: Yup.string().required(t("user.firstNameRequired")),
@@ -262,11 +270,11 @@ export default function VendorList() {
       mobile: Yup.string()
         .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
         .required(t("user.mobileRequired")),
-      password: isEditingVendor 
-      ? Yup.string()
-      : Yup.string()
-          .required(t("user.passwordRequired"))
-          .min(6, t("user.passwordMin")),
+      password: isEditingVendor
+        ? Yup.string()
+        : Yup.string()
+            .required(t("user.passwordRequired"))
+            .min(6, t("user.passwordMin")),
       status: Yup.string().required(t("user.statusRequired")),
 
       // Vendor organization info
@@ -315,117 +323,167 @@ export default function VendorList() {
       ),
     });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
+  //   try {
+  //     // Clear previous errors
+  //     setFormErrors({});
+
+  //     // Validate form data
+  //     await getValidationSchema(t, isEditingVendor).validate(formData, {
+  //       abortEarly: false,
+  //     });
+
+  //     const userData = { ...formData };
+  //     let result;
+
+  //     if (isEditingVendor) {
+  //       result = await dispatch(
+  //         editVendor({ vendorId: currentVendorId, updatedData: userData })
+  //       );
+  //     } else if (isEditing) {
+  //       result = await dispatch(
+  //         editUser({ userId: currentUserId, updatedData: userData })
+  //       );
+  //     } else {
+  //       result = await dispatch(addUser(userData));
+  //     }
+
+  //     // Check if the action was successful
+  //     if (result.error) {
+  //       // Handle API validation errors
+  //       if (result.payload?.errors) {
+  //         const apiErrors = {};
+  //         Object.entries(result.payload.errors).forEach(([field, messages]) => {
+  //           apiErrors[field] = Array.isArray(messages)
+  //             ? messages.join(" ")
+  //             : messages;
+  //         });
+  //         setFormErrors(apiErrors);
+  //         return;
+  //       }
+  //       throw new Error(result.payload?.message || t("failedToProcessRequest"));
+  //     }
+
+  //     // Success case
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: t("success"),
+  //       text: isEditing||isEditingVendor
+  //         ? t("userUpdateSuccessfully")
+  //         : t("userAddedSuccessfully"),
+  //     });
+
+  //     // Reset form
+  //     setFormData({
+  //       first_name: "",
+  //       last_name: "",
+  //       email: "",
+  //       mobile: "",
+  //       role: "vendor",
+  //       password: "",
+  //       status: "",
+  //       name: "",
+  //       phone: "",
+  //       code: "",
+  //       comission_amount: 0,
+  //       comission_type: "",
+  //       registration_number: "",
+  //       license_number: "",
+  //       rating: 0,
+  //       admin_comission_amount: 0,
+  //       admin_comission_type: "",
+  //       agent_comission_amount: 0,
+  //       agent_comission_type: "",
+  //       logo: "",
+  //       description: "",
+  //       vendor_id: 0,
+  //       short_name: "",
+  //       long_name: "",
+  //       representative_name: "",
+  //       representative_phone: "",
+  //       representative_email: "",
+  //       representative_nid: "",
+  //       representative_position: "",
+  //       settlement_period: "",
+  //     });
+  //     setIsModalOpen(false);
+  //     setIsEditing(false);
+  //     setIsEditingVendor(false);
+  //     setCurrentUserId(null);
+  //     setCurrentVendorId(null);
+  //   } catch (err) {
+  //     console.error(err);
+
+  //     if (err.name === "ValidationError") {
+  //       // Yup validation errors
+  //       const validationErrors = {};
+  //       err.inner.forEach((error) => {
+  //         console.log(err);
+  //         if (!validationErrors[error.path]) {
+  //           validationErrors[error.path] = error.message;
+  //         }
+  //       });
+  //       setFormErrors(validationErrors);
+  //     } else {
+  //       // Other errors
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: t("error"),
+  //         text: err.message || t("failedToProcessRequest"),
+  //       });
+  //     }
+  //   }
+  // };
+  
+  const handleSubmit = async (formData) => {
     try {
-      // Clear previous errors
-      setFormErrors({});
-
-      // Validate form data
-      await getValidationSchema(t,isEditingVendor).validate(formData, { abortEarly: false });
-
-      const userData = { ...formData };
       let result;
-
+      
       if (isEditingVendor) {
         result = await dispatch(
-          editVendor({ vendorId: currentVendorId, updatedData: userData })
+          editVendor({ vendorId: currentVendorId, updatedData: formData })
         );
-      }else if(isEditing){
+      } else if (isEditing) {
         result = await dispatch(
-          editUser({ userId: currentUserId, updatedData: userData })
+          editUser({ userId: currentUserId, updatedData: formData })
         );
       } else {
-        result = await dispatch(addUser(userData));
+        result = await dispatch(addUser(formData));
       }
 
-      // Check if the action was successful
-      if (result.error) {
-        // Handle API validation errors
-        if (result.payload?.errors) {
-          const apiErrors = {};
-          Object.entries(result.payload.errors).forEach(([field, messages]) => {
-            apiErrors[field] = Array.isArray(messages)
-              ? messages.join(" ")
-              : messages;
-          });
-          setFormErrors(apiErrors);
-          return;
-        }
-        throw new Error(result.payload?.message || t("failedToProcessRequest"));
-      }
+      // if (result.error) {
+      //   throw new Error(result.payload?.message || t("failedToProcessRequest"));
+      // }
 
-      // Success case
+      return result
+      
+
       Swal.fire({
         icon: "success",
         title: t("success"),
-        text: isEditing
+        text: isEditing || isEditingVendor
           ? t("userUpdateSuccessfully")
           : t("userAddedSuccessfully"),
       });
 
-      // Reset form
-      setFormData({
-        first_name: "",
-        last_name: "",
-        email: "",
-        mobile: "",
-        role: "vendor",
-        password: "",
-        status: "",
-        name: "",
-        phone: "",
-        code: "",
-        comission_amount: 0,
-        comission_type: "",
-        registration_number: "",
-        license_number: "",
-        rating: 0,
-        admin_comission_amount: 0,
-        admin_comission_type: "",
-        agent_comission_amount: 0,
-        agent_comission_type: "",
-        logo: "",
-        description: "",
-        vendor_id: 0,
-        short_name: "",
-        long_name: "",
-        representative_name: "",
-        representative_phone: "",
-        representative_email: "",
-        representative_nid: "",
-        representative_position: "",
-        settlement_period: "",
-      });
+      // Reset and close
       setIsModalOpen(false);
       setIsEditing(false);
       setIsEditingVendor(false);
       setCurrentUserId(null);
       setCurrentVendorId(null);
     } catch (err) {
-      console.error( err);
-
-      if (err.name === "ValidationError") {
-        // Yup validation errors
-        const validationErrors = {};
-        err.inner.forEach((error) => {
-          console.log(err)
-          if (!validationErrors[error.path]) {
-            validationErrors[error.path] = error.message;
-          }
-        });
-        setFormErrors(validationErrors);
-      } else {
-        // Other errors
-        Swal.fire({
-          icon: "error",
-          title: t("error"),
-          text: err.message || t("failedToProcessRequest"),
-        });
-      }
+      console.log(err)
+      Swal.fire({
+        icon: "error",
+        title: t("error"),
+        text: err.message || t("failedToProcessRequest"),
+      });
     }
   };
+
   const handleEdit = (user) => {
     dispatch(showUser(user.id));
     setIsEditing(true);
@@ -445,588 +503,19 @@ export default function VendorList() {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] flex flex-col">
-            <h2 className="text-lg font-semibold mb-4">
-                {isEditing ? t("edit_user") : isEditingVendor ? t("edit_vendor") : t("add_vendor")}
-
-            </h2>
-
-            <div className="overflow-y-auto flex-1">
-              <form
-                onSubmit={handleSubmit}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-2"
-              >
-                {!isEditingVendor && (
-                  <>
-                    {/* First Name */}
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("FIRST_NAME")} *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.first_name : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            first_name: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.first_name && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.first_name}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Last Name */}
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LAST_NAME")} *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.last_name : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            last_name: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.last_name && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.last_name}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Email */}
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("EMAIL")}
-                      </label>
-                      <input
-                        type="email"
-                        value={formData ? formData.email : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.email && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.email}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Mobile */}
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("MOBILE")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.mobile : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, mobile: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.mobile && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.mobile}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Role */}
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("ROLE")} *
-                      </label>
-                      <select
-                        disabled
-                        value={formData ? formData.role : "vendor"}
-                        onChange={(e) =>
-                          setFormData({ ...formData, role: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_ROLE")}</option>
-                        <option value="admin">Admin</option>
-                        <option value="customer">Customer</option>
-                        <option value="vendor">Vendor</option>
-                        <option value="agent">Agent</option>
-                        <option value="driver">Driver</option>
-                      </select>
-                      {formErrors?.role && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.role}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Password */}
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("PASSWORD")} *
-                      </label>
-                      <input
-                        type="password"
-                        value={formData ? formData.password : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, password: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {(!isEditingVendor && formErrors?.password) && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.password}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Status */}
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("STATUS")} *
-                      </label>
-                      <select
-                        value={formData ? formData.status : ""}
-                        onChange={(e) =>
-                          setFormData({ ...formData, status: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_STATUS")}</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="pending">Pending</option>
-                        <option value="banned">Banned</option>
-                      </select>
-                      {formErrors?.status && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.status}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                {!isEditing && (
-                  <>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("SHORT_NAME")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.short_name : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            short_name: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.short_name && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.short_name}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LONG_NAME")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.long_name : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            long_name: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.long_name && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.long_name}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REPRESENTATIVE_NAME")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.representative_name : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            representative_name: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.representative_name && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.representative_name}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REPRESENTATIVE_PHONE")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.representative_phone : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            representative_phone: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.representative_phone && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.representative_phone}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REPRESENTATIVE_EMAIL")}
-                      </label>
-                      <input
-                        type="email"
-                        value={formData ? formData.representative_email : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            representative_email: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.representative_email && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.representative_email}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REPRESENTATIVE_NID")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.representative_nid : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            representative_nid: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.representative_nid && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.representative_nid}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REPRESENTATIVE_POSITION")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.representative_position : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            representative_position: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.representative_position && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.representative_position}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("REGISTRATION_NUMBER")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.registration_number : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            registration_number: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.registration_number && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.registration_number}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LICENSE_NUMBER")}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData ? formData.license_number : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            license_number: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.license_number && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.license_number}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("RATING")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.rating : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            rating: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.rating && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.rating}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("ADMIN_COMMISSION_AMOUNT")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.admin_comission_amount : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            admin_comission_amount: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.admin_comission_amount && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.admin_comission_amount}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("ADMIN_COMMISSION_TYPE")}
-                      </label>
-                      <select
-                        value={formData ? formData.admin_comission_type : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            admin_comission_type: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
-                        <option value="fixed">Fixed</option>
-                        <option value="percentage">Percentage</option>
-                      </select>
-                      {formErrors?.admin_comission_type && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.admin_comission_type}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("AGENT_COMMISSION_AMOUNT")}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData ? formData.agent_comission_amount : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            agent_comission_amount: parseFloat(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.agent_comission_amount && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.agent_comission_amount}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("AGENT_COMMISSION_TYPE")}
-                      </label>
-                      <select
-                        value={formData ? formData.agent_comission_type : 0}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            agent_comission_type: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">{t("SELECT_COMMISSION_TYPE")}</option>
-                        <option value="fixed">Fixed</option>
-                        <option value="percentage">Percentage</option>
-                      </select>
-                      {formErrors?.agent_comission_type && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.agent_comission_type}
-                        </p>
-                      )}
-                    </div>
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("SETTLEMENT_PERIOD")}
-                      </label>
-                      <select
-                        value={formData ? formData.settlement_period : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            settlement_period: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      >
-                        <option value="">
-                          {t("SELECT_SETTLEMENT_PERIOD")}
-                        </option>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                      </select>
-                      {formErrors?.settlement_period && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.settlement_period}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("DESCRIPTION")}
-                      </label>
-                      <textarea
-                        value={formData ? formData.description : ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            description: e.target.value,
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.description && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.description}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700">
-                        {t("LOGO")}
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) =>
-                          setFormData({ ...formData, logo: e.target.files[0] })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {formErrors?.logo && (
-                        <p className="text-red-500 text-sm">
-                          {formErrors?.logo}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-
-                <div>
-                  <div className="flex justify-end gap-2 mt-4">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormErrors(null);
-                        setIsModalOpen(false);
-                        setIsEditing(false);
-                        setIsEditingVendor(false);
-                        setCurrentUserId({});
-                        setCurrentVendorId({});
-                      }}
-                      className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                      {t("CANCEL")}
-                    </button>
-                    <button
-                      type="submit"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                      {isEditing || isEditingVendor ? t("UPDATE") : t("ADD")}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      <VendorModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setIsEditing(false);
+          setIsEditingVendor(false);
+        }}
+        onSubmit={handleSubmit}
+        initialData={formData}
+        isEditing={isEditing}
+        isEditingVendor={isEditingVendor}
+        userDataOnly={isEditing && !isEditingVendor}
+      />
 
       <div className="page-header-info-bar flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -1193,6 +682,12 @@ export default function VendorList() {
                     </TableCell>
                     <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                       <div className="flex flex-row items-center justify-start gap-2">
+                        <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 cursor-pointer"
+                        onClick={() => navigate(`/users/vendor/${user.id}`)}
+                      >
+                        <View className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                      </div>
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                           onClick={() => handleEdit(user)}

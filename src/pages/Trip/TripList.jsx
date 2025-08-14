@@ -16,7 +16,7 @@ import {
   showTrip,
   updateTripSeatPrices,
 } from "../../store/slices/tripSlice";
-import { fetchBuses } from "../../store/slices/busSlice";
+import { fetchBusById, fetchBuses } from "../../store/slices/busSlice";
 import { fetchRoutes } from "../../store/slices/routeSlice";
 import { fetchUsers } from "../../store/slices/userSlice";
 import Swal from "sweetalert2";
@@ -26,6 +26,7 @@ import {
   formatForDisplay,
   formatForInput,
   formatForInputDiscount,
+  formatSeatNumber,
   useHasPermission,
   userType,
   useUserPermissions,
@@ -35,6 +36,7 @@ import Pagination from "../../components/pagination/pagination";
 import DiscountFilter from "../Discount/DiscountFilter";
 import useOutsideClick from "../../hooks/useOutSideClick";
 import { fetchBranches } from "../../store/slices/branchSlice";
+import { useNavigate } from "react-router-dom";
 
 // Updated Yup validation schema
 const getTripSchema = (t, isAdmin) => {
@@ -90,13 +92,14 @@ export default function TripList() {
   const { trips, selectedTrip, loading, pagination } = useSelector(
     (state) => state.trips
   );
-  const { buses } = useSelector((state) => state.buses);
+  const { buses, bus: singleBus } = useSelector((state) => state.buses);
   const { routes } = useSelector((state) => state.routes);
   const { vendorList } = useSelector((state) => state.users);
   const { branches } = useSelector((state) => state.branch);
 
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
@@ -199,6 +202,8 @@ export default function TripList() {
   // Pre-fill form when editing a trip
   useEffect(() => {
     if (selectedTrip && isEditMode) {
+      dispatch(fetchBusById(selectedTrip.bus?.id));
+
       setVendorId(selectedTrip.vendor.id);
       setModalVendorSearchTag(selectedTrip?.vendor?.short_name);
       setRouteId(selectedTrip.route.id);
@@ -433,6 +438,7 @@ export default function TripList() {
   // Handle edit trip button click
   const handleEditTrip = (tripId) => {
     dispatch(showTrip({ trip_id: tripId }));
+
     setIsEditMode(true);
     setIsModalOpen(true);
     setCurrentTripId(tripId);
@@ -557,7 +563,11 @@ export default function TripList() {
                     className={`w-14 h-14 rounded-md p-2 flex flex-col gap-1 items-center justify-center dark:border-gray-600 cursor-pointer ${
                       seat ? "bg-green-200" : "dark:bg-gray-700"
                     }`}
-                    onClick={() => handleSeatClick(rowIndex + 1, colIndex + 1)}
+                    onClick={() => {
+                      
+                        handleSeatClick(rowIndex + 1, colIndex + 1)
+                      
+                    }}
                   >
                     <img
                       src="/images/img/seat.png"
@@ -587,9 +597,11 @@ export default function TripList() {
                     className={`w-14 h-14 rounded-md p-2 flex flex-col items-center justify-center dark:border-gray-600 cursor-pointer ${
                       seat ? "bg-green-200" : "dark:bg-gray-700"
                     }`}
-                    onClick={() =>
-                      handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1)
-                    }
+                    onClick={() => {
+                      
+                        handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1);
+                      
+                    }}
                   >
                     <img
                       src="/images/img/seat.png"
@@ -620,8 +632,8 @@ export default function TripList() {
             onClick={() => handleSeatEditClick(seat)}
           >
             <img src="/images/img/seat.png" alt="Seat" className="w-8 h-8" />
-            <span className="text-[10px] font-medium">
-              No: {seat.seat_number}
+            <span className="text-[12px] font-medium">
+              {formatSeatNumber(seat.seat_number)}
             </span>
             <span className="text-[10px] font-medium">
               Price: {seat.ticket_price}
@@ -632,7 +644,102 @@ export default function TripList() {
     );
   };
 
-  // Handle delete trip
+
+
+  // const generateSeatEditLayout = () => {
+    
+
+  //   const { rows, columns,seats } = singleBus.seats;
+  //   const leftSeats = Math.ceil(columns / 2);
+  //   const rightSeats = columns - leftSeats;
+
+  //   return (
+  //     <div className="overflow-x-auto py-2">
+  //       <div className="">
+  //         {Array.from({ length: rows }, (_, rowIndex) => (
+  //           <div
+  //             key={rowIndex}
+  //             className="flex gap-4 justify-between mb-2 bg-gray-100 rounded-md p-2"
+  //           >
+  //             {/* Left side seats */}
+  //             <div className="flex gap-2">
+  //               {Array.from({ length: leftSeats }, (_, colIndex) => {
+  //                 const seatNumber = colIndex + 1;
+  //                 const seat = seats.find(
+  //                   (s) => s.row === rowIndex + 1 && s.column === seatNumber
+  //                 );
+  //                 const _seatNumber = parseInt(
+  //                   `${rowIndex + 1}${colIndex + 1}`
+  //                 );
+  //                 const seatPrice = selectedTrip.seat_prices?.find(
+  //                   (s) => s.seat_number == _seatNumber
+  //                 );
+  //                 const isBooked = !seatPrice?.is_avaiable;
+
+  //                 if (!seat) return null;
+
+  //                 return (
+  //                   <SeatButton
+  //                     onClick={() => handleSeatEditClick(seat)}
+  //                     key={`left-${colIndex}`}
+  //                     rowIndex={rowIndex}
+  //                     seatNumber={seatNumber}
+  //                     seatPrice={seatPrice}
+  //                     isBooked={isBooked}
+  //                     seat={seat}
+  //                     basePrice={selectedTrip.ticket_price}
+  //                   />
+  //                 );
+  //               })}
+  //             </div>
+
+  //             {/* Aisle space with row label */}
+  //             <div className="w-6 flex justify-center">
+  //               <span className="text-gray-500 text-sm font-medium">
+  //                 {String.fromCharCode(65 + rowIndex)}
+  //               </span>
+  //             </div>
+
+  //             {/* Right side seats */}
+  //             <div className="flex gap-2">
+  //               {Array.from({ length: rightSeats }, (_, colIndex) => {
+  //                 const seatNumber = leftSeats + colIndex + 1;
+  //                 const seat = seats.find(
+  //                   (s) => s.row === rowIndex + 1 && s.column === seatNumber
+  //                 );
+  //                 const _seatNumber = parseInt(`${rowIndex + 1}${seatNumber}`);
+  //                 const seatPrice = selectedTrip.seat_prices?.find(
+  //                   (s) => s.seat_number == _seatNumber
+  //                 );
+  //                 const isBooked = !seatPrice?.is_avaiable;
+
+  //                 if (!seat) return null;
+
+  //                 return (
+  //                   <SeatButton
+  //                   onClick={() => handleSeatEditClick(seat)}
+  //                     key={`right-${colIndex}`}
+  //                     rowIndex={rowIndex}
+  //                     seatNumber={seatNumber}
+  //                     seatPrice={seatPrice}
+  //                     isBooked={isBooked}
+  //                     seat={seat}
+  //                     basePrice={selectedTrip.ticket_price}
+  //                   />
+  //                 );
+  //               })}
+  //             </div>
+  //           </div>
+  //         ))}
+  //       </div>
+  //     </div>
+  //   );
+  // };
+
+  
+  
+  
+  
   const handleDelete = (tripId) => {
     Swal.fire({
       title: t("DELETE_CONFIRMATION"),
@@ -653,7 +760,7 @@ export default function TripList() {
           // Refresh the countries list
           dispatch(fetchTrips({ searchTag: searchTag, page: currentPage }));
         } catch (error) {
-          console.log(error);
+          //console.log(error);
           Swal.fire(
             t("ERROR"),
             error.message || t("FAILED_TO_DELETE_ITEM"),
@@ -784,7 +891,7 @@ export default function TripList() {
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                          {trip?.vendor.short_name||"n/a"}
+                          {trip?.vendor.short_name || "n/a"}
                         </p>
                       </div>
                     </div>
@@ -819,6 +926,12 @@ export default function TripList() {
 
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 cursor-pointer"
+                        onClick={() => navigate(`/trips/${trip.id}`)}
+                      >
+                        <View className="w-4 h-4 text-blue-600 dark:text-blue-300" />
+                      </div>
                       {useHasPermission("v1.vendor.trip.update") && (
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
@@ -1531,3 +1644,59 @@ export default function TripList() {
     </div>
   );
 }
+
+
+// Seat Button Component
+const SeatButton = ({
+  rowIndex,
+  seatNumber,
+  seatPrice,
+  isBooked,
+  seat,
+  basePrice,
+}) => {
+  const seatLabel = `${String.fromCharCode(65 + rowIndex)}${seatNumber}`;
+
+  return (
+    <div className="relative group">
+      <button
+        type="button"
+        disabled={isBooked}
+        className={`w-12 h-12 rounded flex flex-col items-center justify-center transition-all
+          ${
+            isBooked
+              ? "bg-red-100 border-red-200 cursor-not-allowed"
+              : "border border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+          }
+          text-xs`}
+      >
+        <span className="font-medium">{seatLabel}</span>
+        <span className="font-semibold text-blue-600">
+          {seatPrice?.ticket_price || basePrice}
+        </span>
+      </button>
+
+      {/* Seat tooltip */}
+      {/* <div className="absolute z-10 hidden group-hover:block bottom-full mb-2 left-1/2 transform -translate-x-1/2">
+        <div className="bg-white p-2 rounded shadow border border-gray-200 w-40 text-xs">
+          <h4 className="font-medium mb-1">Seat {seatLabel}</h4>
+          <div className="space-y-1">
+            <div className="flex justify-between">
+              <span className="text-gray-500">Type:</span>
+              <span>{seat.seat_type || "N/A"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Class:</span>
+              <span>{seat.seat_class || "N/A"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Status:</span>
+              <span>{isBooked ? "Booked" : "Available"}</span>
+            </div>
+          </div>
+        </div>
+      </div> */}
+    </div>
+  );
+};
+

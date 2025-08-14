@@ -41,10 +41,12 @@ import ExpenseCategory from "./pages/ExpenseCategory/ExpenseCategory";
 import Expense from "./pages/Expense/Expense";
 import Branch from "./pages/Branch/Branch";
 import Vendor from "./pages/User/Vendor/Vendor";
-import Admin from "./pages/User/Admin/Admin"
-import Customer from "./pages/User/Customer/Customer"
-import Agent from "./pages/User/Agent/Agent"
-import AdminDriver from "./pages/User/Driver/AdminDriver"
+import Admin from "./pages/User/Admin/Admin";
+import Customer from "./pages/User/Customer/Customer";
+import Agent from "./pages/User/Agent/Agent";
+import AdminDriver from "./pages/User/Driver/AdminDriver";
+import TripView from "./pages/Trip/ViewTrip";
+import VendorView from "./pages/User/Vendor/VendorView";
 
 export default function App() {
   return (
@@ -54,66 +56,312 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-
-
             {/* Location Routes */}
             <Route path="/location">
-              <Route path="countries" element={<ProtectedRoute><Country /></ProtectedRoute>} />
-              <Route path="provinces" element={<ProtectedRoute><Province/></ProtectedRoute>}/>
-              <Route path="cities" element={<ProtectedRoute><City/></ProtectedRoute>}/>
+              <Route
+                path="countries"
+                element={
+                  <ProtectedRoute>
+                    <Country />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="provinces"
+                element={
+                  <ProtectedRoute>
+                    <Province />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="cities"
+                element={
+                  <ProtectedRoute>
+                    <City />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
             {/* User Management Routes */}
             <Route path="/users">
-              <Route index element={<ProtectedRoute><User/></ProtectedRoute>}/>
-              <Route path="admin" element={<ProtectedRoute><Admin/></ProtectedRoute>}/>
-              <Route path="vendor" element={<ProtectedRoute><Vendor/></ProtectedRoute>}/>
-              <Route path="driver" element={<ProtectedRoute><AdminDriver/></ProtectedRoute>}/>
-              <Route path="agent" element={<ProtectedRoute><Agent/></ProtectedRoute>}/>
-              <Route path="customer" element={<ProtectedRoute><Customer/></ProtectedRoute>}/>
-              <Route path="branch" element={<ProtectedRoute><Branch/></ProtectedRoute>}/>
+              <Route
+                index
+                element={
+                  <ProtectedRoute>
+                    <User />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="admin"
+                element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor"
+                element={
+                  <ProtectedRoute>
+                    <Vendor />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="vendor/:id"
+                element={
+                  <ProtectedRoute>
+                    <VendorView />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="driver"
+                element={
+                  <ProtectedRoute>
+                    <AdminDriver />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="agent"
+                element={
+                  <ProtectedRoute>
+                    <Agent />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="customer"
+                element={
+                  <ProtectedRoute>
+                    <Customer />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="branch"
+                element={
+                  <ProtectedRoute>
+                    <Branch />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
-            <Route index path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-            
-            <Route index path="/routes" element={<ProtectedRoute><BusRoute/></ProtectedRoute>}/>
-            <Route index path="/stations" element={<ProtectedRoute><Station/></ProtectedRoute>}/>
-            <Route index path="/users" element={<ProtectedRoute><User/></ProtectedRoute>}/>
-            <Route index path="/buses" element={<ProtectedRoute><Bus/></ProtectedRoute>}/>
-            <Route index path="/add-bus/:busId?" element={<ProtectedRoute><AddBus/></ProtectedRoute>}/>
-            <Route index path="/drivers" element={<ProtectedRoute><Driver/></ProtectedRoute>}/>
-            <Route index path="/trips" element={<ProtectedRoute><Trip/></ProtectedRoute>}/>
-            <Route index path="/discounts" element={<ProtectedRoute><Discount/></ProtectedRoute>}/>
-            <Route index path="/wallet-transactions" element={<ProtectedRoute><WalletTransaction/></ProtectedRoute>}/>
-            <Route index path="/bookings" element={<ProtectedRoute><Booking/></ProtectedRoute>}/>
-            <Route index path="/add-booking" element={<ProtectedRoute><AddBooking/></ProtectedRoute>}/>
-            <Route index path="/trip-cancellation-policy" element={<ProtectedRoute><TripCancellationPolicy/></ProtectedRoute>}/>
-            <Route index path="/admin-wallet" element={<ProtectedRoute><AdminWallet/></ProtectedRoute>}/>
-            <Route index path="/vendor-wallet" element={<ProtectedRoute><VendorWallet/></ProtectedRoute>}/>
-            <Route index path="/telecom-operators" element={<ProtectedRoute><TelecomOperators/></ProtectedRoute>}/>
-            <Route index path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
-            <Route index path="/vendor-users" element={<ProtectedRoute><VendorUser/></ProtectedRoute>}/>
-            <Route index path="/vendor-users-roles" element={<ProtectedRoute><VendorUserRoles/></ProtectedRoute>}/>
-            <Route index path="/expense-category" element={<ProtectedRoute><ExpenseCategory/></ProtectedRoute>}/>
-            <Route index path="/expense" element={<ProtectedRoute><Expense/></ProtectedRoute>}/>
-            <Route index path="/branch" element={<ProtectedRoute><Branch/></ProtectedRoute>}/>
+            <Route
+              index
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
 
+            <Route
+              index
+              path="/routes"
+              element={
+                <ProtectedRoute>
+                  <BusRoute />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/stations"
+              element={
+                <ProtectedRoute>
+                  <Station />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <User />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/buses"
+              element={
+                <ProtectedRoute>
+                  <Bus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/add-bus/:busId?"
+              element={
+                <ProtectedRoute>
+                  <AddBus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/drivers"
+              element={
+                <ProtectedRoute>
+                  <Driver />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/trips"
+              element={
+                <ProtectedRoute>
+                  <Trip />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/discounts"
+              element={
+                <ProtectedRoute>
+                  <Discount />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/wallet-transactions"
+              element={
+                <ProtectedRoute>
+                  <WalletTransaction />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/bookings"
+              element={
+                <ProtectedRoute>
+                  <Booking />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/add-booking"
+              element={
+                <ProtectedRoute>
+                  <AddBooking />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/trip-cancellation-policy"
+              element={
+                <ProtectedRoute>
+                  <TripCancellationPolicy />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/admin-wallet"
+              element={
+                <ProtectedRoute>
+                  <AdminWallet />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/vendor-wallet"
+              element={
+                <ProtectedRoute>
+                  <VendorWallet />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/telecom-operators"
+              element={
+                <ProtectedRoute>
+                  <TelecomOperators />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/vendor-users"
+              element={
+                <ProtectedRoute>
+                  <VendorUser />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/vendor-users-roles"
+              element={
+                <ProtectedRoute>
+                  <VendorUserRoles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/expense-category"
+              element={
+                <ProtectedRoute>
+                  <ExpenseCategory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/expense"
+              element={
+                <ProtectedRoute>
+                  <Expense />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/branch"
+              element={
+                <ProtectedRoute>
+                  <Branch />
+                </ProtectedRoute>
+              }
+            />
 
-            
-
-
-
-
-            
-
-
-
-
-
-
-
-
-
+            <Route
+              index
+              path="/trips/:id"
+              element={
+                <ProtectedRoute>
+                  <TripView />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Others Page */}
 
