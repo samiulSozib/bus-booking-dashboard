@@ -78,19 +78,19 @@ export default function AdminWalletList() {
                         {/* Table Header */}
                         <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
                             <TableRow>
-                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                <TableCell isHeader className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("USER_TYPE")}
                                 </TableCell>
-                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                <TableCell isHeader className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("NAME")}
                                 </TableCell>
-                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                <TableCell isHeader className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("BALANCE")}
                                 </TableCell>
-                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                <TableCell isHeader className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("UPDATE_DATE")}
                                 </TableCell>
-                                {/* <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                {/* <TableCell isHeader className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 {t("ACTION")}
                                 </TableCell> */}
                             </TableRow>
@@ -100,7 +100,7 @@ export default function AdminWalletList() {
                         <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
                             {wallets.map((wallet) => (
                                 <TableRow key={wallet.id}>
-                                    <TableCell className="py-3">
+                                    <TableCell className="py-3 px-6 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
                                             <div>
                                                 <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -109,7 +109,7 @@ export default function AdminWalletList() {
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="py-3">
+                                    <TableCell className="py-3 px-6 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
                                             <div>
                                                 <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -118,13 +118,13 @@ export default function AdminWalletList() {
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                                         {wallet.balance} {wallet.currency}
                                     </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                                         {wallet.updated_at}
                                     </TableCell>
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                                         <div className="flex flex-row items-center justify-start gap-2">
                                             {/* <Edit
                                                 className="w-6 h-6 cursor-pointer"

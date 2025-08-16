@@ -33,7 +33,7 @@ const AppSidebar = () => {
 
   // Get user role
   const user = userType();
-  console.log(user)
+  console.log(user.permissions)
   const isAdmin = user?.role === "admin";
   const isVendor = user?.role === "vendor";
   const isAgent = user?.role === "agent";
@@ -178,6 +178,18 @@ const navItems = useMemo(
         icon: <Settings />,
         name: "SETTINGS",
         path: "/settings",
+        roles: ["admin"],
+      },
+      {
+        icon: <Settings />,
+        name: "TELECOM_OPERATOR",
+        path: "/telecom-operators",
+        roles: ["admin"],
+      },
+      {
+        icon: <Settings />,
+        name: "RECHARGE_LIST",
+        path: "/recharges",
         roles: ["admin"],
       },
     ],

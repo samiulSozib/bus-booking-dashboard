@@ -47,6 +47,7 @@ import Agent from "./pages/User/Agent/Agent";
 import AdminDriver from "./pages/User/Driver/AdminDriver";
 import TripView from "./pages/Trip/ViewTrip";
 import VendorView from "./pages/User/Vendor/VendorView";
+import Recharge from "./pages/Recharge/Recharge";
 
 export default function App() {
   return (
@@ -295,6 +296,15 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <TelecomOperators />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              index
+              path="/recharges"
+              element={
+                <ProtectedRoute>
+                  <Recharge />
                 </ProtectedRoute>
               }
             />

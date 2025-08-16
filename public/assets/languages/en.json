@@ -865,5 +865,11 @@
   "VENDOR_DETAILS":"Vendor Details",
   "BACK_TO_LIST":"Back to List",
   "COMMISSION_INFORMATION":"Commission Information",
-  "vendor_not_found":"Vendor Not Found"
+  "vendor_not_found":"Vendor Not Found",
+
+
+  "RECHARGE_LIST":"Recharge List",
+  "CREATED":"Created",
+  "CREATED_BY":"Created By",
+  "REQUEST_STATUS":"Request Status"
 }

@@ -18,6 +18,7 @@ const buildRechargeQuery = (params = {}) => {
 export const fetchRecharges = createAsyncThunk(
   'recharges/fetchRecharges',
   async (params, { rejectWithValue }) => {
+    console.log(params)
     const token = getAuthToken();
     try {
       const query = buildRechargeQuery(params);

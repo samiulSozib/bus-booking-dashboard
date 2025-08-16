@@ -204,7 +204,7 @@ export function useUserPermissions(userId) {
       dispatch(fetchUserPermissions(userId));
     }
   }, [dispatch, userId]);
-
+  console.log(userPermissions)
   return userPermissions;
 }
 

@@ -27,19 +27,25 @@ import {
   fetchTelecomOperators,
   showTelecomOperator,
 } from "../../store/slices/telecomOperatorSlice";
+import { fetchRecharges } from "../../store/slices/rechargeSlice";
+import StatusBadge from "../../components/ui/badge/StatusBadge";
+import RechargeFilter from "./RechargeFilter";
 
 // Validation schema
 const getOperatorSchema = (t) =>
   Yup.object().shape({
     operator: Yup.string()
       .required(t("OPERATOR_NAME_REQUIRED"))
-      .oneOf(["salaam", "etisalat", "roshan", "mtn", "awcc"], t("OPERATOR_NAME_INVALID")),
+      .oneOf(
+        ["salaam", "etisalat", "roshan", "mtn", "awcc"],
+        t("OPERATOR_NAME_INVALID")
+      ),
     prefix: Yup.string()
       .required(t("OPERATOR_PREFIX_REQUIRED"))
       .matches(/^\+?\d{1,5}$/, t("OPERATOR_PREFIX_INVALID")),
   });
 
-export default function TelecomOperatorList() {
+export default function RechargeList() {
   const dropdownRef = useRef(null);
   useOutsideClick(dropdownRef, () => {
     //setShowModalBusDropdown(false);
@@ -47,9 +53,11 @@ export default function TelecomOperatorList() {
 
   const dispatch = useDispatch();
 
-  const { operators, selectedOperator, loading, pagination } = useSelector(
+  const { operators, selectedOperator, pagination } = useSelector(
     (state) => state.telecomOperators
   );
+
+  const { recharges, loading } = useSelector((state) => state.recharges);
 
   const [searchTag, setSearchTag] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,8 +81,8 @@ export default function TelecomOperatorList() {
   ];
 
   useEffect(() => {
-    dispatch(fetchTelecomOperators({ page: currentPage }));
-  }, [dispatch, currentPage]);
+    dispatch(fetchRecharges({ page: currentPage,fromDate:filters.fromDate,toDate:filters.toDate }));
+  }, [dispatch, currentPage,filters]);
 
   // useEffect(() => {
   //   if (selectedOperator && isEditing) {
@@ -83,117 +91,122 @@ export default function TelecomOperatorList() {
   //   }
   // }, [selectedOperator]);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const operatorData = { operator, prefix };
+    const operatorData = { operator, prefix };
 
-  try {
-    await getOperatorSchema(t).validate(operatorData, { abortEarly: false });
+    try {
+      await getOperatorSchema(t).validate(operatorData, { abortEarly: false });
 
-    if (isEditing) {
-      const editAction = await dispatch(
-        editTelecomOperator({ id: currentOperatorId, operator, prefix })
-      );
-      if (editTelecomOperator.fulfilled.match(editAction)) {
-        Swal.fire({
-          icon: "success",
-          title: t("OPERATOR_SUCCESS_TITLE"),
-          text: t("OPERATOR_SUCCESS_UPDATE"),
-        });
-      }
-    } else {
-      const addAction = await dispatch(addTelecomOperator({ operator, prefix }));
-      if (addTelecomOperator.fulfilled.match(addAction)) {
-        Swal.fire({
-          icon: "success",
-          title: t("OPERATOR_SUCCESS_TITLE"),
-          text: t("OPERATOR_SUCCESS_CREATE"),
-        });
-      }
-    }
-
-    // Reset form
-    setOperator("");
-    setPrefix("");
-    setIsModalOpen(false);
-    setIsEditing(false);
-    setCurrentOperatorId(null);
-    setErrors({});
-  } catch (error) {
-    if (error instanceof Yup.ValidationError) {
-      const newErrors = {};
-      error.inner.forEach((err) => {
-        newErrors[err.path] = err.message;
-      });
-      setErrors(newErrors);
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: t("OPERATOR_ERROR_TITLE"),
-        text: error.message || t("OPERATOR_ERROR_DEFAULT"),
-      });
-    }
-  }
-};
-
-const handleDelete = (operatorId) => {
-  Swal.fire({
-    title: t("OPERATOR_DELETE_CONFIRM_TITLE"),
-    text: t("OPERATOR_DELETE_CONFIRM_TEXT"),
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: t("OPERATOR_DELETE_CONFIRM_YES"),
-    cancelButtonText: t("OPERATOR_BUTTON_CANCEL"),
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const deleteAction = await dispatch(deleteTelecomOperator(operatorId));
-        if (deleteTelecomOperator.fulfilled.match(deleteAction)) {
-          Swal.fire(
-            t("OPERATOR_DELETE_SUCCESS_TITLE"),
-            t("OPERATOR_DELETE_SUCCESS_TEXT"),
-            "success"
-          );
-          // Refresh the operators list
-          dispatch(fetchTelecomOperators({ page: currentPage }));
-        }
-      } catch (error) {
-        Swal.fire(
-          t("OPERATOR_ERROR_TITLE"),
-          error.message || t("OPERATOR_DELETE_ERROR_TEXT"),
-          "error"
+      if (isEditing) {
+        const editAction = await dispatch(
+          editTelecomOperator({ id: currentOperatorId, operator, prefix })
         );
+        if (editTelecomOperator.fulfilled.match(editAction)) {
+          Swal.fire({
+            icon: "success",
+            title: t("OPERATOR_SUCCESS_TITLE"),
+            text: t("OPERATOR_SUCCESS_UPDATE"),
+          });
+        }
+      } else {
+        const addAction = await dispatch(
+          addTelecomOperator({ operator, prefix })
+        );
+        if (addTelecomOperator.fulfilled.match(addAction)) {
+          Swal.fire({
+            icon: "success",
+            title: t("OPERATOR_SUCCESS_TITLE"),
+            text: t("OPERATOR_SUCCESS_CREATE"),
+          });
+        }
+      }
+
+      // Reset form
+      setOperator("");
+      setPrefix("");
+      setIsModalOpen(false);
+      setIsEditing(false);
+      setCurrentOperatorId(null);
+      setErrors({});
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const newErrors = {};
+        error.inner.forEach((err) => {
+          newErrors[err.path] = err.message;
+        });
+        setErrors(newErrors);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: t("OPERATOR_ERROR_TITLE"),
+          text: error.message || t("OPERATOR_ERROR_DEFAULT"),
+        });
       }
     }
-  });
-};
+  };
+
+  const handleDelete = (operatorId) => {
+    Swal.fire({
+      title: t("OPERATOR_DELETE_CONFIRM_TITLE"),
+      text: t("OPERATOR_DELETE_CONFIRM_TEXT"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("OPERATOR_DELETE_CONFIRM_YES"),
+      cancelButtonText: t("OPERATOR_BUTTON_CANCEL"),
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const deleteAction = await dispatch(
+            deleteTelecomOperator(operatorId)
+          );
+          if (deleteTelecomOperator.fulfilled.match(deleteAction)) {
+            Swal.fire(
+              t("OPERATOR_DELETE_SUCCESS_TITLE"),
+              t("OPERATOR_DELETE_SUCCESS_TEXT"),
+              "success"
+            );
+            // Refresh the operators list
+            dispatch(fetchTelecomOperators({ page: currentPage }));
+          }
+        } catch (error) {
+          Swal.fire(
+            t("OPERATOR_ERROR_TITLE"),
+            error.message || t("OPERATOR_DELETE_ERROR_TEXT"),
+            "error"
+          );
+        }
+      }
+    });
+  };
 
   const handleEdit = (operator) => {
     //dispatch(showTelecomOperator(operatorId));
     setIsEditing(true);
 
     setCurrentOperatorId(operator.id);
-    setOperator(operator.operator)
-    setPrefix(operator.prefix)
+    setOperator(operator.operator);
+    setPrefix(operator.prefix);
     setIsModalOpen(true);
   };
 
-  // const handleApplyFilters = () => {
-  //   setIsFilterOpen(false); // Close filter dropdown
-  // };
-
-  // const handleResetFilters = () => {
-  //   setFilters({ searchTag: "", code: "" }); // Reset filters
-  //   setIsFilterOpen(false); // Close filter dropdown
-  // };
+  const handleApplyFilters = (filters) => {
+    console.log(filters)
+    setFilters(filters);
+    setCurrentPage(1);
+  };
+  const handleResetFilters = () => {
+    setFilters({ searchTag: "", code: "" }); // Reset filters
+    setIsFilterOpen(false); // Close filter dropdown
+  };
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       {/* Modal */}
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">
@@ -261,7 +274,7 @@ const handleDelete = (operatorId) => {
             </form>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Table Header and Add Button */}
       <div className="page-header-info-bar flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -271,7 +284,7 @@ const handleDelete = (operatorId) => {
           </h3>
         </div>
         <div className="flex items-center gap-3">
-          {/* <div className="relative flex-1">
+          <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <SearchIcon />
             </div>
@@ -282,75 +295,23 @@ const handleDelete = (operatorId) => {
               value={filters.searchTag}
               onChange={(e) => setSearchTag(e.target.value)}
             />
-          </div> */}
+          </div>
 
           {/* Filter Button and Dropdown */}
           <div className="relative">
-            {/* <button
-                            onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-                        >
-                            <FunnelIcon className="h-5 w-5" />
-                            {t("FILTER")}
-                        </button> */}
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              <FunnelIcon className="h-5 w-5" />
+              {t("FILTER")}
+            </button>
 
-            {/* Filter Dropdown */}
-
-            {isFilterOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                <div className="p-4 space-y-4">
-                  {/* Search Tag Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Search Tag
-                    </label>
-                    <input
-                      type="text"
-                      value={filters.searchTag}
-                      onChange={(e) =>
-                        setFilters({ ...filters, searchTag: e.target.value })
-                      }
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-
-                  {/* Country Code Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Country Code
-                    </label>
-                    <input
-                      type="text"
-                      value={filters.code}
-                      onChange={(e) =>
-                        setFilters({ ...filters, code: e.target.value })
-                      }
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Filter Buttons */}
-                <div className="p-4 border-t border-gray-200 flex justify-end gap-3">
-                  <button
-                    onClick={handleResetFilters}
-                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Reset
-                  </button>
-                  <button
-                    onClick={handleApplyFilters}
-                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Apply
-                  </button>
-                </div>
-              </div>
-            )}
+            
           </div>
 
           {/* Add Country Button */}
-          <button
+          {/* <button
             onClick={() => {
               setIsModalOpen(true);
               setIsEditing(false);
@@ -358,7 +319,7 @@ const handleDelete = (operatorId) => {
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
             {t("ADD_OPERATOR")}
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -369,7 +330,8 @@ const handleDelete = (operatorId) => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <Table>
+          
+          <Table className="w-full table-auto">
             {/* Table Header */}
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
@@ -377,40 +339,105 @@ const handleDelete = (operatorId) => {
                   isHeader
                   className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("OPERATOR")}
+                  {t("MOBILE")}
                 </TableCell>
                 <TableCell
                   isHeader
                   className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  {t("PREFIX")}
+                  {t("AMOUNT")}
                 </TableCell>
                 <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("FEE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("TRANSACTION")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("STATUS")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("REQUEST_STATUS")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("CREATED")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("CREATED_BY")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("ROLE")}
+                </TableCell>
+
+                {/* <TableCell
                   isHeader
                   className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             </TableHeader>
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {operators.map((operator) => (
-                <TableRow key={operator.id}>
+              {recharges.map((recharge) => (
+                <TableRow key={recharge.id}>
                   <TableCell className="py-3 px-6 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                          {operator.operator}
+                          {recharge.mobile}
                         </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                    {operator.prefix}
+                    {recharge.amount}
                   </TableCell>
                   <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    {recharge.fee}
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    {recharge.tx}
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    <StatusBadge status={recharge?.status} />
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    <StatusBadge status={recharge?.request_status} />
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    {recharge.created_at}
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    {recharge.user?.first_name} {recharge?.user?.last_name}
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    {recharge?.user?.role}
+                  </TableCell>
+
+                  {/* <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
@@ -425,7 +452,7 @@ const handleDelete = (operatorId) => {
                         <Delete className="w-4 h-4 text-red-600 dark:text-red-300" />
                       </div>
                     </div>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
@@ -439,6 +466,14 @@ const handleDelete = (operatorId) => {
         totalPages={pagination.last_page}
         onPageChange={(page) => setCurrentPage(page)}
       />
+
+
+        <RechargeFilter
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+      />
+
     </div>
   );
 }

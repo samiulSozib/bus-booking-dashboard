@@ -277,28 +277,28 @@ export default function VendorUserRolesList() {
               <TableRow>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROLE_TITLE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROLE_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROLE_DESCRIPTION")}
                 </TableCell>
-                {/* <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                {/* <TableCell isHeader className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                   {t("PERMISSIONS")}
                 </TableCell> */}
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
                 </TableCell>
@@ -308,18 +308,18 @@ export default function VendorUserRolesList() {
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {roles?.map((role) => (
                 <TableRow key={role.id}>
-                  <TableCell className="py-3">
+                  <TableCell className="py-3 px-6 whitespace-nowrap">
                     <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                       {role.title}
                     </p>
                   </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     {role.name}
                   </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     {role.description || "-"}
                   </TableCell>
-                  {/* <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  {/* <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-wrap gap-1">
                       {role.permissions?.slice(0, 3).map(p => (
                         <span key={p.id} className="px-2 py-1 bg-gray-100 rounded text-xs">
@@ -333,7 +333,7 @@ export default function VendorUserRolesList() {
                       )}
                     </div>
                   </TableCell> */}
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
                       {useHasPermission("v1.vendor.role.update")&&(
                       <button

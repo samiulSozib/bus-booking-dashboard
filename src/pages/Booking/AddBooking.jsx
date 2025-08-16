@@ -8,6 +8,7 @@ import { createBooking } from '../../store/slices/bookingSlice';
 import { fetchActiveTrips, fetchTrips, showTrip } from '../../store/slices/tripSlice';
 import { fetchBusById } from '../../store/slices/busSlice';
 import Swal from 'sweetalert2';
+import { formatSeatNumber } from '../../utils/utils';
 
 const AddBooking = () => {
     const dispatch = useDispatch();
@@ -451,7 +452,7 @@ const AddBooking = () => {
         return selectedSeats.map((seat, index) => (
             <div key={seat.trip_seat_price_id} className="bg-gray-50 p-3 rounded-sm mb-3 text-base">
                 <h3 className="text-base font-medium mb-2">
-                    {t('booking.passengerInfo')} - Seat {seat.seat_number}
+                    {t('booking.passengerInfo')} - Seat {formatSeatNumber(seat.seat_number)}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>

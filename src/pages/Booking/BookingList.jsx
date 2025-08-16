@@ -22,6 +22,7 @@ import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import {
   checkPermission,
+  formatSeatNumber,
   userType,
   useUserPermissions,
 } from "../../utils/utils";
@@ -247,51 +248,60 @@ export default function BookingList() {
               <TableRow>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROUTES")}
                 </TableCell>
-                {/* <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                    {t("VENDOR")}
-                                </TableCell> */}
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("VENDOR")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("BUS")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("booking.totalAmount")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("booking.remainingAmount")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("TICKET_COUNT")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("STATUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("BOOKED_AT")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
                 </TableCell>
                 {/* {(type.role==="admin")&&(
-                                <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                <TableCell isHeader className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                     {t("DOWNLOAD")}
                                 </TableCell>
                               )} */}
@@ -302,12 +312,12 @@ export default function BookingList() {
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {bookings.map((booking) => (
                 <TableRow key={booking.id}>
-                  <TableCell className="py-3">
+                  <TableCell className="py-3 px-6 whitespace-nowrap">
                     <div className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                       {booking?.trip?.route?.name}
                     </div>
                   </TableCell>
-                  {/* <TableCell className="py-3">
+                  {/* <TableCell className="py-3 px-6 whitespace-nowrap">
                                         <div>
                                             <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                                 {booking.customer_first_name} {booking.customer_last_name}
@@ -315,24 +325,35 @@ export default function BookingList() {
                                             <p className="text-gray-500 text-xs">{booking.customer_mobile}</p>
                                         </div>
                                     </TableCell> */}
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    {booking?.vendor?.short_name}
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    {booking?.trip?.bus?.bus_number} {booking?.trip?.bus?.name}
+                  </TableCell>
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     {booking?.total_price}
                   </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     {booking?.remaining_amount}
                   </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {booking.ticket_count}
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 font-bold text-theme-sm dark:text-gray-400">
+                    {booking?.tickets
+                      .map((ticket) => formatSeatNumber(ticket.seat_number))
+                      .join(", ")}
                   </TableCell>
-                  <TableCell className="py-3">
+
+                  <TableCell className="py-3 px-6 whitespace-nowrap">
                     {getStatusBadge(booking.status)}
                   </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     {formatDate(booking.created_at)}
                   </TableCell>
-                  <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-3">
-                      {(user_type?.role === "admin" || user_type?.role === "branch" ||
+                      {(user_type?.role === "admin" ||
+                        user_type?.role === "branch" ||
                         user_type?.role === "vendor" ||
                         user_type?.role === "vendor_user") && (
                         <View
@@ -372,7 +393,7 @@ export default function BookingList() {
                     </div>
                   </TableCell>
                   {/* {(type.role==="admin")&&(
-                                    <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
                                       <button
                                                  onClick={() => handleDownload(booking.id)}
                                                  className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-gray-600"
