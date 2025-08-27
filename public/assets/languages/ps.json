@@ -859,5 +859,18 @@
   "booking.useCustomerInfoForPassengers": "د مسافر لپاره د پیرودونکي معلومات وکاروئ",
   "is_child": "ایا ماشوم دی؟",
   "yes": "هو",
-  "no": "نه"
+  "no": "نه",
+  "VENDOR_DETAILS": "د پلورونکي تفصیلات",
+  "BACK_TO_LIST": "بېرته لیست ته",
+  "COMMISSION_INFORMATION": "د کمیسیون معلومات",
+  "vendor_not_found": "پلورونکی ونه موندل شو",
+  "RECHARGE_LIST": "د بیا چارج لیست",
+  "CREATED": "جوړ شوی",
+  "CREATED_BY": "جوړ شوی د لخوا",
+  "REQUEST_STATUS": "د غوښتنې حالت",
+  "UPDATE_DATE": "د تازه کولو نېټه",
+  "notesRequired": "یادداشت اړین دی",
+  "bonusAmountRequired": "بونس اړین دی",
+  "NOTES": "یادداشتونه",
+  "BONUS_AMOUNT": "د بونس مقدار"
 }

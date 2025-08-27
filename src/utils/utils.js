@@ -167,6 +167,17 @@ export function userType() {
   if (data.role === "vendor_branch" || data.role==="vendor_branch_user") {
     return { ...data, role: "branch" }; // Return full object with modified role
   }
+  if (data.role === "vendor_user") {
+    return { ...data, role: "vendor" }; // Return full object with modified role
+  }
+  return data;
+}
+export function userTypeForSidebar() {
+  // return JSON.parse(localStorage.getItem("profile")||"{}");
+  const profile = localStorage.getItem("profile");
+  let data = profile ? JSON.parse(profile) : null;
+  if(!data) return
+  
   return data;
 }
 
@@ -204,7 +215,7 @@ export function useUserPermissions(userId) {
       dispatch(fetchUserPermissions(userId));
     }
   }, [dispatch, userId]);
-  console.log(userPermissions)
+  //console.log(userPermissions)
   return userPermissions;
 }
 
@@ -248,7 +259,7 @@ export function useHasPermission(permissionNames) {
   const { role, permissions = [] } = user;
 
   // Roles with full access
-  const fullAccessRoles = ["admin", "vendor", "branch", "vendor_branch"];
+  const fullAccessRoles = ["admin", "vendor", "vendor_branch"];
   if (fullAccessRoles.includes(role)) return true;
 
   // Ensure we always work with an array
@@ -257,7 +268,7 @@ export function useHasPermission(permissionNames) {
     : [permissionNames];
 
   // Vendor_user: check permission list
-  if (role === "vendor_user") {
+  if (role === "vendor_user" || role==="vendor_branch_user") {
     return permissions.some(
       (p) => requiredPermissions.includes(p.name) && p.has_permission
     );
@@ -285,3 +296,22 @@ export function useHasPermission(permissionNames) {
 
     return `${rowLabel}${seatNumber}`;
   }
+
+
+  // utils/dateFormatter.js
+
+export function formatDate(isoString, locale = "en-US") {
+  if (!isoString) return "";
+
+  const date = new Date(isoString);
+
+  return date.toLocaleString(locale, {
+    year: "numeric",
+    month: "long",   // "August"
+    day: "numeric",  // 16
+    hour: "2-digit", // 02
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,    // 12-hour format with AM/PM (set to false for 24h)
+  });
+}

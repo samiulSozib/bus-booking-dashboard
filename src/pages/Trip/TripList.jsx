@@ -37,6 +37,12 @@ import DiscountFilter from "../Discount/DiscountFilter";
 import useOutsideClick from "../../hooks/useOutSideClick";
 import { fetchBranches } from "../../store/slices/branchSlice";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-multi-date-picker";
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import persian from "react-date-object/calendars/persian";
+import { format } from "date-fns";
+import CustomPersianDatePicker from "../../components/mycomponent/CustomPersianDatePicker";
+import DateObject from "react-date-object";
 
 // Updated Yup validation schema
 const getTripSchema = (t, isAdmin) => {
@@ -132,9 +138,9 @@ export default function TripList() {
   const [totalSeats, setTotalSeats] = useState(0);
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [ticketPrice, setTicketPrice] = useState(0);
-  const [departureTime, setDepartureTime] = useState("");
-  const [arrivalTime, setArrivalTime] = useState("");
-  const [bookingDeadLine, setBookingDeadLine] = useState("");
+  const [departureTime, setDepartureTime] = useState(null);
+  const [arrivalTime, setArrivalTime] = useState(null);
+  const [bookingDeadLine, setBookingDeadLine] = useState(null);
   const [status, setStatus] = useState("active");
   const [allowPartialPayment, setAllowPartialPayment] = useState("0");
   const [partialPaymentType, setPartialPaymentType] = useState("total");
@@ -213,9 +219,25 @@ export default function TripList() {
       setModalBusSearchTag(selectedTrip.bus.name);
       setTotalSeats(selectedTrip.total_seats);
       setTicketPrice(selectedTrip.ticket_price);
-      setDepartureTime(selectedTrip.departure_time);
-      setArrivalTime(selectedTrip.arrival_time);
-      setBookingDeadLine(selectedTrip.booking_deadline);
+      setDepartureTime(
+        new DateObject({
+          date: new Date(selectedTrip.departure_time),
+          calendar: persian,
+        })
+      );
+      setArrivalTime(
+        new DateObject({
+          date: new Date(selectedTrip.arrival_time),
+          calendar: persian,
+        })
+      );
+      setBookingDeadLine(
+        new DateObject({
+          date: new Date(selectedTrip.booking_deadline),
+          calendar: persian,
+        })
+      );
+
       setStatus(selectedTrip.status);
       setAllowPartialPayment(selectedTrip.allow_partial_payment);
       setMinPartialPayment(selectedTrip.min_partial_payment);
@@ -326,9 +348,9 @@ export default function TripList() {
       bus_id: busId,
       total_seats: totalSeats,
       ticket_price: ticketPrice,
-      departure_time: departureTime,
-      arrival_time: arrivalTime,
-      booking_deadline: bookingDeadLine,
+      departure_time: format(departureTime.toDate(), "yyyy-MM-dd HH:mm:ss"),
+      arrival_time: format(arrivalTime.toDate(), "yyyy-MM-dd HH:mm:ss"),
+      booking_deadline: format(bookingDeadLine.toDate(), "yyyy-MM-dd HH:mm:ss"),
       status,
       allow_partial_payment: allowPartialPayment,
       min_partial_payment: minPartialPayment,
@@ -336,7 +358,9 @@ export default function TripList() {
     };
 
     //console.log(tripData)
-
+    //console.log(dateTime.format())
+    console.log(departureTime);
+    //return
     if (isAdmin) {
       tripData.vendor_id = vendorId;
     }
@@ -425,8 +449,9 @@ export default function TripList() {
     setModalBusSearchTag("");
     setTotalSeats(0);
     setTicketPrice(0);
-    setDepartureTime("");
-    setArrivalTime("");
+    setDepartureTime(null);
+    setArrivalTime(null);
+    setBookingDeadLine(null);
     setStatus("active");
     setMinPartialPayment(0);
     setIsModalOpen(false);
@@ -564,9 +589,7 @@ export default function TripList() {
                       seat ? "bg-green-200" : "dark:bg-gray-700"
                     }`}
                     onClick={() => {
-                      
-                        handleSeatClick(rowIndex + 1, colIndex + 1)
-                      
+                      handleSeatClick(rowIndex + 1, colIndex + 1);
                     }}
                   >
                     <img
@@ -598,9 +621,7 @@ export default function TripList() {
                       seat ? "bg-green-200" : "dark:bg-gray-700"
                     }`}
                     onClick={() => {
-                      
-                        handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1);
-                      
+                      handleSeatClick(rowIndex + 1, colIndex + leftSeats + 1);
                     }}
                   >
                     <img
@@ -644,10 +665,7 @@ export default function TripList() {
     );
   };
 
-
-
   // const generateSeatEditLayout = () => {
-    
 
   //   const { rows, columns,seats } = singleBus.seats;
   //   const leftSeats = Math.ceil(columns / 2);
@@ -736,10 +754,6 @@ export default function TripList() {
   //   );
   // };
 
-  
-  
-  
-  
   const handleDelete = (tripId) => {
     Swal.fire({
       title: t("DELETE_CONFIRMATION"),
@@ -818,66 +832,66 @@ export default function TripList() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <Table className="min-w-[120%]">
+          <Table>
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("VENDOR")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROUTES")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("BUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("TOTAL_SEATS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("TICKET_PRICE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("DEPARTURE_TIME")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ARRIVAL_TIME")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("STATUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("MIN_PARTIAL_PAYMENT")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
                 </TableCell>
@@ -887,7 +901,7 @@ export default function TripList() {
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {trips.map((trip) => (
                 <TableRow key={trip.id}>
-                  <TableCell className="py-3 px-6 whitespace-nowrap">
+                  <TableCell className="py-3 px-2 w-[150px] truncate ">
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -896,35 +910,35 @@ export default function TripList() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip?.route.name}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip?.bus.name}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip.total_seats}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip.ticket_price}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip.departure_time}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip.arrival_time}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip.status}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip.allow_partial_payment === 1 ||
                     trip.allow_partial_payment === "1"
                       ? trip.min_partial_payment
                       : "--"}
                   </TableCell>
 
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 cursor-pointer"
@@ -966,395 +980,386 @@ export default function TripList() {
       {/* Add/Edit Trip Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">
               {isEditMode ? t("EDIT_TRIP") : t("ADD_TRIP")}
             </h2>
             <form onSubmit={handleSubmit}>
-              {isAdmin && (
-                <div className="mb-4" ref={vendorDropdownRef}>
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("VENDOR")} *
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder={t("SEARCH_VENDOR")}
-                      value={modalVendorSearchTag}
-                      onChange={(e) => {
-                        setModalVendorSearchTag(e.target.value);
-                        setShowModalVendorDropdown(true);
-                      }}
-                      onFocus={() => setShowModalVendorDropdown(true)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                    {showModalVendorDropdown && (
-                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                        {vendorList
-                          .filter((vendor) => {
-                            const name =
-                              vendor?.vendor?.short_name?.toLowerCase() ?? "";
-                            const search =
-                              modalVendorSearchTag?.toLowerCase() ?? "";
-                            return name && name.includes(search);
-                          })
-
-                          .map((vendor) => (
-                            <div
-                              key={vendor?.vendor?.id}
-                              onClick={() =>
-                                handleModalVendorSelect(vendor?.vendor)
-                              }
-                              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                            >
-                              {vendor?.vendor?.short_name}
-                            </div>
-                          ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Left Column */}
+                <div className="space-y-4">
+                  {isAdmin && (
+                    <div className="mb-4" ref={vendorDropdownRef}>
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("VENDOR")} *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder={t("SEARCH_VENDOR")}
+                          value={modalVendorSearchTag}
+                          onChange={(e) => {
+                            setModalVendorSearchTag(e.target.value);
+                            setShowModalVendorDropdown(true);
+                          }}
+                          onFocus={() => setShowModalVendorDropdown(true)}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                        {showModalVendorDropdown && (
+                          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {vendorList
+                              .filter((vendor) => {
+                                const name =
+                                  vendor?.vendor?.short_name?.toLowerCase() ??
+                                  "";
+                                const search =
+                                  modalVendorSearchTag?.toLowerCase() ?? "";
+                                return name && name.includes(search);
+                              })
+                              .map((vendor) => (
+                                <div
+                                  key={vendor?.vendor?.id}
+                                  onClick={() =>
+                                    handleModalVendorSelect(vendor?.vendor)
+                                  }
+                                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                >
+                                  {vendor?.vendor?.short_name}
+                                </div>
+                              ))}
+                          </div>
+                        )}
                       </div>
+                      {errors.vendor_id && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.vendor_id}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Route Dropdown in Modal */}
+                  <div className="mb-4" ref={routeDropdownRef}>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("ROUTES")} *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder={t("SEARCH_ROUTE")}
+                        value={modalRouteSearchTag}
+                        onChange={(e) => {
+                          setModalRouteSearchTag(e.target.value);
+                          setShowModalRouteDropdown(true);
+                        }}
+                        onFocus={() => setShowModalRouteDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {showModalRouteDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {routes
+                            .filter((route) =>
+                              route.name
+                                .toLowerCase()
+                                .includes(modalRouteSearchTag.toLowerCase())
+                            )
+                            .map((route) => (
+                              <div
+                                key={route.id}
+                                onClick={() => handleModalRouteSelect(route)}
+                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                              >
+                                {route.name}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                    {errors.route_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.route_id}
+                      </p>
                     )}
                   </div>
-                  {errors.vendor_id && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.vendor_id}
-                    </p>
-                  )}
-                </div>
-              )}
 
-              {/* Route Dropdown in Modal */}
-              <div className="mb-4" ref={routeDropdownRef}>
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("ROUTES")} *
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder={t("SEARCH_ROUTE")}
-                    value={modalRouteSearchTag}
-                    onChange={(e) => {
-                      setModalRouteSearchTag(e.target.value);
-                      setShowModalRouteDropdown(true);
-                    }}
-                    onFocus={() => setShowModalRouteDropdown(true)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {showModalRouteDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                      {routes
-                        .filter((route) =>
-                          route.name
-                            .toLowerCase()
-                            .includes(modalRouteSearchTag.toLowerCase())
-                        )
-                        .map((route) => (
-                          <div
-                            key={route.id}
-                            onClick={() => handleModalRouteSelect(route)}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                          >
-                            {route.name}
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-                {errors.route_id && (
-                  <p className="text-red-500 text-sm mt-1">{errors.route_id}</p>
-                )}
-              </div>
-
-              {/* branch for vendor */}
-              {!isBranch && (
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t("BRANCH")}
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={t("SEARCH_BRANCH")}
-                    value={vendorBranchSearch} // Always use driverSearch for the value
-                    onChange={(e) => {
-                      setVendorBranchSearch(e.target.value);
-                      setShowVendorBranchDropdown(true);
-                      if (
-                        selectedVendorBranch &&
-                        e.target.value !== `${selectedVendorBranch?.name}`
-                      ) {
-                        setSelectedVendorBranch(null);
-                        //setFormData({ ...formData, vendor_branch_id: "" });
-                        setVendor_branch_id("");
-                      }
-                    }}
-                    onFocus={() => setShowVendorBranchDropdown(true)}
-                    onBlur={() =>
-                      setTimeout(() => setShowVendorBranchDropdown(false), 200)
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                  />
-                  {showVendorBranchDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
-                      {branches
-                        .filter((branch) =>
-                          `${branch?.branch?.name} || ""}`
-                            .toLowerCase()
-                            .includes(vendorBranchSearch.toLowerCase())
-                        )
-                        .map((branch) => (
-                          <div
-                            key={branch?.branch?.id}
-                            onClick={() => {
-                              handleVendorBranchSelect(branch?.branch);
-                              setVendorBranchSearch(`${branch?.branch?.name}`);
-                            }}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                          >
-                            {branch?.branch?.name}
-                          </div>
-                        ))}
-                      {branches.filter((branch) =>
-                        `${branch?.branch?.name} || ""}`
-                          .toLowerCase()
-                          .includes(vendorBranchSearch.toLowerCase())
-                      ).length === 0 && (
-                        <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
-                          {t("NO_BRANCH_FOUND")}
+                  {/* branch for vendor */}
+                  {!isBranch && (
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {t("BRANCH")}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={t("SEARCH_BRANCH")}
+                        value={vendorBranchSearch}
+                        onChange={(e) => {
+                          setVendorBranchSearch(e.target.value);
+                          setShowVendorBranchDropdown(true);
+                          if (
+                            selectedVendorBranch &&
+                            e.target.value !== `${selectedVendorBranch?.name}`
+                          ) {
+                            setSelectedVendorBranch(null);
+                            setVendor_branch_id("");
+                          }
+                        }}
+                        onFocus={() => setShowVendorBranchDropdown(true)}
+                        onBlur={() =>
+                          setTimeout(
+                            () => setShowVendorBranchDropdown(false),
+                            200
+                          )
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                      />
+                      {showVendorBranchDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto dark:bg-gray-800 dark:border-gray-700">
+                          {branches
+                            .filter((branch) =>
+                              `${branch?.branch?.name} || ""}`
+                                .toLowerCase()
+                                .includes(vendorBranchSearch.toLowerCase())
+                            )
+                            .map((branch) => (
+                              <div
+                                key={branch?.branch?.id}
+                                onClick={() => {
+                                  handleVendorBranchSelect(branch?.branch);
+                                  setVendorBranchSearch(
+                                    `${branch?.branch?.name}`
+                                  );
+                                }}
+                                className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                              >
+                                {branch?.branch?.name}
+                              </div>
+                            ))}
+                          {branches.filter((branch) =>
+                            `${branch?.branch?.name} || ""}`
+                              .toLowerCase()
+                              .includes(vendorBranchSearch.toLowerCase())
+                          ).length === 0 && (
+                            <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                              {t("NO_BRANCH_FOUND")}
+                            </div>
+                          )}
                         </div>
+                      )}
+                      {errors.vendor_branch_id && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.vendor_branch_id}
+                        </p>
                       )}
                     </div>
                   )}
-                  {errors.vendor_branch_id && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.vendor_branch_id}
-                    </p>
-                  )}
-                </div>
-              )}
-              {/* branch for vendor */}
 
-              {/* Bus Dropdown in Modal */}
-              <div className="mb-4" ref={busDropdownRef}>
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("BUS")} *
-                </label>
-                <div className="relative">
-                  <input
-                    disabled={isAdmin && !vendorId}
-                    type="text"
-                    placeholder={t("SEARCH_BUS")}
-                    value={modalBusSearchTag}
-                    onChange={(e) => {
-                      setModalBusSearchTag(e.target.value);
-                      setShowModalBusDropdown(true);
-                    }}
-                    onFocus={() => setShowModalBusDropdown(true)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {showModalBusDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                      {buses.length > 0 ? (
-                        buses.map((bus) => (
-                          <div
-                            key={bus.id}
-                            onClick={() => handleModalBusSelect(bus)}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                          >
-                            {bus.name}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="px-4 py-2 text-gray-500 text-center">
-                          {t("NO_BUS_FOUND")}
+                  {/* Bus Dropdown in Modal */}
+                  <div className="mb-4" ref={busDropdownRef}>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("BUS")} *
+                    </label>
+                    <div className="relative">
+                      <input
+                        disabled={isAdmin && !vendorId}
+                        type="text"
+                        placeholder={t("SEARCH_BUS")}
+                        value={modalBusSearchTag}
+                        onChange={(e) => {
+                          setModalBusSearchTag(e.target.value);
+                          setShowModalBusDropdown(true);
+                        }}
+                        onFocus={() => setShowModalBusDropdown(true)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {showModalBusDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                          {buses.length > 0 ? (
+                            buses.map((bus) => (
+                              <div
+                                key={bus.id}
+                                onClick={() => handleModalBusSelect(bus)}
+                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                              >
+                                {bus.name}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-2 text-gray-500 text-center">
+                              {t("NO_BUS_FOUND")}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
+                    {errors.bus_id && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.bus_id}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Total Seats */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("TOTAL_SEATS")} *
+                    </label>
+                    <input
+                      type="number"
+                      value={totalSeats}
+                      onChange={(e) => setTotalSeats(e.target.value)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.total_seats && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.total_seats}
+                      </p>
+                    )}
+                  </div>
+                  {/* Ticket Price */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("TICKET_PRICE")} *
+                    </label>
+                    <input
+                      type="number"
+                      value={ticketPrice}
+                      onChange={(e) => setTicketPrice(e.target.value)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    {errors.ticket_price && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.ticket_price}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Status */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("STATUS")} *
+                    </label>
+                    <select
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                    {errors.status && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.status}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-4">
+                  {/* Allow partial payment */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("ALLOW_PARTIAL_PAYMENT")} *
+                    </label>
+                    <select
+                      value={allowPartialPayment}
+                      onChange={(e) => setAllowPartialPayment(e.target.value)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    >
+                      <option value="1">Yes</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+
+                  {/* partial payment type*/}
+                  {(allowPartialPayment === "1" ||
+                    allowPartialPayment === 1) && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("PARTIAL_PAYMENT_TYPE")} *
+                      </label>
+                      <select
+                        value={partialPaymentType}
+                        onChange={(e) => setPartialPaymentType(e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      >
+                        <option value="total">Total</option>
+                        <option value="per_seat">Per Seat</option>
+                      </select>
+                    </div>
                   )}
+
+                  {/* min partial payment */}
+                  {(allowPartialPayment === "1" ||
+                    allowPartialPayment === 1) && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t("MIN_PARTIAL_PAYMENT")} *
+                      </label>
+                      <input
+                        type="number"
+                        value={minPartialPayment}
+                        onChange={(e) => setMinPartialPayment(e.target.value)}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                    </div>
+                  )}
+
+                  {/* Departure Time */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("DEPARTURE_TIME")} *
+                    </label>
+                    <div className="w-full">
+                      <CustomPersianDatePicker
+                      value={departureTime}
+                      onChange={setDepartureTime}
+                    />
+                    </div>
+                    {errors.departure_time && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.departure_time}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Arrival Time */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("ARRIVAL_TIME")} *
+                    </label>
+                    <CustomPersianDatePicker
+                      value={arrivalTime}
+                      onChange={setArrivalTime}
+                    />
+                    {errors.arrival_time && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.arrival_time}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* booking deadline */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t("BOOKING_DEADLINE")} *
+                    </label>
+                    <CustomPersianDatePicker
+                      value={bookingDeadLine}
+                      onChange={setBookingDeadLine}
+                    />
+                    {errors.booking_deadline && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.booking_deadline}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                {errors.bus_id && (
-                  <p className="text-red-500 text-sm mt-1">{errors.bus_id}</p>
-                )}
               </div>
 
-              {/* Total Seats */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("TOTAL_SEATS")} *
-                </label>
-                <input
-                  type="number"
-                  value={totalSeats}
-                  onChange={(e) => setTotalSeats(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                {errors.total_seats && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.total_seats}
-                  </p>
-                )}
-              </div>
-
-              {/* Ticket Price */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("TICKET_PRICE")} *
-                </label>
-                <input
-                  type="number"
-                  value={ticketPrice}
-                  onChange={(e) => setTicketPrice(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                {errors.ticket_price && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.ticket_price}
-                  </p>
-                )}
-              </div>
-
-              {/* Departure Time */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("DEPARTURE_TIME")} *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formatForDisplay(departureTime)}
-                  onChange={(e) => {
-                    setDepartureTime(formatForInputDiscount(e.target.value)),
-                      setErrors((prevErrors) => {
-                        const newErrors = { ...prevErrors };
-                        delete newErrors.departure_time;
-                        return newErrors;
-                      });
-                  }}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                {errors.departure_time && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.departure_time}
-                  </p>
-                )}
-              </div>
-
-              {/* Arrival Time */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("ARRIVAL_TIME")} *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formatForDisplay(arrivalTime)}
-                  onChange={(e) => {
-                    setArrivalTime(formatForInputDiscount(e.target.value)),
-                      setErrors((prevErrors) => {
-                        const newErrors = { ...prevErrors };
-                        delete newErrors.arrival_time;
-                        return newErrors;
-                      });
-                  }}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                {errors.arrival_time && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.arrival_time}
-                  </p>
-                )}
-              </div>
-
-              {/* booking deadline */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("BOOKING_DEADLINE")} *
-                </label>
-                <input
-                  type="datetime-local"
-                  value={formatForDisplay(bookingDeadLine)}
-                  onChange={(e) => {
-                    setBookingDeadLine(formatForInputDiscount(e.target.value)),
-                      setErrors((prevErrors) => {
-                        const newErrors = { ...prevErrors };
-                        delete newErrors.booking_deadline;
-                        return newErrors;
-                      });
-                  }}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-                {errors.booking_deadline && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.booking_deadline}
-                  </p>
-                )}
-              </div>
-
-              {/* Status */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("STATUS")} *
-                </label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-                {errors.status && (
-                  <p className="text-red-500 text-sm mt-1">{errors.status}</p>
-                )}
-              </div>
-
-              {/* Allow partial payment */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("ALLOW_PARTIAL_PAYMENT")} *
-                </label>
-                <select
-                  value={allowPartialPayment}
-                  onChange={(e) => setAllowPartialPayment(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                >
-                  <option value="1">Yes</option>
-                  <option value="0">No</option>
-                </select>
-              </div>
-
-              {/*  partial payment type*/}
-              {(allowPartialPayment === "1" || allowPartialPayment === 1) && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("PARTIAL_PAYMENT_TYPE")} *
-                  </label>
-                  <select
-                    value={partialPaymentType}
-                    onChange={(e) => setPartialPaymentType(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  >
-                    <option value="total">Total</option>
-                    <option value="per_seat">Per Seat</option>
-                  </select>
-                </div>
-              )}
-
-              {/* min partial payment */}
-              {(allowPartialPayment === "1" || allowPartialPayment === 1) && (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("MIN_PARTIAL_PAYMENT")} *
-                  </label>
-                  <input
-                    type="number"
-                    value={minPartialPayment}
-                    onChange={(e) => setMinPartialPayment(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  {/* {errors.min_partial_payment && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.min_partial_payment}</p>
-                                    )} */}
-                </div>
-              )}
-
+              {/* Edit/Manage Seats Button - Full width */}
               {isEditMode ? (
-                <div className="flex justify-end mt-2 mb-2">
+                <div className="flex justify-end mt-4 mb-2">
                   {useHasPermission(
                     "v1.vendor.trip.create_or_update_seat_prices"
                   ) && (
@@ -1368,7 +1373,7 @@ export default function TripList() {
                   )}
                 </div>
               ) : (
-                <div className="flex justify-end mt-2 mb-2">
+                <div className="flex justify-end mt-4 mb-2">
                   {busId && (
                     <div>
                       {useHasPermission(
@@ -1388,7 +1393,7 @@ export default function TripList() {
               )}
 
               {/* Buttons */}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 mt-4">
                 <button
                   type="button"
                   onClick={resetModal}
@@ -1645,7 +1650,6 @@ export default function TripList() {
   );
 }
 
-
 // Seat Button Component
 const SeatButton = ({
   rowIndex,
@@ -1699,4 +1703,3 @@ const SeatButton = ({
     </div>
   );
 };
-

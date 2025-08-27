@@ -47,6 +47,7 @@
     "react-helmet-async": "^2.0.5",
     "react-i18next": "^15.4.1",
     "react-modal": "^3.16.3",
+    "react-multi-date-picker": "^4.5.2",
     "react-redux": "^9.2.0",
     "react-responsive-carousel": "^3.2.23",
     "react-router": "^7.1.5",

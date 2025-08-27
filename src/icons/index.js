@@ -87,12 +87,14 @@ import {ReactComponent as Ticket} from "./sidebarIcon/Ticket.svg?react"
 import {ReactComponent as Booking} from "./booking.svg?react"
 import {ReactComponent as Settings} from "./sidebarIcon/Settings.svg?react"
 import {ReactComponent as TicketBus} from "./ticket-bus.svg?react"
+import {ReactComponent as MobileOperator} from "./mobileOperator.svg?react"
 
 
 
 
 
 export {
+  MobileOperator,
   TicketBus,
   Settings,
   Ticket,

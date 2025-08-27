@@ -48,6 +48,7 @@ import AdminDriver from "./pages/User/Driver/AdminDriver";
 import TripView from "./pages/Trip/ViewTrip";
 import VendorView from "./pages/User/Vendor/VendorView";
 import Recharge from "./pages/Recharge/Recharge";
+import UserProfiles from "./pages/Profile/UserProfile";
 
 export default function App() {
   return (
@@ -369,6 +370,16 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <TripView />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              index
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfiles />
                 </ProtectedRoute>
               }
             />

@@ -22,6 +22,7 @@ import {
   checkPermission,
   useHasPermission,
   userType,
+  userTypeForSidebar,
   useUserPermissions,
 } from "../../utils/utils";
 
@@ -35,7 +36,7 @@ const BusList = () => {
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
-  const user_type = userType();
+  const user_type = userTypeForSidebar();
 
   useEffect(() => {
     dispatch(
@@ -115,7 +116,7 @@ const BusList = () => {
             {t("FILTER")}
           </button>
 
-          {(useHasPermission("v1.vendor.bus.create") && userType().role !== "branch") && (
+          {(useHasPermission(["v1.vendor.bus.create","v1.branch.bus.create"]) && userTypeForSidebar().role != "vendor_branch") && (
             <button
               onClick={() => navigate("/add-bus")}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -138,33 +139,33 @@ const BusList = () => {
               <TableRow>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("BUS_NO")}.
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("BUS_NAME")}
                 </TableCell>
 
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("FACILITIES")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("RATING")}
                 </TableCell>
                 {user_type.role == "admin" && (
                   <TableCell
                     isHeader
-                    className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                   >
                     {t("VENDOR")}
                   </TableCell>
@@ -172,25 +173,25 @@ const BusList = () => {
 
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("TICKET_PRICE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("SEATS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("STATUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
                 </TableCell>
@@ -200,7 +201,7 @@ const BusList = () => {
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {buses.map((bus) => (
                 <TableRow key={bus.id}>
-                  <TableCell className="py-3 px-6 whitespace-nowrap">
+                  <TableCell className="py-3 px-2 w-[150px] truncate">
                     <div className="flex items-center gap-3">
                       <div className="">
                         <img
@@ -216,30 +217,30 @@ const BusList = () => {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {bus.name}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {bus.facilities}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {bus.rating}
                   </TableCell>
                   {user_type.role == "admin" && (
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                       {bus?.vendor?.short_name}
                     </TableCell>
                   )}
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {bus.ticket_price}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {bus.seats?.seats?.length}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {bus.status}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
                       {useHasPermission("v1.vendor.bus.update") && (
                         <div
@@ -250,7 +251,7 @@ const BusList = () => {
                         </div>
                       )}
 
-                      {useHasPermission("v1.vendor.bus.delete") && (
+                      {useHasPermission(["v1.vendor.bus.delete","v1.branch.bus.delete"]) && (
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
                           onClick={() => handleDelete(bus.id)}

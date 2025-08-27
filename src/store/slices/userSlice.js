@@ -339,6 +339,7 @@ const userSlice = createSlice({
     users: [],
     vendorList: [],
     driverList: [],
+    agentList:[],
     selectedUser: null,
     error: null,
     pagination: {
@@ -363,6 +364,10 @@ const userSlice = createSlice({
           state.users = items;
         } else if (role === "driver") {
           state.driverList = items;
+          state.users = items;
+        }
+        else if (role === "agent") {
+          state.agentList = items;
           state.users = items;
         } else {
           state.users = items; // for all users
@@ -395,6 +400,9 @@ const userSlice = createSlice({
         }
         if (action.payload.role === "driver") {
           state.driverList.push(action.payload);
+        }
+        if (action.payload.role === "agent") {
+          state.agentList.push(action.payload);
         }
       })
       .addCase(addUser.rejected, (state, action) => {

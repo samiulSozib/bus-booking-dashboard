@@ -665,43 +665,43 @@ export default function DriverList() {
               <TableRow>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("FIRST_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("LAST_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("EMAIL")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("MOBILE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROLE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("STATUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
                 </TableCell>
@@ -710,26 +710,26 @@ export default function DriverList() {
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {driverList.map((user, index) => (
                 <TableRow key={index} className="hover:bg-yellow-50">
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-black-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="py-3 px-2 w-[150px] truncate text-black-500 text-theme-sm dark:text-gray-400">
                     {user.driver?.first_name}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {user.driver?.last_name}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {user.driver?.email}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {user.driver?.mobile}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div>{user?.role}</div>
                   </TableCell>
 
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <StatusBadge status={user?.status} />
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"

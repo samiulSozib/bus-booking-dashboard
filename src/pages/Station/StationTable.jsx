@@ -8,9 +8,11 @@ import {
 } from "../../components/ui/table";
 import { Delete, Edit } from "../../icons";
 import { useTranslation } from "react-i18next";
+import { userType } from "../../utils/utils";
 
 const StationTable = ({ stations, loading, onEdit, onDelete }) => {
   const { t } = useTranslation();
+  const type=userType()
 
   if (loading) {
     return (
@@ -27,47 +29,49 @@ const StationTable = ({ stations, loading, onEdit, onDelete }) => {
           <TableRow>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("STATION_NAME")}
             </TableCell>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("LATITUDE")}
             </TableCell>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("LONGITUDE")}
             </TableCell>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("CITY_NAME")}
             </TableCell>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("PROVINCE_NAME")}
             </TableCell>
+            {type.role==="admin" &&(
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("ACTION")}
             </TableCell>
+            )}
           </TableRow>
         </TableHeader>
 
         <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
           {stations.map((station) => (
             <TableRow key={station.id}>
-              <TableCell className="py-3 px-6 whitespace-nowrap">
+              <TableCell className="py-3 px-2 w-[150px] truncate">
                 <div className="flex items-center gap-3">
                   <div>
                     <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -76,19 +80,20 @@ const StationTable = ({ stations, loading, onEdit, onDelete }) => {
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              <TableCell className="">
                 {station.latitude}
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                 {station.longitude}
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                 {station.city.name}
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                 {station.city?.province?.name}
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              {type.role==="admin" &&(
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                 <div className="flex flex-row items-center justify-start gap-2">
                   <div
                     className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
@@ -104,6 +109,7 @@ const StationTable = ({ stations, loading, onEdit, onDelete }) => {
                   </div>
                 </div>
               </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

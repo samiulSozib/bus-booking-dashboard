@@ -27,32 +27,32 @@ const RouteTable = ({ routes, loading, onEdit, role, onDelete }) => {
           <TableRow>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("ROUTE_NAME")}
             </TableCell>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("ORIGIN")}
             </TableCell>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("DESTINATION")}
             </TableCell>
             <TableCell
               isHeader
-              className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
             >
               {t("DISTANCE")}
             </TableCell>
             {role === "admin" && (
               <TableCell
                 isHeader
-                className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
                 {t("ACTION")}
               </TableCell>
@@ -63,7 +63,7 @@ const RouteTable = ({ routes, loading, onEdit, role, onDelete }) => {
         <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
           {routes.map((route) => (
             <TableRow key={route.id}>
-              <TableCell className="py-3 px-6 whitespace-nowrap">
+              <TableCell className="py-3 px-2 w-[150px] truncate">
                 <div className="flex items-center gap-3">
                   <div>
                     <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -72,17 +72,17 @@ const RouteTable = ({ routes, loading, onEdit, role, onDelete }) => {
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                 {route.origin_city.name}
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                 {route.destination_city.name}
               </TableCell>
-              <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+              <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                 {route?.distance} Km
               </TableCell>
               {role === "admin" && (
-                <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                   <div className="flex flex-row items-center justify-start gap-2">
                     <div
                       className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"

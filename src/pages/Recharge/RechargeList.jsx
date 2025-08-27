@@ -30,6 +30,7 @@ import {
 import { fetchRecharges } from "../../store/slices/rechargeSlice";
 import StatusBadge from "../../components/ui/badge/StatusBadge";
 import RechargeFilter from "./RechargeFilter";
+import { formatDate } from "../../utils/utils";
 
 // Validation schema
 const getOperatorSchema = (t) =>
@@ -337,62 +338,62 @@ export default function RechargeList() {
               <TableRow>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("MOBILE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("AMOUNT")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("FEE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("TRANSACTION")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("STATUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("REQUEST_STATUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("CREATED")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("CREATED_BY")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROLE")}
                 </TableCell>
 
                 {/* <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
                 </TableCell> */}
@@ -403,7 +404,7 @@ export default function RechargeList() {
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
               {recharges.map((recharge) => (
                 <TableRow key={recharge.id}>
-                  <TableCell className="py-3 px-6 whitespace-nowrap">
+                  <TableCell className="py-3 px-2 w-[150px] truncate">
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -412,32 +413,32 @@ export default function RechargeList() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {recharge.amount}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {recharge.fee}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {recharge.tx}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <StatusBadge status={recharge?.status} />
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <StatusBadge status={recharge?.request_status} />
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                    {recharge.created_at}
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {formatDate(recharge.created_at)}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {recharge.user?.first_name} {recharge?.user?.last_name}
                   </TableCell>
-                  <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {recharge?.user?.role}
                   </TableCell>
 
-                  {/* <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                  {/* <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
                       <div
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"

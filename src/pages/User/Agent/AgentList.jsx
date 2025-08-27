@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../../components/pagination/pagination";
 import useOutsideClick from "../../../hooks/useOutSideClick";
 import StatusBadge from "../../../components/ui/badge/StatusBadge";
+import { fetchBranches } from "../../../store/slices/branchSlice";
 
 export default function AgentList() {
   const dropdownRef = useRef(null);
@@ -31,7 +32,7 @@ export default function AgentList() {
   });
 
   const dispatch = useDispatch();
-  const { users, vendorList, selectedUser, loading, pagination } = useSelector(
+  const { users, vendorList,agentList, selectedUser, loading, pagination } = useSelector(
     (state) => state.users
   );
 
@@ -48,13 +49,26 @@ export default function AgentList() {
   const [modalVendorSearchTag, setModalVendorSearchTag] = useState("");
   const [showModalVendorDropdown, setShowModalVendorDropdown] = useState(false);
 
+  const [vendorBranchSearch, setVendorBranchSearch] = useState("");
+  const [showVendorBranchDropdown, setShowVendorBranchDropdown] =
+    useState(false);
+  const [selectedVendorBranch, setSelectedVendorBranch] = useState(null);
+
+  const { branches } = useSelector((state) => state.branch);
+
   const handleModalVendorSelect = (vendor) => {
     setFormData({
       ...formData,
       vendor_id: vendor.id,
     });
-    setModalVendorSearchTag(vendor.name);
+    setModalVendorSearchTag(vendor.short_name);
     setShowModalVendorDropdown(false);
+  };
+
+  const handleVendorBranchSelect = (branch) => {
+    setSelectedVendorBranch(branch);
+    setFormData({ ...formData, vendor_branch_id: branch.id });
+    setShowVendorBranchDropdown(false);
   };
 
   // State for user form fields
@@ -66,11 +80,13 @@ export default function AgentList() {
     role: "agent",
     password: "",
     status: "",
-    name: "",
-    phone: "",
+    short_name: "",
+    long_name: "",
     code: "",
-    comission_amount: 0,
-    comission_type: "",
+    notes: "",
+    bonus_amount: 0,
+    commission_amount: 0,
+    commission_type: "",
     registration_number: "",
     license_number: "",
     rating: 0,
@@ -81,11 +97,33 @@ export default function AgentList() {
     logo: "",
     description: "",
     vendor_id: 0,
+    vendor_branch_id: 0,
   });
 
   useEffect(() => {
     dispatch(fetchUsers({ searchTag, page: currentPage, role: "agent" }));
   }, [dispatch, searchTag, currentPage]);
+
+  useEffect(() => {
+    dispatch(fetchUsers({ searchTag: modalVendorSearchTag, role: "vendor" }));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (formData?.vendor_id) {
+      dispatch(
+        fetchBranches({
+          searchTag: vendorBranchSearch,
+          vendor_id: formData?.vendor_id,
+        })
+      );
+    } else {
+      dispatch(
+        fetchBranches({
+          searchTag: vendorBranchSearch,
+        })
+      );
+    }
+  }, [dispatch, vendorBranchSearch, formData?.vendor_id]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -103,12 +141,19 @@ export default function AgentList() {
       const roleSpecificData = {
         // Agent-specific fields
         ...(selectedUser.role === "agent" && {
-          name: selectedUser.agent?.name || "",
-          phone: selectedUser.agent?.phone || "",
+          short_name: selectedUser.agent?.short_name || "",
+          long_name: selectedUser.agent?.long_name || "",
           code: selectedUser.agent?.code || "",
-          comission_amount: selectedUser.agent?.comission_amount || 0,
-          comission_type: selectedUser.agent?.comission_type || "",
+          notes: selectedUser.agent?.notes,
+          bonus_amount: selectedUser.agent.bonus_amount,
+          commission_amount: selectedUser.agent?.commission_amount || 0,
+          commission_type: selectedUser.agent?.commission_type || "",
+          vendor_id: selectedUser?.agent?.vendor_id || 0,
+          vendor_branch_id: selectedUser?.agent.vendor_branch_id || 0,
+          
         }),
+
+        
 
         // Vendor-specific fields
         ...(selectedUser.role === "vendor" && {
@@ -127,16 +172,20 @@ export default function AgentList() {
           description: selectedUser.vendor?.description || "",
         }),
 
-        // Driver-specific field
-        ...(selectedUser.role === "driver" && {
-          vendor_id: selectedUser.driver?.vendor_id || 0,
-        }),
+        
       };
+
+      if(selectedUser.role==="agent"){
+        setVendorBranchSearch(selectedUser?.agent?.branch?.name)
+      setModalVendorSearchTag(selectedUser?.agent?.vendor?.short_name)
+      }
 
       setFormData({
         ...baseData,
         ...roleSpecificData,
       });
+      
+      
     }
   }, [selectedUser]);
 
@@ -146,11 +195,15 @@ export default function AgentList() {
     try {
       // Clear previous errors
       setFormErrors({});
-
+      //console.log(formData);
+      //return;
       // Validate form data
-      await getValidationSchema(t, isEditingAgent).validate(formData, {
-        abortEarly: false,
-      });
+      await getValidationSchema(t, isEditingAgent, isEditing).validate(
+        formData,
+        {
+          abortEarly: false,
+        }
+      );
 
       const userData = { ...formData };
       let result;
@@ -187,9 +240,10 @@ export default function AgentList() {
       Swal.fire({
         icon: "success",
         title: t("success"),
-        text: isEditing||isEditingAgent
-          ? t("userUpdateSuccessfully")
-          : t("userAddedSuccessfully"),
+        text:
+          isEditing || isEditingAgent
+            ? t("userUpdateSuccessfully")
+            : t("userAddedSuccessfully"),
       });
 
       // Reset form
@@ -201,11 +255,13 @@ export default function AgentList() {
         role: "agent",
         password: "",
         status: "",
-        name: "",
-        phone: "",
+        short_name: "",
+        long_name: "",
         code: "",
-        comission_amount: 0,
-        comission_type: "",
+        notes: "",
+        bonus_amount: 0,
+        commission_amount: 0,
+        commission_type: "",
         registration_number: "",
         license_number: "",
         rating: 0,
@@ -216,12 +272,15 @@ export default function AgentList() {
         logo: "",
         description: "",
         vendor_id: 0,
+        vendor_branch_id: 0,
       });
       setIsModalOpen(false);
       setIsEditing(false);
       setIsEditingAgent(false);
       setCurrentUserId(null);
       setCurrentAgentId(null);
+      setModalVendorSearchTag("");
+      setVendorBranchSearch("");
     } catch (err) {
       console.error("Submission error:", err);
 
@@ -261,33 +320,47 @@ export default function AgentList() {
     setIsModalOpen(true);
   };
 
-  const getValidationSchema = (t, isEditingAgent) =>
-    Yup.object().shape({
-      // Basic user info (required for all users)
-      first_name: Yup.string().required(t("user.firstNameRequired")),
-      last_name: Yup.string().required(t("user.lastNameRequired")),
-      email: Yup.string()
-        .email(t("user.invalidEmail"))
-        .required(t("user.emailRequired")),
-      mobile: Yup.string()
-        .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
-        .required(t("user.mobileRequired")),
-      password: isEditingAgent
-        ? Yup.string()
-        : Yup.string()
-            .required(t("user.passwordRequired"))
-            .min(6, t("user.passwordMin")),
-      status: Yup.string().required(t("user.statusRequired")),
+const getValidationSchema = (t, isEditingAgent, isEditing) => {
+  const isAgentContext = !isEditing || isEditingAgent;
+  const isNewUser = !isEditing && !isEditingAgent;
 
-      // Agent-specific fields (all required)
-      name: Yup.string().required(t("user.nameRequired")),
-      phone: Yup.string().required(t("user.phoneRequired")),
+  return Yup.object().shape({
+    // Basic user info (always required)
+    first_name: Yup.string().required(t("user.firstNameRequired")),
+    last_name: Yup.string().required(t("user.lastNameRequired")),
+    email: Yup.string()
+      .email(t("user.invalidEmail"))
+      .required(t("user.emailRequired")),
+    mobile: Yup.string()
+      .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
+      .required(t("user.mobileRequired")),
+    status: Yup.string().required(t("user.statusRequired")),
+
+    // Password - only required for new users
+    password: isNewUser
+      ? Yup.string()
+          .required(t("user.passwordRequired"))
+          .min(6, t("user.passwordMin"))
+      : Yup.string(),
+
+    // Agent-specific fields
+    ...(isAgentContext && {
+      short_name: Yup.string().required(t("user.shortNameRequired")),
+      long_name: Yup.string().required(t("user.longNameRequired")),
       code: Yup.string().required(t("user.codeRequired")),
-      comission_amount: Yup.number().required(
-        t("user.commissionAmountRequired")
-      ),
-      comission_type: Yup.string().required(t("user.commissionTypeRequired")),
-    });
+      notes: Yup.string().required(t("user.notesRequired")),
+      bonus_amount: Yup.number()
+        .required(t("user.bonusAmountRequired")),
+      commission_amount: Yup.number()
+        .required(t("user.commissionAmountRequired")),
+      commission_type: Yup.string().required(t("user.commissionTypeRequired")),
+      vendor_id: Yup.number()
+        .required(t("user.vendorIdRequired")),
+      vendor_branch_id: Yup.number()
+        .required(t("user.vendorBranchIdRequired"))
+    }),
+  });
+};
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
@@ -485,48 +558,169 @@ export default function AgentList() {
                       {t("AGENT_INFORMATION")}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {/* vendor */}
+                      <div className="mb-4" ref={dropdownRef}>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("VENDOR")} *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder={t("SEARCH_VENDOR")}
+                            value={modalVendorSearchTag}
+                            onChange={(e) => {
+                              setModalVendorSearchTag(e.target.value);
+                              setShowModalVendorDropdown(true);
+                            }}
+                            onFocus={() => setShowModalVendorDropdown(true)}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          />
+                          {showModalVendorDropdown && (
+                            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              {vendorList
+                                .filter((vendor) => {
+                                  const name =
+                                    vendor?.vendor?.short_name?.toLowerCase() ??
+                                    "";
+                                  const search =
+                                    modalVendorSearchTag?.toLowerCase() ?? "";
+                                  return name && name.includes(search);
+                                })
+                                .map((vendor) => (
+                                  <div
+                                    key={vendor?.vendor?.id}
+                                    onClick={() =>
+                                      handleModalVendorSelect(vendor?.vendor)
+                                    }
+                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                  >
+                                    {vendor?.vendor?.short_name}
+                                  </div>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* branch */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {t("BRANCH")}
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder={t("SEARCH_BRANCH")}
+                            value={vendorBranchSearch} // Always use driverSearch for the value
+                            onChange={(e) => {
+                              setVendorBranchSearch(e.target.value);
+                              setShowVendorBranchDropdown(true);
+                              if (
+                                selectedVendorBranch &&
+                                e.target.value !==
+                                  `${selectedVendorBranch?.name}`
+                              ) {
+                                setSelectedVendorBranch(null);
+                                setFormData({
+                                  ...formData,
+                                  vendor_branch_id: "",
+                                });
+                              }
+                            }}
+                            onFocus={() => setShowVendorBranchDropdown(true)}
+                            onBlur={() =>
+                              setTimeout(
+                                () => setShowVendorBranchDropdown(false),
+                                200
+                              )
+                            }
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          />
+                          {showVendorBranchDropdown && (
+                            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              {branches
+                                .filter((branch) =>
+                                  `${branch?.branch?.name} || ""}`
+                                    .toLowerCase()
+                                    .includes(vendorBranchSearch.toLowerCase())
+                                )
+                                .map((branch) => (
+                                  <div
+                                    key={branch?.branch?.id}
+                                    onClick={() => {
+                                      handleVendorBranchSelect(branch?.branch);
+                                      setVendorBranchSearch(
+                                        `${branch?.branch?.name}`
+                                      );
+                                    }}
+                                    className="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                                  >
+                                    {branch?.branch?.name}
+                                  </div>
+                                ))}
+                              {branches.filter((branch) =>
+                                `${branch?.branch?.name} || ""}`
+                                  .toLowerCase()
+                                  .includes(vendorBranchSearch.toLowerCase())
+                              ).length === 0 && (
+                                <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                                  {t("NO_BRANCH_FOUND")}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        {/* {errors.vendor_branch_id && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.vendor_branch_id}
+                </p>
+              )} */}
+                      </div>
+                      {/* branch */}
+
                       {/* Name */}
+
                       <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
-                          {t("NAME")}
+                          {t("SHORT_NAME")}
                         </label>
                         <input
                           type="text"
-                          value={formData?.name || ""}
+                          value={formData?.short_name || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              name: e.target.value,
+                              short_name: e.target.value,
                             })
                           }
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
-                        {formErrors?.name && (
+                        {formErrors?.short_name && (
                           <p className="text-red-500 text-xs mt-1">
-                            {formErrors?.name}
+                            {formErrors?.short_name}
                           </p>
                         )}
                       </div>
 
-                      {/* Phone */}
+                      {/* LONG NAME */}
                       <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
-                          {t("PHONE")}
+                          {t("LONG_NAME")}
                         </label>
                         <input
                           type="text"
-                          value={formData?.phone || ""}
+                          value={formData?.long_name || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              phone: e.target.value,
+                              long_name: e.target.value,
                             })
                           }
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
-                        {formErrors?.phone && (
+                        {formErrors?.long_name && (
                           <p className="text-red-500 text-xs mt-1">
-                            {formErrors?.phone}
+                            {formErrors?.long_name}
                           </p>
                         )}
                       </div>
@@ -554,6 +748,52 @@ export default function AgentList() {
                         )}
                       </div>
 
+                      {/* notes */}
+                      <div className="mb-1.5">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("NOTES")}
+                        </label>
+                        <input
+                          type="text"
+                          value={formData?.notes || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              notes: e.target.value,
+                            })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
+                        />
+                        {formErrors?.notes && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {formErrors?.notes}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* bonus Amount */}
+                      <div className="mb-1.5">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("BONUS_AMOUNT")}
+                        </label>
+                        <input
+                          type="number"
+                          value={formData?.bonus_amount || 0}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              bonus_amount: parseFloat(e.target.value),
+                            })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
+                        />
+                        {formErrors?.bonus_amount && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {formErrors?.bonus_amount}
+                          </p>
+                        )}
+                      </div>
+
                       {/* Commission Amount */}
                       <div className="mb-1.5">
                         <label className="block text-sm font-medium text-gray-700">
@@ -561,18 +801,18 @@ export default function AgentList() {
                         </label>
                         <input
                           type="number"
-                          value={formData?.comission_amount || 0}
+                          value={formData?.commission_amount || 0}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              comission_amount: parseFloat(e.target.value),
+                              commission_amount: parseFloat(e.target.value),
                             })
                           }
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
                         />
-                        {formErrors?.comission_amount && (
+                        {formErrors?.commission_amount && (
                           <p className="text-red-500 text-xs mt-1">
-                            {formErrors?.comission_amount}
+                            {formErrors?.commission_amount}
                           </p>
                         )}
                       </div>
@@ -583,11 +823,11 @@ export default function AgentList() {
                           {t("COMMISSION_TYPE")}
                         </label>
                         <select
-                          value={formData?.comission_type || ""}
+                          value={formData?.commission_type || ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              comission_type: e.target.value,
+                              commission_type: e.target.value,
                             })
                           }
                           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm  border"
@@ -598,9 +838,9 @@ export default function AgentList() {
                           <option value="fixed">Fixed</option>
                           <option value="percentage">Percentage</option>
                         </select>
-                        {formErrors?.comission_type && (
+                        {formErrors?.commission_type && (
                           <p className="text-red-500 text-xs mt-1">
-                            {formErrors?.comission_type}
+                            {formErrors?.commission_type}
                           </p>
                         )}
                       </div>
@@ -619,6 +859,8 @@ export default function AgentList() {
                       setCurrentUserId({});
                       setCurrentAgentId(null);
                       setIsEditingAgent(false);
+                      setModalVendorSearchTag("");
+                      setVendorBranchSearch("");
                       setFormData({
                         first_name: "",
                         last_name: "",
@@ -627,11 +869,13 @@ export default function AgentList() {
                         role: "agent",
                         password: "",
                         status: "",
-                        name: "",
-                        phone: "",
+                        short_name: "",
+                        long_name: "",
                         code: "",
-                        comission_amount: 0,
-                        comission_type: "",
+                        notes: "",
+                        bonus_amount: 0,
+                        commission_amount: 0,
+                        commission_type: "",
                         registration_number: "",
                         license_number: "",
                         rating: 0,
@@ -642,6 +886,7 @@ export default function AgentList() {
                         logo: "",
                         description: "",
                         vendor_id: 0,
+                        vendor_branch_id: 0,
                       });
                     }}
                     className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
@@ -688,6 +933,8 @@ export default function AgentList() {
               setIsModalOpen(true);
               setIsEditing(false);
               setIsEditingAgent(false);
+              setModalVendorSearchTag("");
+              setVendorBranchSearch("");
               setFormData({
                 first_name: "",
                 last_name: "",
@@ -696,11 +943,13 @@ export default function AgentList() {
                 role: "agent",
                 password: "",
                 status: "",
-                name: "",
-                phone: "",
+                short_name: "",
+                long_name: "",
                 code: "",
-                comission_amount: 0,
-                comission_type: "",
+                notes: "",
+                bonus_amount: 0,
+                commission_amount: 0,
+                commission_type: "",
                 registration_number: "",
                 license_number: "",
                 rating: 0,
@@ -711,6 +960,7 @@ export default function AgentList() {
                 logo: "",
                 description: "",
                 vendor_id: 0,
+                vendor_branch_id: 0,
               });
             }}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -732,130 +982,118 @@ export default function AgentList() {
               <TableRow>
                 {/* <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("FIRST_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("LAST_NAME")}
                 </TableCell> */}
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("AGENT_NAME")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("EMAIL")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("MOBILE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("COMMISSION_AMOUNT")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("COMMISSION_TYPE")}
                 </TableCell>
 
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ROLE")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("STATUS")}
                 </TableCell>
                 <TableCell
                   isHeader
-                  className="py-3 px-6 whitespace-nowrap font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
                   {t("ACTION")}
                 </TableCell>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {(selectedRole === "vendor" ? vendorList : users).map(
-                (user, index) => (
-                  <TableRow key={index} className="hover:bg-yellow-50">
-                    {/* <TableCell className="py-3 px-6 whitespace-nowrap text-black-500 text-theme-sm dark:text-gray-400">
+              {agentList.map((user, index) => (
+                <TableRow key={index} className="hover:bg-yellow-50">
+                  {/* <TableCell className="py-3 px-2 w-[150px] truncate text-black-500 text-theme-sm dark:text-gray-400">
                       {user?.first_name}
                     </TableCell>
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
+                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                       {user?.last_name}
                     </TableCell> */}
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.agent?.name}
-                    </TableCell>
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.email}
-                    </TableCell>
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.agent?.phone}
-                    </TableCell>
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.agent?.comission_amount}
-                    </TableCell>
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      {user?.agent?.comission_type}
-                    </TableCell>
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div>
-                        {user?.role}
-                        {user?.role === "vendor" && user?.vendor && (
-                          <div>
-                            (<strong>{user.vendor.name}</strong>)
-                            <div className="text-[14px] text-gray-400">
-                              {user.vendor.email}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {user?.agent?.short_name} {user?.agent?.last_name}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {user?.email}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {user?.agent?.phone}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {user?.agent?.commission_amount}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {user?.agent?.commission_type}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {user?.role}
+                  </TableCell>
 
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      <StatusBadge status={user?.status} />
-                    </TableCell>
-                    <TableCell className="py-3 px-6 whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400">
-                      <div className="flex flex-row items-center justify-start gap-2">
-                        <div
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                          onClick={() => handleEdit(user)}
-                          title={t("edit_user")}
-                        >
-                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                        </div>
-                        <div
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
-                          onClick={() => handleEditAgent(user)}
-                          title={t("edit_agent")}
-                        >
-                          <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
-                        </div>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <StatusBadge status={user?.status} />
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <div className="flex flex-row items-center justify-start gap-2">
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                        onClick={() => handleEdit(user)}
+                        title={t("edit_user")}
+                      >
+                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                       </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
+                      <div
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
+                        onClick={() => handleEditAgent(user)}
+                        title={t("edit_agent")}
+                      >
+                        <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
+                      </div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}

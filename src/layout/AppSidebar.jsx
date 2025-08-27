@@ -15,12 +15,99 @@ import {
   Bus,
   Settings,
   Ticket,
+  ListIcon,
+  MobileOperator,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 import { useTranslation } from "react-i18next";
 import SidebarBottom from "./SidebarBottom";
-import { userType } from "../utils/utils";
+import { userType, userTypeForSidebar } from "../utils/utils";
+
+// Permission mapping - maps routes to required permissions for both vendor and branch
+const PERMISSION_MAP = {
+  // Dashboard
+  '/': [
+    'v1.vendor.statistics.general_statistics', 
+    'v1.branch.statistics.general_statistics'
+  ],
+  
+  // Stations
+  '/stations': [
+    'v1.vendor.station.get_listing',
+    'v1.branch.station.get_listing'
+  ],
+  
+  // Routes
+  '/routes': [
+    'v1.branch.route.get_listing',
+    'v1.vendor.route.get_listing'
+  ],
+  
+  // Trips
+  '/trips': [
+    'v1.branch.trip.get',
+    'v1.vendor.trip.get'
+  ],
+  
+  // Buses
+  '/buses': [
+    'v1.branch.bus.get',
+    'v1.vendor.bus.get'
+  ],
+  
+  // Drivers
+  '/drivers': [
+    'v1.driver.vendor.list',
+    'v1.branch.driver.list'
+  ],
+  
+  // Vendor Users
+  '/vendor-users': [
+    'v1.branch.user.get',
+    'v1.vendor.user.get'
+  ],
+  
+  // Vendor Roles
+  '/vendor-users-roles': [
+    'v1.branch.role.get',
+    'v1.vendor.role.get'
+  ],
+  
+  // Bookings
+  '/bookings': [
+    'v1.branch.booking.get',
+    'v1.vendor.booking.get'
+  ],
+  
+  // Expense Category
+  '/expense-category': [
+    'v1.branch.expense_categories.get',
+    'v1.vendor.expense_categories.get'
+  ],
+  
+  // Expense
+  '/expense': [
+    'v1.branch.expenses.get',
+    'v1.vendor.expenses.get'
+  ],
+  
+  // Wallet
+  '/vendor-wallet': [
+    'v1.branch.wallet.balance',
+    'v1.vendor.wallet.balance'
+  ],
+  
+  '/wallet-transactions': [
+    'v1.vendor.wallet_transaction.get',
+    'v1.branch.wallet_transaction.get'
+  ],
+  
+  // Trip Cancellation Policy
+  '/trip-cancellation-policy': [
+    'v1.vendor.trip_cancellation_policy.show'
+  ]
+};
 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
@@ -31,210 +118,249 @@ const AppSidebar = () => {
   const [subMenuHeight, setSubMenuHeight] = useState({});
   const subMenuRefs = useRef({});
 
-  // Get user role
-  const user = userType();
-  console.log(user.permissions)
+  // Get user info
+  const user = userTypeForSidebar();
   const isAdmin = user?.role === "admin";
-  const isVendor = user?.role === "vendor";
-  const isAgent = user?.role === "agent";
+  const isVendor = user?.role === "vendor" ;
+  const isBranch = user?.role === "branch";
+  const isVendorUser=user?.role==="vendor_user"
+  const isVendorBranchUser=user?.role==="vendor_branch_user"
+
+
+  //console.log(user.permissions)
+
+  // Check if user has permission for a route
+  const hasPermission = useCallback((path) => {
+    // Admin has all permissions
+    if (isAdmin) return true;
+    
+    // Vendor has all vendor permissions
+    if (isVendor) return true;
+
+    if(isBranch) return true;
+    
+    // Check permissions for branch/vendor_branch_user
+    if (isVendorUser || isVendorBranchUser) {
+      const requiredPermissions = PERMISSION_MAP[path];
+      if (!requiredPermissions) return false;
+      
+      // Check if user has any of the required permissions
+      return requiredPermissions.some(permission => 
+        user.permissions?.some(p => p.name === permission && p.has_permission)
+      );
+    }
+    
+    return false;
+  }, [user?.permissions, isAdmin, isVendor, isVendorUser,isVendorBranchUser]);
 
   // Memoized navigation items configuration
-const navItems = useMemo(
-    () => [
+  const navItems = useMemo(() => {
+    const items = [
       {
         icon: <Dashboard />,
         name: "DASHBOARD",
         path: "/",
-        roles: ["admin", "vendor", "branch", "vendor_user","vendor_branch_user"],
+        roles: ["admin", "vendor", "branch", "vendor_user", "vendor_branch_user"],
+        show: hasPermission('/')
       },
       {
         icon: <Location />,
         name: "LOCATION",
         roles: ["admin"],
+        show: isAdmin,
         subItems: [
-          { name: "COUNTRY", path: "/location/countries" },
-          { name: "PROVINCE", path: "/location/provinces" },
-          { name: "CITY", path: "/location/cities" },
+          { name: "COUNTRY", path: "/location/countries", show: isAdmin },
+          { name: "PROVINCE", path: "/location/provinces", show: isAdmin },
+          { name: "CITY", path: "/location/cities", show: isAdmin },
         ],
       },
       {
         icon: <Station />,
         name: "STATIONS",
         path: "/stations",
-        roles: ["admin","branch","vendor_branch_user"]
+        roles: ["admin","vendor", "branch", "vendor_branch_user"],
+        show: hasPermission('/stations')
       },
       {
         icon: <Direction />,
         name: "ROUTES",
         path: "/routes",
-        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"]
+        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/routes')
       },
       {
         icon: <Discount />,
         name: "DISCOUNTS",
         path: "/discounts",
         roles: ["admin"],
+        show: isAdmin
       },
       {
         icon: <Trip />,
         name: "TRIPS",
         path: "/trips",
-        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/trips')
       },
       {
         icon: <User_Group />,
         name: "USERS",
         roles: ["admin"],
+        show: isAdmin,
         subItems: [
-          { name: "ADMIN", path: "/users/admin" },
-          { name: "AGENT", path: "/users/agent" },
-          { name: "BRANCH", path: "/users/branch" },
-          { name: "CUSTOMER", path: "/users/customer" },
-          { name: "DRIVER", path: "/users/driver" },
-          { name: "VENDOR", path: "/users/vendor" }
+          { name: "ADMIN", path: "/users/admin", show: isAdmin },
+          { name: "AGENT", path: "/users/agent", show: isAdmin },
+          { name: "BRANCH", path: "/users/branch", show: isAdmin },
+          { name: "CUSTOMER", path: "/users/customer", show: isAdmin },
+          { name: "DRIVER", path: "/users/driver", show: isAdmin },
+          { name: "VENDOR", path: "/users/vendor", show: isAdmin }
         ],
       },
-      // {
-      //   icon: <User_Group />,
-      //   name: "USERS",
-      //   path: "/users",
-      //   roles: ["admin"],
-      // },
       {
         icon: <Wallet />,
         name: "WALLET",
-        roles: ["admin", "vendor"],
+        roles: ["admin", "vendor", "branch", "vendor_user", "vendor_branch_user"],
+        show: isAdmin || isVendor || hasPermission('/vendor-wallet'),
         getSubItems: (role) => {
           const items = [];
           if (role === "admin") {
             items.push(
-              { name: "WALLET", path: "/admin-wallet" },
-              { name: "WALLET_TRANSACTION", path: "/wallet-transactions" }
+              { name: "WALLET", path: "/admin-wallet", show: true },
+              { name: "WALLET_TRANSACTION", path: "/wallet-transactions", show: true }
             );
           }
-          if (role === "vendor" || role === "vendor_user" || role==="branch" || role==="vendor_branch_user") {
-            
-              items.push({ name: "WALLET", path: "/vendor-wallet" });
-            
+          if (role === "vendor" || role === "vendor_user" || role === "branch" || role === "vendor_branch_user") {
+            items.push(
+              { name: "WALLET", path: "/vendor-wallet", show: hasPermission('/vendor-wallet') },
+              { name: "TRANSACTIONS", path: "/wallet-transactions", show: hasPermission('/wallet-transactions') }
+            );
           }
-          return items;
+          return items.filter(item => item.show);
         },
       },
       {
         icon: <Bus />,
         name: "BUS",
         path: "/buses",
-        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/buses')
       },
       {
         icon: <User_Group />,
         name: "DRIVERS",
         path: "/drivers",
-        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/drivers')
       },
       {
         icon: <User_Group />,
         name: "VENDOR_USER",
         path: "/vendor-users",
-        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/vendor-users')
       },
       {
         icon: <User_Group />,
         name: "ROLES",
         path: "/vendor-users-roles",
-        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/vendor-users-roles')
       },
       {
         icon: <Ticket />,
         name: "BOOKING",
         path: "/bookings",
-        roles: ["admin", "vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/bookings')
       },
       {
         icon: <Settings />,
         name: "TRIP_CANCELLATION_POLICY",
         path: "/trip-cancellation-policy",
         roles: ["admin", "vendor", "vendor_user"],
+        show: isAdmin || isVendor || hasPermission('/trip-cancellation-policy')
       },
       {
         icon: <Wallet />,
         name: "EXPENSE_CATEGORY",
         path: "/expense-category",
-        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/expense-category')
       },
       {
         icon: <Wallet />,
         name: "EXPENSE",
         path: "/expense",
-        roles: ["vendor", "vendor_user","branch","vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        show: hasPermission('/expense')
       },
       {
         icon: <Wallet />,
         name: "BRANCH",
         path: "/branch",
         roles: ["vendor", "vendor_user"],
+        show: isVendor && hasPermission('/branch')
       },
       {
         icon: <Settings />,
         name: "SETTINGS",
         path: "/settings",
         roles: ["admin"],
+        show: isAdmin
       },
       {
-        icon: <Settings />,
+        icon: <MobileOperator />,
         name: "TELECOM_OPERATOR",
         path: "/telecom-operators",
         roles: ["admin"],
+        show: isAdmin
       },
       {
-        icon: <Settings />,
+        icon: <ListIcon />,
         name: "RECHARGE_LIST",
         path: "/recharges",
         roles: ["admin"],
+        show: isAdmin
       },
-    ],
-    []
-  );
+    ];
 
-  const othersItems = useMemo(
-    () => [
-      {
-        icon: <UserIcon />,
-        name: "PROFILE",
-        path: "/profile",
-        roles: ["admin", "vendor", "vendor_user","branch"],
-      },
-    ],
-    []
-  );
+    return items.filter(item => item.show);
+  }, [hasPermission, isAdmin, isVendor]);
 
-  // Memoize filtered items
+  const othersItems = useMemo(() => [
+    {
+      icon: <UserIcon />,
+      name: "PROFILE",
+      path: "/profile",
+      roles: ["admin", "vendor", "vendor_user", "branch"],
+      show: true
+    },
+  ], []);
+
+  // Filter items by role and permissions
   const filterItemsByRole = useCallback((items) => {
     return items.filter(item => {
       if (!item.roles) return false;
-      // Only show items that match the user's exact role
-      return item.roles.includes(user?.role);
+      return item.roles.includes(user?.role) && item.show !== false;
     }).map(item => {
-      // Handle dynamic sub-items
       if (item.getSubItems) {
         return {
           ...item,
           subItems: item.getSubItems(user?.role)
         };
       }
-      // Filter regular sub-items
       if (item.subItems) {
         return {
           ...item,
           subItems: item.subItems.filter(subItem => {
-            if (!subItem.roles) return true;
-            return subItem.roles.includes(user?.role);
+            if (!subItem.roles) return subItem.show !== false;
+            return subItem.roles.includes(user?.role) && subItem.show !== false;
           })
         };
       }
       return item;
     });
-  }, [user?.role]);  // Removed isAdmin from dependencies
+  }, [user?.role]);
 
   const filteredNavItems = useMemo(() => filterItemsByRole(navItems), [filterItemsByRole, navItems]);
   const filteredOthersItems = useMemo(() => filterItemsByRole(othersItems), [filterItemsByRole, othersItems]);

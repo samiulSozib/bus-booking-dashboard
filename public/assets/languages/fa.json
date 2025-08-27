@@ -859,5 +859,18 @@
   "booking.useCustomerInfoForPassengers": "استفاده از اطلاعات مشتری برای مسافر",
   "is_child": "کودک است؟",
   "yes": "بله",
-  "no": "خیر"
+  "no": "خیر",
+  "VENDOR_DETAILS": "جزئیات فروشنده",
+  "BACK_TO_LIST": "بازگشت به فهرست",
+  "COMMISSION_INFORMATION": "اطلاعات کمیسیون",
+  "vendor_not_found": "فروشنده یافت نشد",
+  "RECHARGE_LIST": "فهرست شارژ",
+  "CREATED": "ایجاد شده",
+  "CREATED_BY": "ایجاد شده توسط",
+  "REQUEST_STATUS": "وضعیت درخواست",
+  "UPDATE_DATE": "تاریخ بروزرسانی",
+  "notesRequired": "یادداشت الزامی است",
+  "bonusAmountRequired": "مقدار پاداش الزامی است",
+  "NOTES": "یادداشت‌ها",
+  "BONUS_AMOUNT": "مقدار پاداش"
 }

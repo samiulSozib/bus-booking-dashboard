@@ -19,7 +19,6 @@
 // import StationFilter from "./StationFIlter";
 // import useOutsideClick from "../../hooks/useOutSideClick";
 
-
 // const getStationSchema = (t) =>
 //     Yup.object().shape({
 //       stationName: Yup.object().shape({
@@ -41,7 +40,6 @@
 //       provinceId: Yup.string().required(t('station.provinceRequired')),
 //       cityId: Yup.string().required(t('station.cityRequired')),
 //     });
-  
 
 // export default function StationList() {
 //     const countryDropdownRef = useRef(null);
@@ -58,7 +56,6 @@
 //         setShowModalCityDropdown(false)
 //     });
 
-    
 //     const dispatch = useDispatch();
 //     const { countries } = useSelector((state) => state.countries);
 //     const { provinces } = useSelector((state) => state.provinces);
@@ -99,10 +96,10 @@
 
 //     const handleApplyFilters = (filters) => {
 //         setActiveFilters(filters);
-//         setCurrentPage(1); 
+//         setCurrentPage(1);
 //     };
 
-//     // Fetch stations 
+//     // Fetch stations
 //     useEffect(() => {
 //         dispatch(fetchStations({searchTag,page:currentPage,filters:activeFilters}));
 //     }, [dispatch,currentPage, searchTag,activeFilters]);
@@ -145,7 +142,7 @@
 //             setModalCitySearchTag(selectedStation.city.name)
 //             setStationLat(selectedStation.latitude);
 //             setStationLong(selectedStation.longitude)
-            
+
 //         }
 //     }, [selectedStation]);
 
@@ -191,7 +188,7 @@
 //     // Handle add/edit station form submission
 //     const handleSubmit = async (e) => {
 //         e.preventDefault();
-    
+
 //         const stationData = {
 //             stationName,
 //             stationLat: parseFloat(stationLat), // Convert to number
@@ -200,11 +197,11 @@
 //             provinceId: modalSelectedProvinceId,
 //             cityId: modalSelectedCityId,
 //         };
-    
+
 //         try {
 //             // Validate form data
 //             await getStationSchema(t).validate(stationData, { abortEarly: false });
-    
+
 //             if (isEditMode) {
 //                 const resultAction=await dispatch(editStation({ id: currentStationId, stationData }));
 //                 if(editStation.fulfilled.match(resultAction)){
@@ -216,7 +213,7 @@
 //                 }else {
 //                     throw new Error(resultAction.payload || "Failed to add station.");
 //                 }
-                
+
 //             } else {
 //                 const resultAction=await dispatch(addStation(stationData));
 //                 if(addStation.fulfilled.match(resultAction)){
@@ -230,7 +227,7 @@
 
 //                 }
 //             }
-    
+
 //             // Reset modal state
 //             resetModal();
 //         } catch (error) {
@@ -323,8 +320,6 @@
 //                     </button>
 //                 </div>
 //             </div>
-
-            
 
 //             {/* Station Table */}
 //             <div className="max-w-full overflow-x-auto">
@@ -537,8 +532,6 @@
 //                                 )}
 //                             </div>
 
-                            
-
 //                             {/* Station Name (Pashto) */}
 //                             <div className="mb-4">
 //                                 <label className="block text-sm font-medium text-gray-700">
@@ -579,7 +572,7 @@
 //                                     value={stationLat}
 //                                     onChange={(e) => setStationLat(e.target.value)}
 //                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                    
+
 //                                 />
 //                                 {errors.stationLat && (
 //                                     <p className="text-red-500 text-sm mt-1">{errors.stationLat}</p>
@@ -594,7 +587,7 @@
 //                                     type="text"
 //                                     value={stationLong}
 //                                     onChange={(e) => setStationLong(e.target.value)}
-//                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"                                  
+//                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
 //                                 />
 //                                 {errors.stationLong && (
 //                                     <p className="text-red-500 text-sm mt-1">{errors.stationLong}</p>
@@ -615,7 +608,6 @@
 //                                     className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 //                                 >
 //                                     {isEditMode ? t("UPDATE") : t("ADD")}
-                               
 
 //                                 </button>
 //                             </div>
@@ -634,26 +626,35 @@
 //     );
 // }
 
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchStations, showStation, addStation, editStation, deleteStation } from '../../store/slices/stationSlice';
-import { useTranslation } from 'react-i18next';
-import { SearchIcon, FunnelIcon } from '../../icons';
-import StationTable from './StationTable';
-import StationForm from './StationForm';
-import StationFilter from './StationFIlter';
-import Pagination from '../../components/pagination/pagination';
-import * as Yup from 'yup';
-import Swal from 'sweetalert2';
-import useDebounce from '../../hooks/useDebounce';
-import { getStationSchema } from './ValidationSchema';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchStations,
+  showStation,
+  addStation,
+  editStation,
+  deleteStation,
+} from "../../store/slices/stationSlice";
+import { useTranslation } from "react-i18next";
+import { SearchIcon, FunnelIcon } from "../../icons";
+import StationTable from "./StationTable";
+import StationForm from "./StationForm";
+import StationFilter from "./StationFIlter";
+import Pagination from "../../components/pagination/pagination";
+import * as Yup from "yup";
+import Swal from "sweetalert2";
+import useDebounce from "../../hooks/useDebounce";
+import { getStationSchema } from "./ValidationSchema";
+import { userType } from "../../utils/utils";
 
 const StationList = () => {
   const dispatch = useDispatch();
-  const { stations, selectedStation, loading, pagination } = useSelector((state) => state.stations);
+  const { stations, selectedStation, loading, pagination } = useSelector(
+    (state) => state.stations
+  );
   const { t } = useTranslation();
 
-  const [searchTag, setSearchTag] = useState('');
+  const [searchTag, setSearchTag] = useState("");
   const debouncedSearchTag = useDebounce(searchTag, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -662,25 +663,32 @@ const StationList = () => {
   const [currentStationId, setCurrentStationId] = useState(null);
   const [activeFilters, setActiveFilters] = useState({});
   const [errors, setErrors] = useState({});
+  const type = userType();
 
-    const [formData, setFormData] = useState({
-      stationName: { en: '', ps: '', fa: '' },
-      stationLat: 0,
-      stationLong: 0,
-      countryId: null,
-      provinceId: null,
-      cityId: null,
-    });
-  
-    const [searchTags, setSearchTags] = useState({
-      country: '',
-      province: '',
-      city: '',
-    });
+  const [formData, setFormData] = useState({
+    stationName: { en: "", ps: "", fa: "" },
+    stationLat: 0,
+    stationLong: 0,
+    countryId: null,
+    provinceId: null,
+    cityId: null,
+  });
+
+  const [searchTags, setSearchTags] = useState({
+    country: "",
+    province: "",
+    city: "",
+  });
 
   // Fetch stations with debounced search and filters
   useEffect(() => {
-    dispatch(fetchStations({ searchTag: debouncedSearchTag, page: currentPage, filters: activeFilters }));
+    dispatch(
+      fetchStations({
+        searchTag: debouncedSearchTag,
+        page: currentPage,
+        filters: activeFilters,
+      })
+    );
   }, [dispatch, debouncedSearchTag, currentPage, activeFilters]);
 
   const handleEditStation = (stationId) => {
@@ -697,28 +705,30 @@ const StationList = () => {
       setErrors({});
 
       if (isEditMode) {
-        const resultAction = await dispatch(editStation({ id: currentStationId, stationData: formData }));
+        const resultAction = await dispatch(
+          editStation({ id: currentStationId, stationData: formData })
+        );
         if (editStation.fulfilled.match(resultAction)) {
           Swal.fire({
-            icon: 'success',
-            title: t('success'),
-            text: t('station.updateSuccess'),
+            icon: "success",
+            title: t("success"),
+            text: t("station.updateSuccess"),
           });
         } else {
-          throw new Error(resultAction.payload || t('station.updateFailed'));
+          throw new Error(resultAction.payload || t("station.updateFailed"));
         }
       } else {
         const resultAction = await dispatch(addStation(formData));
         if (addStation.fulfilled.match(resultAction)) {
           Swal.fire({
-            icon: 'success',
-            title: t('success'),
-            text: t('station.addSuccess'),
+            icon: "success",
+            title: t("success"),
+            text: t("station.addSuccess"),
           });
-          resetForm()
-          setIsModalOpen(false)
+          resetForm();
+          setIsModalOpen(false);
         } else {
-          throw new Error(resultAction.payload || t('station.addFailed'));
+          throw new Error(resultAction.payload || t("station.addFailed"));
         }
       }
 
@@ -727,7 +737,7 @@ const StationList = () => {
       if (error instanceof Yup.ValidationError) {
         const newErrors = {};
         error.inner.forEach((err) => {
-          const path = err.path.split('.');
+          const path = err.path.split(".");
           if (path.length === 2) {
             if (!newErrors[path[0]]) newErrors[path[0]] = {};
             newErrors[path[0]][path[1]] = err.message;
@@ -738,49 +748,44 @@ const StationList = () => {
         setErrors(newErrors);
       } else {
         Swal.fire({
-          icon: 'error',
-          title: t('error'),
-          text: error.message || t('station.operationFailed'),
+          icon: "error",
+          title: t("error"),
+          text: error.message || t("station.operationFailed"),
         });
       }
     }
   };
 
-      const handleDelete = (stationId) => {
-              Swal.fire({
-                  title: t('DELETE_CONFIRMATION'),
-                  text: t('DELETE_ITEM_CONFIRMATION_TEXT'),
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonColor: '#3085d6',
-                  cancelButtonColor: '#d33',
-                  confirmButtonText: t('YES_DELETE'),
-                  cancelButtonText: t('CANCEL')
-              }).then(async (result) => {
-                  if (result.isConfirmed) {
-                      try {
-                          const deleteAction=await dispatch(deleteStation(stationId));
-                          if(deleteStation.fulfilled.match(deleteAction)){
-                          Swal.fire(
-                              t('DELETED'),
-                              t('ITEM_DELETED_SUCCESSFULLY'),
-                              'success'
-                          );
-                          }
-                          // Refresh the countries list
-                          dispatch(fetchStations({searchTag: searchTag, page: currentPage}));
-                      } catch (error) {
-                          console.log(error)
-                          Swal.fire(
-                              
-                              t('ERROR'),
-                              error.message || t('FAILED_TO_DELETE_ITEM'),
-                              'error'
-                          );
-                      }
-                  }
-              });
-          };
+  const handleDelete = (stationId) => {
+    Swal.fire({
+      title: t("DELETE_CONFIRMATION"),
+      text: t("DELETE_ITEM_CONFIRMATION_TEXT"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: t("YES_DELETE"),
+      cancelButtonText: t("CANCEL"),
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const deleteAction = await dispatch(deleteStation(stationId));
+          if (deleteStation.fulfilled.match(deleteAction)) {
+            Swal.fire(t("DELETED"), t("ITEM_DELETED_SUCCESSFULLY"), "success");
+          }
+          // Refresh the countries list
+          dispatch(fetchStations({ searchTag: searchTag, page: currentPage }));
+        } catch (error) {
+          console.log(error);
+          Swal.fire(
+            t("ERROR"),
+            error.message || t("FAILED_TO_DELETE_ITEM"),
+            "error"
+          );
+        }
+      }
+    });
+  };
 
   const handleApplyFilters = (filters) => {
     setActiveFilters(filters);
@@ -789,17 +794,17 @@ const StationList = () => {
 
   const resetForm = () => {
     setFormData({
-      stationName: { en: '', ps: '', fa: '' },
-      stationLat: '',
-      stationLong: '',
+      stationName: { en: "", ps: "", fa: "" },
+      stationLat: "",
+      stationLong: "",
       countryId: null,
       provinceId: null,
       cityId: null,
     });
     setSearchTags({
-      country: '',
-      province: '',
-      city: '',
+      country: "",
+      province: "",
+      city: "",
     });
   };
 
@@ -833,6 +838,7 @@ const StationList = () => {
             <FunnelIcon className="w-5 h-5" />
             {t("FILTER")}
           </button>
+          {type.role==="admin" &&(
           <button
             onClick={() => {
               setIsModalOpen(true);
@@ -843,14 +849,15 @@ const StationList = () => {
           >
             {t("ADD_STATION")}
           </button>
+          )}
         </div>
       </div>
 
       {/* Station Table */}
-      <StationTable 
-        stations={stations} 
-        loading={loading} 
-        onEdit={handleEditStation} 
+      <StationTable
+        stations={stations}
+        loading={loading}
+        onEdit={handleEditStation}
         onDelete={handleDelete}
       />
 
