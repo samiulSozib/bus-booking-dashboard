@@ -31,6 +31,12 @@ import Pagination from "../../components/pagination/pagination";
 import DiscountFilter from "./DiscountFilter";
 import useOutsideClick from "../../hooks/useOutSideClick";
 import PersianDateText from "../../utils/persianDateShowFormat";
+import CustomPersianDatePicker from "../../components/mycomponent/CustomPersianDatePicker";
+import { DateObject } from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import { format } from "date-fns";
+
+
 
 // Yup validation schema
 // Corrected Yup validation schema
@@ -206,8 +212,10 @@ export default function DiscountList() {
         trip_id: selectedDiscount?.trip_id || null,
         discount_amount: selectedDiscount?.discount_amount,
         discount_type: selectedDiscount?.discount_type,
-        start_date: formatForDisplayDiscount(selectedDiscount?.start_date),
-        end_date: formatForDisplayDiscount(selectedDiscount?.end_date),
+        //start_date: formatForDisplayDiscount(selectedDiscount?.start_date),
+        start_date:new DateObject({data:new Date(selectedDiscount?.start_date),calendar:persian}),
+        //end_date: formatForDisplayDiscount(selectedDiscount?.end_date),
+        end_date:new DateObject({data:new Date(selectedDiscount?.end_date),calendar:persian}),
         status: selectedDiscount?.status,
       });
     }
@@ -308,6 +316,8 @@ export default function DiscountList() {
 
       const payload = {
         ...formData,
+        start_date:format(formData.start_date,"yyyy-MM-dd HH:mm:ss"),
+        end_date:format(formData.end_date,"yyyy-MM-dd HH:mm:ss"),
         // Only include ID fields if they're relevant to the scope
         ...(formData.scope !== "vendor" && { vendor_id: undefined }),
         ...(formData.scope !== "route" && { route_id: undefined }),
@@ -869,7 +879,7 @@ export default function DiscountList() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("START_DATE")} *
                 </label>
-                <input
+                {/* <input
                   type="datetime-local"
                   value={formatForDisplayDiscount(formData.start_date)}
                   onChange={(e) =>
@@ -879,6 +889,17 @@ export default function DiscountList() {
                     })
                   }
                   className="w-full rounded-md border-gray-300 shadow-sm"
+                /> */}
+                <CustomPersianDatePicker
+                  value={formData.start_date ? new Date(formData.start_date) : null}
+                  onChange={(date) => {
+                    // date here is a DateObject from react-multi-date-picker
+                    const jsDate = date?.toDate?.(); // convert to JS Date
+                    setFormData({
+                      ...formData,
+                      start_date: jsDate ? jsDate.toISOString() : null, // save as ISO string or your format
+                    });
+                  }}
                 />
                 {errors.start_date && (
                   <p className="text-red-500 text-sm mt-1">
@@ -892,7 +913,7 @@ export default function DiscountList() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t("END_DATE")} *
                 </label>
-                <input
+                {/* <input
                   type="datetime-local"
                   value={formatForDisplayDiscount(formData.end_date)}
                   onChange={(e) =>
@@ -902,7 +923,19 @@ export default function DiscountList() {
                     })
                   }
                   className="w-full rounded-md border-gray-300 shadow-sm"
+                /> */}
+                <CustomPersianDatePicker
+                  value={formData.end_date ? new Date(formData.end_date) : null}
+                  onChange={(date) => {
+                    // date here is a DateObject from react-multi-date-picker
+                    const jsDate = date?.toDate?.(); // convert to JS Date
+                    setFormData({
+                      ...formData,
+                      end_date: jsDate ? jsDate.toISOString() : null, // save as ISO string or your format
+                    });
+                  }}
                 />
+
                 {errors.end_date && (
                   <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>
                 )}

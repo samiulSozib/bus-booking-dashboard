@@ -9,6 +9,7 @@ import { fetchActiveTrips, fetchTrips, showTrip } from '../../store/slices/tripS
 import { fetchBusById } from '../../store/slices/busSlice';
 import Swal from 'sweetalert2';
 import { formatSeatNumber } from '../../utils/utils';
+import PersianDateText from '../../utils/persianDateShowFormat';
 
 const AddBooking = () => {
     const dispatch = useDispatch();
@@ -109,7 +110,13 @@ const AddBooking = () => {
     
     const tripOptions = activeTrips.map(trip => ({
         value: trip.id,
-        label: `${trip?.route?.origin_station?.name} → ${trip?.route?.destination_station?.name} - ${new Date(trip.departure_time).toLocaleString()} (${trip.bus?.name})`
+        // label: `${trip?.route?.origin_station?.name} → ${trip?.route?.destination_station?.name} - ${new Date(trip.departure_time).toLocaleString()} (${trip.bus?.name})`
+label: (
+  <>
+    {trip?.route?.origin_station?.name} → {trip?.route?.destination_station?.name} - 
+    <PersianDateText value={trip.departure_time} /> ({trip.bus?.name})
+  </>
+)
     }));
 
     const handleTripSelect = (selectedOption) => {
@@ -630,7 +637,8 @@ const AddBooking = () => {
                                     </div>
                                     <div>
                                         <p className="font-medium">{t('booking.departure')}</p>
-                                        <p>{new Date(trip.departure_time).toLocaleString()}</p>
+                                        {/* <p>{new Date(trip.departure_time).toLocaleString()}</p> */}
+                                        {<PersianDateText value={trip.departure_time} />}
                                     </div>
                                     <div>
                                         <p className="font-medium">{t('booking.bus')}</p>

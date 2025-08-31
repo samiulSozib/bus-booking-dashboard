@@ -30,9 +30,13 @@ import ExpenseFilter from "./ExpenseFilter";
 import Modal from "react-modal";
 import { fetchBranches } from "../../store/slices/branchSlice";
 import PersianDateText from "../../utils/persianDateShowFormat";
+import CustomPersianDatePicker from "../../components/mycomponent/CustomPersianDatePicker";
+import { DateObject } from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import { format } from "date-fns";
 
 // Validation schema
-const getExpenseSchema = (t,role) =>
+const getExpenseSchema = (t, role) =>
   Yup.object().shape({
     title: Yup.string().required(t("VALIDATION.EXPENSE.TITLE_REQUIRED")),
     amount: Yup.number()
@@ -40,13 +44,13 @@ const getExpenseSchema = (t,role) =>
       .positive(t("VALIDATION.EXPENSE.AMOUNT_POSITIVE")),
     expense_date: Yup.date().required(t("VALIDATION.EXPENSE.DATE_REQUIRED")),
     vendor_branch_id:
-          role === "branch"
-            ? Yup.number().notRequired() // Skip validation if role is "branch"
-            : Yup.number()
-                .typeError(t("bus.vendorBranchRequired"))
-                .required(t("bus.vendorBranchRequired"))
-                .positive(t("bus.vendorBranchRequired"))
-                .integer(t("bus.vendorBranchRequired")),
+      role === "branch"
+        ? Yup.number().notRequired() // Skip validation if role is "branch"
+        : Yup.number()
+            .typeError(t("bus.vendorBranchRequired"))
+            .required(t("bus.vendorBranchRequired"))
+            .positive(t("bus.vendorBranchRequired"))
+            .integer(t("bus.vendorBranchRequired")),
   });
 
 export default function ExpenseList() {
@@ -130,8 +134,8 @@ export default function ExpenseList() {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchTrips({branch_id:vendor_branch_id}));
-  }, [dispatch,vendor_branch_id]);
+    dispatch(fetchTrips({ branch_id: vendor_branch_id }));
+  }, [dispatch, vendor_branch_id]);
 
   const handleVendorBranchSelect = (branch) => {
     setSelectedVendorBranch(branch);
@@ -150,12 +154,16 @@ export default function ExpenseList() {
       setTitle(selectedExpense.title);
       setDescription(selectedExpense.description);
       setAmount(selectedExpense.amount);
-      setExpenseDate(new Date(selectedExpense.expense_date));
+      //setExpenseDate(new Date(selectedExpense.expense_date));
+      setExpenseDate(new DateObject({
+          date: new Date(selectedExpense.expense_date),
+          calendar: persian,
+        }))
       setVendorExpenseCategoryId(selectedExpense.category.id || "");
       setTripId(selectedExpense.trip_id || "");
       setFiles(selectedExpense.files || []);
-      setVendorBranchSearch(selectedExpense.branch?.name)
-      setVendor_branch_id(selectedExpense.branch?.id)
+      setVendorBranchSearch(selectedExpense.branch?.name);
+      setVendor_branch_id(selectedExpense.branch?.id);
     }
   }, [selectedExpense, isEditing]);
 
@@ -194,29 +202,32 @@ export default function ExpenseList() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const expenseData = {
+    let expenseData = {
       title,
       description,
       amount,
-      expense_date: new Date(expenseDate.toISOString())
-        .toLocaleString("en-CA", { timeZone: "UTC", hour12: false })
-        .replace(",", ""),
-      // expense_date: expenseDate.toISOString(),
+      // expense_date: new Date(expenseDate.toISOString())
+      //   .toLocaleString("en-CA", { timeZone: "UTC", hour12: false })
+      //   .replace(",", ""),
+      expense_date: expenseDate,
+      //expenseDate:format(expenseDate.toDate(), "yyyy-MM-dd HH:mm:ss"),
       vendor_expense_category_id: vendorExpenseCategoryId || null,
       trip_id: tripId || null,
     };
 
-     if(vendor_branch_id){
-          expenseData.vendor_branch_id=vendor_branch_id
-        }
+    if (vendor_branch_id) {
+      expenseData.vendor_branch_id = vendor_branch_id;
+    }
 
+    expenseData={...expenseData,expense_date:format(expenseDate.toDate(), "yyyy-MM-dd HH:mm:ss")}
 
     try {
-      await getExpenseSchema(t,userType().role).validate(expenseData, { abortEarly: false });
+      await getExpenseSchema(t, userType().role).validate(expenseData, {
+        abortEarly: false,
+      });
 
       if (isEditing) {
         // For editing, we'll first update the expense
-
 
         const resultAction = await dispatch(
           updateExpense({
@@ -306,8 +317,8 @@ export default function ExpenseList() {
     setIsEditing(false);
     setCurrentExpenseId(null);
     setErrors({});
-    setVendorBranchSearch("")
-    setVendor_branch_id("")
+    setVendorBranchSearch("");
+    setVendor_branch_id("");
   };
 
   const handleEdit = (expenseId) => {
@@ -605,13 +616,18 @@ export default function ExpenseList() {
                   <label className="block text-sm font-medium text-gray-700">
                     {t("DATE")} *
                   </label>
-                  <DatePicker
+                  {/* <DatePicker
                     selected={expenseDate}
                     onChange={(date) => setExpenseDate(date)}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     dateFormat="yyyy-MM-dd"
                       wrapperClassName="w-full" // Ensures the wrapper takes full width
 
+                  /> */}
+
+                  <CustomPersianDatePicker
+                    value={expenseDate}
+                    onChange={setExpenseDate}
                   />
                   {errors.expense_date && (
                     <p className="text-red-500 text-sm mt-1">
@@ -632,7 +648,6 @@ export default function ExpenseList() {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   />
                 </div>
-                
 
                 {/* Files */}
                 <div className="mb-4 md:col-span-2">
