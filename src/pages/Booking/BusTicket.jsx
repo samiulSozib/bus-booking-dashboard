@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 export const BusTicket = ({ bookingDetails, onClose }) => {
   const { t } = useTranslation();
@@ -438,13 +439,15 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
                 <div className="flex justify-between">
                   <span className="text-gray-500">{t("DEPARTURE_TIME")}</span>
                   <span className="font-bold">
-                    {bookingDetails?.trip?.departure_time}
+                    {/* {bookingDetails?.trip?.departure_time} */}
+                    {<PersianDateText value={bookingDetails?.trip?.departure_time} />}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">{t("ARRIVAL_TIME")}</span>
                   <span className="font-bold">
-                    {bookingDetails?.trip?.arrival_time}
+                    {/* {bookingDetails?.trip?.arrival_time} */}
+                    {<PersianDateText value={bookingDetails?.trip?.arrival_time} />}
                   </span>
                 </div>
               </div>

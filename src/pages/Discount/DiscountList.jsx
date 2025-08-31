@@ -30,6 +30,7 @@ import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import DiscountFilter from "./DiscountFilter";
 import useOutsideClick from "../../hooks/useOutSideClick";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 // Yup validation schema
 // Corrected Yup validation schema
@@ -566,10 +567,12 @@ export default function DiscountList() {
                     {discount.discount_type}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {new Date(discount.start_date).toLocaleString()}
+                    {/* {new Date(discount.start_date).toLocaleString()} */}
+                    {<PersianDateText value={discount.start_date} />}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {new Date(discount.end_date).toLocaleString()}
+                    {/* {new Date(discount.end_date).toLocaleString()} */}
+                    {<PersianDateText value={discount.end_date} />}
                   </TableCell>
                   <TableCell>
                     <span

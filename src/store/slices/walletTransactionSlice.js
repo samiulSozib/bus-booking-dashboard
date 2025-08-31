@@ -1,22 +1,31 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 import { base_url } from "../../utils/const";
+import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
 // Async thunks
 export const fetchWalletTransactions = createAsyncThunk(
-  'walletTransactions/fetchWalletTransactions',
-  async ({searchTag="",page=1}, { rejectWithValue }) => {
+  "walletTransactions/fetchWalletTransactions",
+  async ({ searchTag = "", page = 1 }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
-      const response = await axios.get(`${base_url}/admin/wallet-transactions?page=${page}&search=${searchTag}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const type = userType();
+      
+      const response = await axios.get(
+        `${base_url}/${type.role}/wallet-transactions?page=${page}&search=${searchTag}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       //console.log(response)
-      return {items:response.data.body.items,pagination:response.data.body.data};
+      return {
+        items: response.data.body.items,
+        pagination: response.data.body.data,
+      };
     } catch (error) {
       //console.log(error)
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -25,23 +34,23 @@ export const fetchWalletTransactions = createAsyncThunk(
 );
 
 export const createWalletTransaction = createAsyncThunk(
-  'walletTransactions/createWalletTransaction',
+  "walletTransactions/createWalletTransaction",
   async (transactionData, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const formData = new FormData();
 
       // Append all required fields
-      formData.append('user_id', transactionData.user_id);
-      formData.append('total', transactionData.total);
-      formData.append('amount', transactionData.amount);
-      formData.append('fee', transactionData.fee);
-      formData.append('status', transactionData.status);
-      formData.append('type', transactionData.type);
-      
+      formData.append("user_id", transactionData.user_id);
+      formData.append("total", transactionData.total);
+      formData.append("amount", transactionData.amount);
+      formData.append("fee", transactionData.fee);
+      formData.append("status", transactionData.status);
+      formData.append("type", transactionData.type);
+
       // Stringify the data object if it exists
       if (transactionData.data) {
-        formData.append('data', JSON.stringify(transactionData.data));
+        formData.append("data", JSON.stringify(transactionData.data));
       }
 
       const response = await axios.post(
@@ -50,7 +59,7 @@ export const createWalletTransaction = createAsyncThunk(
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -62,34 +71,34 @@ export const createWalletTransaction = createAsyncThunk(
 );
 
 export const updateWalletTransaction = createAsyncThunk(
-  'walletTransactions/updateWalletTransaction',
+  "walletTransactions/updateWalletTransaction",
   async ({ id, transactionData }, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
       const formData = new FormData();
 
-      formData.append("id",id)
+      formData.append("id", id);
       // Append only the fields that are being updated
       if (transactionData.user_id !== undefined) {
-        formData.append('user_id', transactionData.user_id);
+        formData.append("user_id", transactionData.user_id);
       }
       if (transactionData.total !== undefined) {
-        formData.append('total', transactionData.total);
+        formData.append("total", transactionData.total);
       }
       if (transactionData.amount !== undefined) {
-        formData.append('amount', transactionData.amount);
+        formData.append("amount", transactionData.amount);
       }
       if (transactionData.fee !== undefined) {
-        formData.append('fee', transactionData.fee);
+        formData.append("fee", transactionData.fee);
       }
       if (transactionData.status !== undefined) {
-        formData.append('status', transactionData.status);
+        formData.append("status", transactionData.status);
       }
       if (transactionData.type !== undefined) {
-        formData.append('type', transactionData.type);
+        formData.append("type", transactionData.type);
       }
       if (transactionData.data !== undefined) {
-        formData.append('data', JSON.stringify(transactionData.data));
+        formData.append("data", JSON.stringify(transactionData.data));
       }
 
       const response = await axios.post(
@@ -98,7 +107,7 @@ export const updateWalletTransaction = createAsyncThunk(
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -110,7 +119,7 @@ export const updateWalletTransaction = createAsyncThunk(
 );
 
 export const deleteWalletTransaction = createAsyncThunk(
-  'walletTransactions/deleteWalletTransaction',
+  "walletTransactions/deleteWalletTransaction",
   async (id, { rejectWithValue }) => {
     try {
       const token = getAuthToken();
@@ -127,7 +136,7 @@ export const deleteWalletTransaction = createAsyncThunk(
 );
 
 const walletTransactionSlice = createSlice({
-  name: 'walletTransactions',
+  name: "walletTransactions",
   initialState: {
     loading: false,
     transactions: [],
@@ -135,8 +144,8 @@ const walletTransactionSlice = createSlice({
     pagination: {
       current_page: 1,
       last_page: 1,
-      total: 0
-  }
+      total: 0,
+    },
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -149,7 +158,7 @@ const walletTransactionSlice = createSlice({
       .addCase(fetchWalletTransactions.fulfilled, (state, action) => {
         state.loading = false;
         state.transactions = action.payload.items;
-        state.pagination=action.payload.pagination
+        state.pagination = action.payload.pagination;
       })
       .addCase(fetchWalletTransactions.rejected, (state, action) => {
         state.loading = false;

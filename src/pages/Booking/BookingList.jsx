@@ -28,6 +28,7 @@ import {
 } from "../../utils/utils";
 import { BusTicket } from "./BusTicket";
 import BookingFilter from "./BookingFilter";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 export default function BookingList() {
   const dispatch = useDispatch();
@@ -350,7 +351,8 @@ export default function BookingList() {
                       {getStatusBadge(booking.status)}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400 w-[200px]">
-                      {formatDate(booking.created_at)}
+                      {/* {formatDate(booking.created_at)} */}
+                      {<PersianDateText value={booking.created_at} />}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                       <div className="flex flex-row items-center justify-start gap-3">

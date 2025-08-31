@@ -29,6 +29,7 @@ import { formatToYMD, useHasPermission, userType } from "../../utils/utils";
 import ExpenseFilter from "./ExpenseFilter";
 import Modal from "react-modal";
 import { fetchBranches } from "../../store/slices/branchSlice";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 // Validation schema
 const getExpenseSchema = (t,role) =>
@@ -944,7 +945,8 @@ export default function ExpenseList() {
                     ${parseFloat(expense.amount).toFixed(2)}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {formatDate(expense.expense_date)}
+                    {/* {formatDate(expense.expense_date)} */}
+                    {<PersianDateText value={expense.expense_date} />}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {expense.category?.name || "-"}

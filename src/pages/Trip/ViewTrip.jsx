@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { showTrip } from "../../store/slices/tripSlice";
 import { fetchBusById } from "../../store/slices/busSlice";
 import { useTranslation } from "react-i18next";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 export default function TripView() {
   const { id } = useParams();
@@ -202,15 +203,15 @@ export default function TripView() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InfoCard
                 title={t("trip_view.departure")}
-                value={selectedTrip.departure_time}
+                value={<PersianDateText value={selectedTrip.departure_time} />}
               />
               <InfoCard
                 title={t("trip_view.arrival")}
-                value={selectedTrip.arrival_time}
+                value={<PersianDateText value={selectedTrip.arrival_time} />}
               />
               <InfoCard
                 title={t("trip_view.booking_deadline")}
-                value={selectedTrip.booking_deadline}
+               value={<PersianDateText value={selectedTrip.booking_deadline} />}
               />
               <InfoCard
                 title={t("trip_view.status")}

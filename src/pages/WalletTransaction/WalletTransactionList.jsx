@@ -19,6 +19,7 @@ import Swal from "sweetalert2";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 // Yup validation schema
 const getTransactionSchema = (t) =>
@@ -433,7 +434,8 @@ export default function WalletTransactionList() {
                     title={formatData(transaction.data)}
                     className="max-w-xs truncate"
                   >
-                    {formatData(transaction.data)}
+                    {/* {formatData(transaction.data)} */}
+                    {<PersianDateText value={transaction.date} />}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">

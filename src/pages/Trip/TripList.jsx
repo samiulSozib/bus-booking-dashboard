@@ -43,6 +43,7 @@ import persian from "react-date-object/calendars/persian";
 import { format } from "date-fns";
 import CustomPersianDatePicker from "../../components/mycomponent/CustomPersianDatePicker";
 import DateObject from "react-date-object";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 // Updated Yup validation schema
 const getTripSchema = (t, isAdmin) => {
@@ -923,10 +924,12 @@ export default function TripList() {
                     {trip.ticket_price}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {trip.departure_time}
+                    {/* {trip.departure_time} */}
+                    {<PersianDateText value={trip.departure_time} />}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {trip.arrival_time}
+                    {/* {trip.arrival_time} */}
+                    {<PersianDateText value={trip.arrival_time} />}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {trip.status}

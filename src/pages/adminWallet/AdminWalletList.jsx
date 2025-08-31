@@ -14,6 +14,7 @@ import Pagination from "../../components/pagination/pagination";
 import { useTranslation } from "react-i18next";
 import { fetchWallets } from "../../store/slices/adminWalletSlice";
 import { formatDate, formatForDisplay } from "../../utils/utils";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 export default function AdminWalletList() {
   const dispatch = useDispatch();
@@ -127,7 +128,8 @@ export default function AdminWalletList() {
                     {wallet.balance} {wallet.currency}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {formatDate(wallet.updated_at)}
+                    {/* {formatDate(wallet.updated_at)} */}
+                    {<PersianDateText value={wallet.updated_at} />}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">

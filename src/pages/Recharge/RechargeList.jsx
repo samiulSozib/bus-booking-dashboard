@@ -31,6 +31,7 @@ import { fetchRecharges } from "../../store/slices/rechargeSlice";
 import StatusBadge from "../../components/ui/badge/StatusBadge";
 import RechargeFilter from "./RechargeFilter";
 import { formatDate } from "../../utils/utils";
+import PersianDateText from "../../utils/persianDateShowFormat";
 
 // Validation schema
 const getOperatorSchema = (t) =>
@@ -429,7 +430,8 @@ export default function RechargeList() {
                     <StatusBadge status={recharge?.request_status} />
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {formatDate(recharge.created_at)}
+                    {/* {formatDate(recharge.created_at)} */}
+                    {<PersianDateText value={recharge.created_at} />}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {recharge.user?.first_name} {recharge?.user?.last_name}
