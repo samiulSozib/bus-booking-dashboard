@@ -20,6 +20,7 @@ import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import Pagination from "../../components/pagination/pagination";
 import PersianDateText from "../../utils/persianDateShowFormat";
+import { userType } from "../../utils/utils";
 
 // Yup validation schema
 const getTransactionSchema = (t) =>
@@ -197,10 +198,10 @@ export default function WalletTransactionList() {
             transactionData: payload,
           })
         ).unwrap();
-        Swal.fire(t('success'), t('transactionUpdatedSuccessfully'), "success");
+        Swal.fire(t("success"), t("transactionUpdatedSuccessfully"), "success");
       } else {
         await dispatch(createWalletTransaction(payload)).unwrap();
-        Swal.fire(t('success'), t('transactionAddedSuccess'), "success");
+        Swal.fire(t("success"), t("transactionAddedSuccess"), "success");
       }
 
       setIsModalOpen(false);
@@ -214,7 +215,11 @@ export default function WalletTransactionList() {
         });
         setErrors(newErrors);
       } else {
-        Swal.fire(t('error'), error.message || t('failedToAddUpdateTransaction'), "error");
+        Swal.fire(
+          t("error"),
+          error.message || t("failedToAddUpdateTransaction"),
+          "error"
+        );
       }
     }
   };
@@ -314,12 +319,14 @@ export default function WalletTransactionList() {
             <option value="debit">Debit</option>
             <option value="withdrawal">Withdrawal</option>
           </select>
+          {userType().role=="admin" &&(
           <button
             onClick={() => setIsModalOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
           >
             {t("ADD_TRANSACTION")}
           </button>
+          )}
         </div>
       </div>
 
@@ -335,19 +342,23 @@ export default function WalletTransactionList() {
           <Table>
             <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
               <TableRow>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  {t("USER")}
-                </TableCell>
+                {userType().role == "admin" && (
+                  <>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                    >
+                      {t("USER")}
+                    </TableCell>
 
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  {t("ROLE")}
-                </TableCell>
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                    >
+                      {t("ROLE")}
+                    </TableCell>
+                  </>
+                )}
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
@@ -395,12 +406,17 @@ export default function WalletTransactionList() {
             <TableBody>
               {filteredTransactions.map((transaction) => (
                 <TableRow key={transaction.id}>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {transaction?.user?.first_name} {transaction?.user?.last_name}
-                  </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {transaction?.user?.role}
-                  </TableCell>
+                  {userType().role == "admin" && (
+                    <>
+                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                        {transaction?.user?.first_name}{" "}
+                        {transaction?.user?.last_name}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                        {transaction?.user?.role}
+                      </TableCell>
+                    </>
+                  )}
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {transaction.amount} {transaction.currency}
                   </TableCell>
@@ -434,8 +450,7 @@ export default function WalletTransactionList() {
                     title={formatData(transaction.data)}
                     className="max-w-xs truncate"
                   >
-                    {/* {formatData(transaction.data)} */}
-                    {<PersianDateText value={transaction.date} />}
+                    {formatData(transaction.data)}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <div className="flex flex-row items-center justify-start gap-2">
