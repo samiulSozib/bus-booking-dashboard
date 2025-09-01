@@ -804,7 +804,7 @@ export default function TripList() {
             value={searchTag}
             onChange={(e) => setSearchTag(e.target.value)}
           />
-          {useHasPermission("v1.vendor.trip.create") && (
+          {(useHasPermission(["v1.vendor.trip.create","v1.branch.trip.create"])) && (
             <button
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -949,7 +949,7 @@ export default function TripList() {
                       >
                         <View className="w-4 h-4 text-blue-600 dark:text-blue-300" />
                       </div>
-                      {useHasPermission("v1.vendor.trip.update") && (
+                      {useHasPermission(["v1.vendor.trip.update","v1.branch.trip.update"]) && (
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
                           onClick={() => handleEditTrip(trip.id)}
@@ -957,7 +957,7 @@ export default function TripList() {
                           <Edit className="w-4 h-4 text-gray-700 dark:text-white" />
                         </div>
                       )}
-                      {useHasPermission("v1.vendor.trip.delete") && (
+                      {useHasPermission(["v1.vendor.trip.delete","v1.branch.trip.delete"]) && (
                         <div
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 cursor-pointer"
                           onClick={() => handleDelete(trip.id)}
