@@ -463,7 +463,6 @@
   "ACTIVE": "فعال",
   "INACTIVE": "غیرفعال",
   "EXPIRED": "منقضی شده",
-  "bookingSuccess": "رزرو با موفقیت انجام شد",
   "bookingFailed": "رزرو انجام نشد",
   "discountUpdateSuccess": "تخفیف با موفقیت به‌روزرسانی شد",
   "discountAddSuccess": "تخفیف با موفقیت اضافه شد",
@@ -872,5 +871,16 @@
   "notesRequired": "یادداشت الزامی است",
   "bonusAmountRequired": "مقدار پاداش الزامی است",
   "NOTES": "یادداشت‌ها",
-  "BONUS_AMOUNT": "مقدار پاداش"
+  "BONUS_AMOUNT": "مقدار پاداش",
+  "booking.bookingMode":"Booking Mode",
+  "booking.quickModeDescription":"Quick Mode Description",
+  "booking.quickMode":"Quick Mode",
+  "booking.detailedMode":"Detailed Mode",
+  "booking.detailedModeDescription":"Detailed Mode Description",
+  "booking.tripInfo":"Trip Info",
+  "booking.seatsSelected":"Seats Selected",
+  "booking.selectedSeats":"Selected Seat",
+  "booking.total":"Total",
+  "bookingSuccess": "Booking Success",
+  "selectTripToViewAvailableSeats":"Select a trip to view available seats"
 }

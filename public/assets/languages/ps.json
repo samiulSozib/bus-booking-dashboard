@@ -463,7 +463,6 @@
   "ACTIVE": "فعال",
   "INACTIVE": "غیرفعال",
   "EXPIRED": "ختم شوی",
-  "bookingSuccess": "رزرو بریالی شو",
   "bookingFailed": "رزرو ناکام شو",
   "discountUpdateSuccess": "تخفیف په بریالیتوب سره تازه شو",
   "discountAddSuccess": "تخفیف په بریالیتوب سره زیات شو",
@@ -872,5 +871,16 @@
   "notesRequired": "یادداشت اړین دی",
   "bonusAmountRequired": "بونس اړین دی",
   "NOTES": "یادداشتونه",
-  "BONUS_AMOUNT": "د بونس مقدار"
+  "BONUS_AMOUNT": "د بونس مقدار",
+  "booking.bookingMode": "د رزرواسیون حالت",
+  "booking.quickModeDescription": "د چټک حالت توضیحات",
+  "booking.quickMode": "چټک حالت",
+  "booking.detailedMode": "تفصیلي حالت",
+  "booking.detailedModeDescription": "د تفصیلي حالت توضیحات",
+  "booking.tripInfo": "د سفر معلومات",
+  "booking.seatsSelected": "انتخاب شوي څوکۍ",
+  "booking.selectedSeats": "انتخاب شوې څوکۍ",
+  "booking.total": "ټول",
+  "bookingSuccess": "رزرو بریالی شو",
+  "selectTripToViewAvailableSeats": "د موجودو څوکيو د ليدلو لپاره سفر انتخاب کړئ"
 }

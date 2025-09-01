@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
@@ -8,11 +8,14 @@ import UserDropdown from "../components/header/UserDropdown";
 import WhatsApp from "../components/header/WhatsApp";
 import Language from "../components/header/Language";
 import { useSelector } from "react-redux";
+import { Booking } from "../icons";
+import { FaChair } from "react-icons/fa";
 
 const AppHeader = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const { user_info } = useSelector((state) => state.auth);
-
+    const navigate = useNavigate();
+  
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -165,8 +168,15 @@ const AppHeader = () => {
             {/* <!-- Dark Mode Toggler --> */}
             {/* <ThemeToggleButton /> */}
             {/* <!-- Dark Mode Toggler --> */}
-            <Language/>
-            <WhatsApp/>
+      
+        <button onClick={() => navigate("/add-booking")} className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full dropdown-toggle hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+          <FaChair className="w-[28px] h-[28px]" />
+        </button>
+      
+
+            <Language />
+            <WhatsApp />
+
             {/* <NotificationDropdown /> */}
             {/* <!-- Notification Menu Area --> */}
           </div>

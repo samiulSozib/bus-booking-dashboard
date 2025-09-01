@@ -38,8 +38,63 @@
 // export default AppLayout;
 
 
+// import { SidebarProvider, useSidebar } from "../context/SidebarContext";
+// import { Outlet } from "react-router";
+// import AppHeader from "./AppHeader";
+// import Backdrop from "./Backdrop";
+// import AppSidebar from "./AppSidebar";
+// import { useEffect, useState } from "react";
+// import { useTranslation } from "react-i18next";
+
+// const LayoutContent = () => {
+//   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+//   const { i18n } = useTranslation(); // Get current language
+//   const [isRtl, setIsRtl] = useState(false);
+
+//   // Detect RTL language and update state
+//   useEffect(() => {
+//     setIsRtl(i18n.dir() === "rtl");
+//   }, [i18n.language]);
+
+//   return (
+//     <div className={`min-h-screen xl:flex ${isRtl ? "rtl" : "ltr"}`}>
+//       <div>
+//         <AppSidebar />
+//         <Backdrop />
+//       </div>
+//       <div
+//         className={`flex-1 transition-all duration-300 ease-in-out ${
+//           isRtl
+//             ? isExpanded || isHovered
+//               ? "lg:mr-[290px]"
+//               : "lg:mr-[90px]"
+//             : isExpanded || isHovered
+//             ? "lg:ml-[290px]"
+//             : "lg:ml-[90px]"
+//         } ${isMobileOpen ? (isRtl ? "mr-1" : "ml-1") : ""}`}
+//       >
+//         <AppHeader />
+//         <div className="p-4 mx-auto max-w-screen-2xl md:p-6">
+//           <Outlet />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// const AppLayout = () => {
+//   return (
+//     <SidebarProvider>
+//       <LayoutContent />
+//     </SidebarProvider>
+//   );
+// };
+
+// export default AppLayout;
+
+
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
@@ -48,32 +103,41 @@ import { useTranslation } from "react-i18next";
 
 const LayoutContent = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-  const { i18n } = useTranslation(); // Get current language
+  const { i18n } = useTranslation(); 
   const [isRtl, setIsRtl] = useState(false);
+  const location = useLocation(); // ✅ detect current URL
 
   // Detect RTL language and update state
   useEffect(() => {
     setIsRtl(i18n.dir() === "rtl");
   }, [i18n.language]);
 
+  // ✅ Check if we are on /add-booking
+  const isBookingPage = location.pathname === "/add-booking";
+
   return (
     <div className={`min-h-screen xl:flex ${isRtl ? "rtl" : "ltr"}`}>
-      <div>
-        <AppSidebar />
-        <Backdrop />
-      </div>
+      {!isBookingPage && ( // ✅ hide sidebar on /add-booking
+        <div>
+          <AppSidebar />
+          <Backdrop />
+        </div>
+      )}
+
       <div
         className={`flex-1 transition-all duration-300 ease-in-out ${
-          isRtl
+          !isBookingPage &&
+          (isRtl
             ? isExpanded || isHovered
               ? "lg:mr-[290px]"
               : "lg:mr-[90px]"
             : isExpanded || isHovered
             ? "lg:ml-[290px]"
-            : "lg:ml-[90px]"
+            : "lg:ml-[90px]")
         } ${isMobileOpen ? (isRtl ? "mr-1" : "ml-1") : ""}`}
       >
-        <AppHeader />
+        {!isBookingPage && <AppHeader />} {/* ✅ hide header on /add-booking */}
+        
         <div className="p-4 mx-auto max-w-screen-2xl md:p-6">
           <Outlet />
         </div>

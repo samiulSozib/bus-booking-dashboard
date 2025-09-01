@@ -463,7 +463,7 @@
   "ACTIVE": "Active",
   "INACTIVE": "Inactive",
   "EXPIRED": "Expired",
-  "bookingSuccess": "Booking was successful",
+  
   "bookingFailed": "Booking failed",
   "discountUpdateSuccess": "Discount updated successfully",
   "discountAddSuccess": "Discount added successfully",
@@ -872,5 +872,16 @@
   "notesRequired": "Note is required",
   "bonusAmountRequired": "Bonus is required",
   "NOTES": "Notes",
-  "BONUS_AMOUNT": "Bonus Amount"
+  "BONUS_AMOUNT": "Bonus Amount",
+  "booking.bookingMode":"Booking Mode",
+  "booking.quickModeDescription":"Quick Mode Description",
+  "booking.quickMode":"Quick Mode",
+  "booking.detailedMode":"Detailed Mode",
+  "booking.detailedModeDescription":"Detailed Mode Description",
+  "booking.tripInfo":"Trip Info",
+  "booking.seatsSelected":"Seats Selected",
+  "booking.selectedSeats":"Selected Seat",
+  "booking.total":"Total",
+  "bookingSuccess": "Booking Success",
+  "selectTripToViewAvailableSeats":"Select a trip to view available seats"
 }
