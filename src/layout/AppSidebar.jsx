@@ -122,7 +122,7 @@ const AppSidebar = () => {
   const user = userTypeForSidebar();
   const isAdmin = user?.role === "admin";
   const isVendor = user?.role === "vendor" ;
-  const isBranch = user?.role === "branch";
+  const isBranch = user?.role == "vendor_branch";
   const isVendorUser=user?.role==="vendor_user"
   const isVendorBranchUser=user?.role==="vendor_branch_user"
 
@@ -160,7 +160,7 @@ const AppSidebar = () => {
         icon: <Dashboard />,
         name: "DASHBOARD",
         path: "/",
-        roles: ["admin", "vendor", "branch", "vendor_user", "vendor_branch_user"],
+        roles: ["admin", "vendor", "branch","vendor_branch", "vendor_user", "vendor_branch_user"],
         show: hasPermission('/')
       },
       {
@@ -178,14 +178,14 @@ const AppSidebar = () => {
         icon: <Station />,
         name: "STATIONS",
         path: "/stations",
-        roles: ["admin","vendor", "branch", "vendor_branch_user"],
+        roles: ["admin","vendor", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/stations')
       },
       {
         icon: <Direction />,
         name: "ROUTES",
         path: "/routes",
-        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/routes')
       },
       {
@@ -199,7 +199,7 @@ const AppSidebar = () => {
         icon: <Trip />,
         name: "TRIPS",
         path: "/trips",
-        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/trips')
       },
       {
@@ -219,7 +219,7 @@ const AppSidebar = () => {
       {
         icon: <Wallet />,
         name: "WALLET",
-        roles: ["admin", "vendor", "branch", "vendor_user", "vendor_branch_user"],
+        roles: ["admin", "vendor", "branch","vendor_branch", "vendor_user", "vendor_branch_user"],
         show: isAdmin || isVendor || hasPermission('/vendor-wallet'),
         getSubItems: (role) => {
           const items = [];
@@ -242,35 +242,35 @@ const AppSidebar = () => {
         icon: <Bus />,
         name: "BUS",
         path: "/buses",
-        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/buses')
       },
       {
         icon: <User_Group />,
         name: "DRIVERS",
         path: "/drivers",
-        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/drivers')
       },
       {
         icon: <User_Group />,
         name: "VENDOR_USER",
         path: "/vendor-users",
-        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/vendor-users')
       },
       {
         icon: <User_Group />,
         name: "ROLES",
         path: "/vendor-users-roles",
-        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/vendor-users-roles')
       },
       {
         icon: <Ticket />,
         name: "BOOKING",
         path: "/bookings",
-        roles: ["admin", "vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/bookings')
       },
       {
@@ -284,14 +284,14 @@ const AppSidebar = () => {
         icon: <Wallet />,
         name: "EXPENSE_CATEGORY",
         path: "/expense-category",
-        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/expense-category')
       },
       {
         icon: <Wallet />,
         name: "EXPENSE",
         path: "/expense",
-        roles: ["vendor", "vendor_user", "branch", "vendor_branch_user"],
+        roles: ["vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/expense')
       },
       {
@@ -332,7 +332,7 @@ const AppSidebar = () => {
       icon: <UserIcon />,
       name: "PROFILE",
       path: "/profile",
-      roles: ["admin", "vendor", "vendor_user", "branch"],
+      roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch"],
       show: true
     },
   ], []);
