@@ -5,11 +5,13 @@ import { userType } from "../../utils/utils";
 
 const getAuthToken = () => localStorage.getItem("token") || "";
 
-
 // Fetch Trips
 export const fetchTrips = createAsyncThunk(
   "trips/fetchTrips",
-  async ({ searchTag = "", page = 1, filters = {},branch_id }, { rejectWithValue }) => {
+  async (
+    { searchTag = "", page = 1, filters = {}, branch_id },
+    { rejectWithValue }
+  ) => {
     try {
       const token = getAuthToken();
       const type = userType();
@@ -28,23 +30,22 @@ export const fetchTrips = createAsyncThunk(
 
       //console.log(filterQuery)
 
-      let url=`${base_url}/${type.role}/trips?search=${searchTag}&page=${page}${
-          filterQuery ? `&${filterQuery}` : ""
-        }`
+      let url = `${base_url}/${
+        type.role
+      }/trips?search=${searchTag}&page=${page}${
+        filterQuery ? `&${filterQuery}` : ""
+      }`;
 
-        if(branch_id){
-          url+=`&branch-id=${branch_id}`
-        }
+      if (branch_id) {
+        url += `&branch-id=${branch_id}`;
+      }
 
-      const response = await axios.get(
-        url,
-        {
-          headers: {
-            Authorization: `${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       return {
         items: response.data.body.items,
         pagination: response.data.body.data,
@@ -78,19 +79,18 @@ export const fetchActiveTrips = createAsyncThunk(
 
       //console.log(filterQuery)
 
-      const response = await axios.get(
-        `${base_url}/${
-          type.role
-        }/trips/active?search=${searchTag}&page=${page}${
-          filterQuery ? `&${filterQuery}` : ""
-        }`,
-        {
-          headers: {
-            Authorization: `${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const endpoint = `${base_url}/${type.role}/trips${
+        type.role === "agent" ? "" : "/active"
+      }?search=${searchTag}&page=${page}${
+        filterQuery ? `&${filterQuery}` : ""
+      }`;
+
+      const response = await axios.get(endpoint, {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       return {
         items: response.data.body.items,
         pagination: response.data.body.data,
@@ -163,8 +163,8 @@ export const addTrip = createAsyncThunk(
         JSON.stringify(tripData.ticket_price_per_seat)
       );
 
-      if(tripData.vendor_branch_id){
-        formData.append('vendor_branch_id',tripData.vendor_branch_id)
+      if (tripData.vendor_branch_id) {
+        formData.append("vendor_branch_id", tripData.vendor_branch_id);
       }
 
       const response = await axios.post(
@@ -220,11 +220,10 @@ export const editTrip = createAsyncThunk(
         JSON.stringify(updatedData.ticket_price_per_seat)
       );
 
-      if(updatedData.vendor_branch_id){
-        formData.append('vendor_branch_id',updatedData.vendor_branch_id)
+      if (updatedData.vendor_branch_id) {
+        formData.append("vendor_branch_id", updatedData.vendor_branch_id);
       }
       formData.append("id", tripId);
-
 
       //console.log(updatedData)
       const response = await axios.post(

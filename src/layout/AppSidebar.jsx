@@ -125,6 +125,7 @@ const AppSidebar = () => {
   const isBranch = user?.role == "vendor_branch";
   const isVendorUser=user?.role==="vendor_user"
   const isVendorBranchUser=user?.role==="vendor_branch_user"
+  const isAgent=user?.role==="agent"
 
 
   //console.log(user.permissions)
@@ -138,6 +139,8 @@ const AppSidebar = () => {
     if (isVendor) return true;
 
     if(isBranch) return true;
+
+    if(isAgent) return true
     
     // Check permissions for branch/vendor_branch_user
     if (isVendorUser || isVendorBranchUser) {
@@ -219,7 +222,7 @@ const AppSidebar = () => {
       {
         icon: <Wallet />,
         name: "WALLET",
-        roles: ["admin", "vendor", "branch","vendor_branch", "vendor_user", "vendor_branch_user"],
+        roles: ["admin", "vendor", "branch","vendor_branch", "vendor_user", "vendor_branch_user","agent"],
         show: isAdmin || isVendor || hasPermission('/vendor-wallet'),
         getSubItems: (role) => {
           const items = [];
@@ -229,7 +232,7 @@ const AppSidebar = () => {
               { name: "WALLET_TRANSACTION", path: "/wallet-transactions", show: true }
             );
           }
-          if (role === "vendor" || role === "vendor_user" || role === "branch" || role === "vendor_branch_user") {
+          if (role === "vendor" || role === "vendor_user" || role === "branch" || role === "vendor_branch_user"|| role==="agent") {
             items.push(
               { name: "WALLET", path: "/vendor-wallet", show: hasPermission('/vendor-wallet') },
               { name: "TRANSACTIONS", path: "/wallet-transactions", show: hasPermission('/wallet-transactions') }
@@ -270,7 +273,7 @@ const AppSidebar = () => {
         icon: <Ticket />,
         name: "BOOKING",
         path: "/bookings",
-        roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
+        roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user","agent"],
         show: hasPermission('/bookings')
       },
       {

@@ -84,6 +84,7 @@ export default function SignInForm() {
                   <option value="vendor">Vendor</option>
                   <option value="user">User</option>
                   <option value="vendor_branch">Branch</option>
+                  <option value="agent">Agent</option>
                   {/* <option value="bus_driver">Bus Driver</option>
                   <option value="agent">Agent</option> */}
                 </select>

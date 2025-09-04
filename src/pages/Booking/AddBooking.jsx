@@ -480,7 +480,14 @@ const AddBooking = () => {
   );
 
   const renderSeatLayout = () => {
-    if (!selectedTripId || !bus?.seats)
+     const role = userType()?.role;
+
+  const seatSource =
+    role === "agent" ? selectedTrip?.bus?.seats : bus?.seats;
+
+
+    if (!selectedTripId || !seatSource)
+    //if (!selectedTripId || !selectedTrip?.bus?.seats)
       return (
         <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg">
           <FaChair className="text-4xl text-gray-300 mb-3" />
@@ -490,7 +497,8 @@ const AddBooking = () => {
         </div>
       );
 
-    const { rows, columns, seats } = bus.seats;
+    const { rows, columns, seats } = seatSource;
+    //const { rows, columns, seats } = selectedTrip?.bus?.seats;
 
     const leftSeats = Math.ceil(columns / 2);
     const rightSeats = columns - leftSeats;

@@ -178,6 +178,7 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
         logging: false,
         useCORS: true,
         allowTaint: true,
+
         backgroundColor: "#ffffff",
         scrollX: 0,
         scrollY: -window.scrollY,
@@ -290,6 +291,17 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-y-1 text-xs md:text-sm m-1 md:m-2">
+              <div className="text-gray-500">
+                <img
+                  className="h-10 w-15 rounded-md"
+                  src={bookingDetails?.vendor?.logo}
+                  alt=""
+                />
+              </div>
+              <div className="font-bold text-[12px]">
+                {bookingDetails?.vendor?.short_name}
+              </div>
+
               <div className="text-gray-500">{t("booking.bus")}</div>
               <div className="font-bold">{bookingDetails?.trip?.bus?.name}</div>
 
@@ -344,6 +356,17 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs md:text-sm">
+              <div className="text-gray-500">
+                <img
+                  className="h-10 w-15 rounded-md"
+                  src={bookingDetails?.vendor?.logo}
+                  alt=""
+                />
+              </div>
+              <div className="font-bold text-[12px]">
+                {bookingDetails?.vendor?.short_name}
+              </div>
+
               <div className="text-gray-500">{t("booking.bus")}</div>
               <div className="font-bold">{bookingDetails?.trip?.bus?.name}</div>
 
@@ -440,14 +463,22 @@ export const BusTicket = ({ bookingDetails, onClose }) => {
                   <span className="text-gray-500">{t("DEPARTURE_TIME")}</span>
                   <span className="font-bold">
                     {/* {bookingDetails?.trip?.departure_time} */}
-                    {<PersianDateText value={bookingDetails?.trip?.departure_time} />}
+                    {
+                      <PersianDateText
+                        value={bookingDetails?.trip?.departure_time}
+                      />
+                    }
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">{t("ARRIVAL_TIME")}</span>
                   <span className="font-bold">
                     {/* {bookingDetails?.trip?.arrival_time} */}
-                    {<PersianDateText value={bookingDetails?.trip?.arrival_time} />}
+                    {
+                      <PersianDateText
+                        value={bookingDetails?.trip?.arrival_time}
+                      />
+                    }
                   </span>
                 </div>
               </div>

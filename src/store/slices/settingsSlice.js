@@ -48,10 +48,15 @@ export const fetchSettingByKey = createAsyncThunk(
 
 export const createOrUpdateSetting = createAsyncThunk(
   'settings/createOrUpdateSetting',
-  async ({ key, value }, { rejectWithValue }) => {
+  async ({ key, value,scope }, { rejectWithValue }) => {
     const token = getAuthToken();
     const formData = new FormData();
+    console.log(key)
+    console.log(value)
+    console.log(scope)
+    //return
     formData.append('key', key);
+    formData.append('scope',scope)
     formData.append('value', typeof value === 'object' ? JSON.stringify(value) : value);
 
     try {

@@ -882,5 +882,9 @@
   "booking.selectedSeats": "انتخاب شوې څوکۍ",
   "booking.total": "ټول",
   "bookingSuccess": "رزرو بریالی شو",
-  "selectTripToViewAvailableSeats": "د موجودو څوکيو د ليدلو لپاره سفر انتخاب کړئ"
+  "selectTripToViewAvailableSeats": "د موجودو څوکيو د ليدلو لپاره سفر انتخاب کړئ",
+  "SCOPE_REQUIRED": "سکوپ اړین دی",
+  "SCOPE_INVALID": "سکوپ ناسم دی",
+  "PUBLIC": "عامه",
+  "TRANSACTIONS": "معاملات"
 }

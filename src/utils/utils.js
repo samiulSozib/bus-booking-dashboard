@@ -259,7 +259,7 @@ export function useHasPermission(permissionNames) {
   const { role, permissions = [] } = user;
 
   // Roles with full access
-  const fullAccessRoles = ["admin", "vendor", "vendor_branch"];
+  const fullAccessRoles = ["admin", "vendor", "vendor_branch","agent"];
   if (fullAccessRoles.includes(role)) return true;
 
   // Ensure we always work with an array
