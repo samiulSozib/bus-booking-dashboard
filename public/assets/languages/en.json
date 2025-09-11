@@ -886,5 +886,43 @@
   "SCOPE_REQUIRED": "Scope Required",
   "SCOPE_INVALID": "Scope Invalid",
   "PUBLIC": "Public",
-  "TRANSACTIONS": "Transactions"
+  "TRANSACTIONS": "Transactions",
+
+
+  "PAGES":"Pages",
+  
+  "PAGE_NAME_REQUIRED": "Page name is required",
+  "PAGE_TITLE_REQUIRED": "Page title is required",
+  "PAGE_LOCALE_REQUIRED": "Page locale is required",
+  "PAGE_LOCALE_INVALID": "Page locale must be one of: ps, en, fa",
+  "PAGE_STATUS_REQUIRED": "Page status is required",
+  "PAGE_STATUS_INVALID": "Page status must be active or inactive",
+  "PAGE_SUCCESS_TITLE": "Success",
+  "PAGE_SUCCESS_UPDATE": "Page updated successfully",
+  "PAGE_SUCCESS_CREATE": "Page created successfully",
+  "PAGE_ERROR_TITLE": "Error",
+  "PAGE_ERROR_DEFAULT": "An error occurred while processing your request",
+  "PAGE_DELETE_CONFIRM_TITLE": "Delete Page",
+  "PAGE_DELETE_CONFIRM_TEXT": "Are you sure you want to delete this page? This action cannot be undone.",
+  "PAGE_DELETE_CONFIRM_YES": "Yes, delete it",
+  "PAGE_BUTTON_CANCEL": "Cancel",
+  "PAGE_DELETE_SUCCESS_TITLE": "Deleted",
+  "PAGE_DELETE_SUCCESS_TEXT": "Page has been deleted successfully",
+  "PAGE_DELETE_ERROR_TEXT": "Failed to delete page",
+  "PAGE_LIST": "Pages List",
+  "ADD_PAGE": "Add Page",
+  "LOCALE": "Locale",
+  "ACTIONS": "Actions",
+  "EDIT_PAGE": "Edit Page",
+  "SUBTITLE": "Subtitle",
+  "IMAGE": "Image",
+  "CONTENT": "Content",
+  "REMOVE_IMAGE": "Remove Image",
+  
+  "FILTER_PAGES": "Filter Pages",
+  "ALL_LOCALES": "All Locales",
+  "ALL_STATUSES": "All Statuses",
+  "ITEMS_PER_PAGE": "Items per page"
+  
+
 }

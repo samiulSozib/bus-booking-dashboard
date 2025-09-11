@@ -24,6 +24,7 @@ import vendorRolesReducer from "./slices/vendorRolesSlice"
 import expenseCategoryReducer from "./slices/expenseCategorySlice.js"
 import expenseReducer from "./slices/expenseSlice.js"
 import branchReducer from './slices/branchSlice.js'
+import pagesReducer from './slices/pagesSlice.js'
 
 const store = configureStore({
     reducer: {
@@ -51,7 +52,8 @@ const store = configureStore({
         vendorRoles:vendorRolesReducer,
         expenseCategory:expenseCategoryReducer,
         expenseSlice:expenseReducer,
-        branch:branchReducer
+        branch:branchReducer,
+        pages:pagesReducer
     },
 });
 

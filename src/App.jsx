@@ -49,6 +49,7 @@ import TripView from "./pages/Trip/ViewTrip";
 import VendorView from "./pages/User/Vendor/VendorView";
 import Recharge from "./pages/Recharge/Recharge";
 import UserProfiles from "./pages/Profile/UserProfile";
+import Pages from "./pages/Pages/Pages";
 
 export default function App() {
   return (
@@ -376,10 +377,20 @@ export default function App() {
 
             <Route
               index
-              path="profile"
+              path="/profile"
               element={
                 <ProtectedRoute>
                   <UserProfiles />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              index
+              path="/pages"
+              element={
+                <ProtectedRoute>
+                  <Pages />
                 </ProtectedRoute>
               }
             />

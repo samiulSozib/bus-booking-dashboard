@@ -325,6 +325,13 @@ const AppSidebar = () => {
         roles: ["admin"],
         show: isAdmin
       },
+      {
+        icon: <ListIcon />,
+        name: "PAGES",
+        path: "/pages",
+        roles: ["admin"],
+        show: isAdmin
+      },
     ];
 
     return items.filter(item => item.show);
