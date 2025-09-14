@@ -50,6 +50,7 @@ import VendorView from "./pages/User/Vendor/VendorView";
 import Recharge from "./pages/Recharge/Recharge";
 import UserProfiles from "./pages/Profile/UserProfile";
 import Pages from "./pages/Pages/Pages";
+import VendorBranchAgent from "./pages/Agent/Agent";
 
 export default function App() {
   return (
@@ -391,6 +392,16 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Pages />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              index
+              path="/agents"
+              element={
+                <ProtectedRoute>
+                  <VendorBranchAgent />
                 </ProtectedRoute>
               }
             />

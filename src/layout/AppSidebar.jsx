@@ -205,6 +205,13 @@ const AppSidebar = () => {
         roles: ["admin", "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
         show: hasPermission('/trips')
       },
+       {
+        icon: <User_Group />,
+        name: "AGENT",
+        path: "/agents",
+        roles: [ "vendor", "vendor_user", "branch","vendor_branch", "vendor_branch_user"],
+        show: hasPermission('/agent')
+      },
       {
         icon: <User_Group />,
         name: "USERS",
