@@ -886,5 +886,12 @@
   "SCOPE_REQUIRED": "حوزه مورد نیاز است",
   "SCOPE_INVALID": "حوزه نامعتبر است",
   "PUBLIC": "عمومی",
-  "TRANSACTIONS": "تراکنش‌ها"
+  "TRANSACTIONS": "تراکنش‌ها",
+
+  "FILTER_PAGES": "فیلتر صفحات",
+  "ALL_LOCALES": "همه زبان‌ها",
+  "ALL_STATUSES": "همه وضعیت‌ها",
+  "ITEMS_PER_PAGE": "موارد در هر صفحه",
+  "OPEN_API_ENABLE": "فعال‌سازی API باز"
+
 }

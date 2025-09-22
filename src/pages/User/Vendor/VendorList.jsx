@@ -74,6 +74,7 @@ export default function VendorList() {
     role: "vendor",
     password: "",
     status: "",
+     openapi_enabled:"0",
     name: "",
     phone: "",
     code: "",
@@ -113,6 +114,7 @@ export default function VendorList() {
         role: selectedUser.role || "vendor",
         password: selectedUser.password || "",
         status: selectedUser.status || "",
+        openapi_enabled:selectedUser.openapi_enabled||"0"
       };
 
       // Role-specific fields
@@ -552,6 +554,7 @@ export default function VendorList() {
                 role: "vendor",
                 password: "",
                 status: "",
+                openapi_enabled: "0",
                 name: "",
                 phone: "",
                 code: "",

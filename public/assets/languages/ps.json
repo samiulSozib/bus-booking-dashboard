@@ -886,5 +886,10 @@
   "SCOPE_REQUIRED": "سکوپ اړین دی",
   "SCOPE_INVALID": "سکوپ ناسم دی",
   "PUBLIC": "عامه",
-  "TRANSACTIONS": "معاملات"
+  "TRANSACTIONS": "معاملات",
+  "FILTER_PAGES": "د پاڼو فلټر",
+  "ALL_LOCALES": "ټولې ژبې",
+  "ALL_STATUSES": "ټولې حالتونه",
+  "ITEMS_PER_PAGE": "توکي په هره پاڼه کې",
+  "OPEN_API_ENABLE": "خلاص API فعالول"
 }

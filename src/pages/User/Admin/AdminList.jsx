@@ -63,6 +63,7 @@ export default function AdminList() {
     role: "admin",
     password: "",
     status: "",
+    openapi_enabled:"0",
     name: "",
     phone: "",
     code: "",
@@ -96,6 +97,7 @@ export default function AdminList() {
         role: selectedUser.role || "admin",
         password: selectedUser.password || "",
         status: selectedUser.status || "",
+        openapi_enabled:selectedUser.openapi_enabled||"0"
       };
 
       // Role-specific fields
@@ -290,6 +292,7 @@ export default function AdminList() {
         role: "admin",
         password: "",
         status: "",
+        openapi_enabled:"0",
         name: "",
         phone: "",
         code: "",
@@ -579,6 +582,24 @@ export default function AdminList() {
                   {formErrors?.status && (
                     <p className="text-red-500 text-sm">{formErrors?.status}</p>
                   )}
+                </div>
+
+                {/* open api  */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t("OPEN_API_ENABLE")} *
+                  </label>
+                  <select
+                    value={formData ? formData.openapi_enabled : ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, openapi_enabled: e.target.value })
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  >
+                    <option value="0">Disabled</option>
+                    <option value="1">Enable</option>
+                    
+                  </select>
                 </div>
 
                 {/* Conditional Fields Based on Role */}
@@ -1012,6 +1033,7 @@ export default function AdminList() {
                 role: "admin",
                 password: "",
                 status: "",
+                openapi_enabled:"0",
                 name: "",
                 phone: "",
                 code: "",

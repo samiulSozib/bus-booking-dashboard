@@ -32,9 +32,8 @@ export default function AgentList() {
   });
 
   const dispatch = useDispatch();
-  const { users, vendorList,agentList, selectedUser, loading, pagination } = useSelector(
-    (state) => state.users
-  );
+  const { users, vendorList, agentList, selectedUser, loading, pagination } =
+    useSelector((state) => state.users);
 
   const [searchTag, setSearchTag] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -80,6 +79,7 @@ export default function AgentList() {
     role: "agent",
     password: "",
     status: "",
+    openapi_enabled: "0",
     short_name: "",
     long_name: "",
     code: "",
@@ -135,6 +135,7 @@ export default function AgentList() {
         role: selectedUser.role || "agent",
         password: selectedUser.password || "",
         status: selectedUser.status || "",
+        openapi_enabled:selectedUser.openapi_enabled||"0"
       };
 
       // Role-specific fields
@@ -150,10 +151,7 @@ export default function AgentList() {
           commission_type: selectedUser.agent?.commission_type || "",
           vendor_id: selectedUser?.agent?.vendor_id || 0,
           vendor_branch_id: selectedUser?.agent.vendor_branch_id || 0,
-          
         }),
-
-        
 
         // Vendor-specific fields
         ...(selectedUser.role === "vendor" && {
@@ -171,21 +169,17 @@ export default function AgentList() {
           logo: selectedUser.vendor?.logo || "",
           description: selectedUser.vendor?.description || "",
         }),
-
-        
       };
 
-      if(selectedUser.role==="agent"){
-        setVendorBranchSearch(selectedUser?.agent?.branch?.name)
-      setModalVendorSearchTag(selectedUser?.agent?.vendor?.short_name)
+      if (selectedUser.role === "agent") {
+        setVendorBranchSearch(selectedUser?.agent?.branch?.name);
+        setModalVendorSearchTag(selectedUser?.agent?.vendor?.short_name);
       }
 
       setFormData({
         ...baseData,
         ...roleSpecificData,
       });
-      
-      
     }
   }, [selectedUser]);
 
@@ -255,6 +249,7 @@ export default function AgentList() {
         role: "agent",
         password: "",
         status: "",
+        openapi_enabled: "0",
         short_name: "",
         long_name: "",
         code: "",
@@ -320,47 +315,49 @@ export default function AgentList() {
     setIsModalOpen(true);
   };
 
-const getValidationSchema = (t, isEditingAgent, isEditing) => {
-  const isAgentContext = !isEditing || isEditingAgent;
-  const isNewUser = !isEditing && !isEditingAgent;
+  const getValidationSchema = (t, isEditingAgent, isEditing) => {
+    const isAgentContext = !isEditing || isEditingAgent;
+    const isNewUser = !isEditing && !isEditingAgent;
 
-  return Yup.object().shape({
-    // Basic user info (always required)
-    first_name: Yup.string().required(t("user.firstNameRequired")),
-    last_name: Yup.string().required(t("user.lastNameRequired")),
-    email: Yup.string()
-      .email(t("user.invalidEmail"))
-      .required(t("user.emailRequired")),
-    mobile: Yup.string()
-      .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
-      .required(t("user.mobileRequired")),
-    status: Yup.string().required(t("user.statusRequired")),
+    return Yup.object().shape({
+      // Basic user info (always required)
+      first_name: Yup.string().required(t("user.firstNameRequired")),
+      last_name: Yup.string().required(t("user.lastNameRequired")),
+      email: Yup.string()
+        .email(t("user.invalidEmail"))
+        .required(t("user.emailRequired")),
+      mobile: Yup.string()
+        .matches(/^[0-9]{10}$/, t("user.mobileInvalid"))
+        .required(t("user.mobileRequired")),
+      status: Yup.string().required(t("user.statusRequired")),
 
-    // Password - only required for new users
-    password: isNewUser
-      ? Yup.string()
-          .required(t("user.passwordRequired"))
-          .min(6, t("user.passwordMin"))
-      : Yup.string(),
+      // Password - only required for new users
+      password: isNewUser
+        ? Yup.string()
+            .required(t("user.passwordRequired"))
+            .min(6, t("user.passwordMin"))
+        : Yup.string(),
 
-    // Agent-specific fields
-    ...(isAgentContext && {
-      short_name: Yup.string().required(t("user.shortNameRequired")),
-      long_name: Yup.string().required(t("user.longNameRequired")),
-      code: Yup.string().required(t("user.codeRequired")),
-      notes: Yup.string().required(t("user.notesRequired")),
-      bonus_amount: Yup.number()
-        .required(t("user.bonusAmountRequired")),
-      commission_amount: Yup.number()
-        .required(t("user.commissionAmountRequired")),
-      commission_type: Yup.string().required(t("user.commissionTypeRequired")),
-      vendor_id: Yup.number()
-        .required(t("user.vendorIdRequired")),
-      vendor_branch_id: Yup.number()
-        .required(t("user.vendorBranchIdRequired"))
-    }),
-  });
-};
+      // Agent-specific fields
+      ...(isAgentContext && {
+        short_name: Yup.string().required(t("user.shortNameRequired")),
+        long_name: Yup.string().required(t("user.longNameRequired")),
+        code: Yup.string().required(t("user.codeRequired")),
+        notes: Yup.string().required(t("user.notesRequired")),
+        bonus_amount: Yup.number().required(t("user.bonusAmountRequired")),
+        commission_amount: Yup.number().required(
+          t("user.commissionAmountRequired")
+        ),
+        commission_type: Yup.string().required(
+          t("user.commissionTypeRequired")
+        ),
+        vendor_id: Yup.number().required(t("user.vendorIdRequired")),
+        vendor_branch_id: Yup.number().required(
+          t("user.vendorBranchIdRequired")
+        ),
+      }),
+    });
+  };
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
@@ -546,6 +543,26 @@ const getValidationSchema = (t, isEditingAgent, isEditing) => {
                             {formErrors?.status}
                           </p>
                         )}
+                      </div>
+
+                      {/* open api  */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t("OPEN_API_ENABLE")} *
+                        </label>
+                        <select
+                          value={formData ? formData.openapi_enabled : ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              openapi_enabled: e.target.value,
+                            })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        >
+                          <option value="0">Disabled</option>
+                          <option value="1">Enable</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -869,6 +886,7 @@ const getValidationSchema = (t, isEditingAgent, isEditing) => {
                         role: "agent",
                         password: "",
                         status: "",
+                        openapi_enabled: "0",
                         short_name: "",
                         long_name: "",
                         code: "",
@@ -943,6 +961,7 @@ const getValidationSchema = (t, isEditingAgent, isEditing) => {
                 role: "agent",
                 password: "",
                 status: "",
+                openapi_enabled: "0",
                 short_name: "",
                 long_name: "",
                 code: "",

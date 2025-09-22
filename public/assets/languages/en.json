@@ -922,7 +922,8 @@
   "FILTER_PAGES": "Filter Pages",
   "ALL_LOCALES": "All Locales",
   "ALL_STATUSES": "All Statuses",
-  "ITEMS_PER_PAGE": "Items per page"
+  "ITEMS_PER_PAGE": "Items per page",
+  "OPEN_API_ENABLE":"Open API"
   
 
 }
