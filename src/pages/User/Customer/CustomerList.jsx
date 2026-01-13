@@ -63,7 +63,7 @@ export default function CustomerList() {
     role: "customer",
     password: "",
     status: "",
-     openapi_enabled:"0",
+    openapi_enabled: "0",
     name: "",
     phone: "",
     code: "",
@@ -79,6 +79,9 @@ export default function CustomerList() {
     logo: "",
     description: "",
     vendor_id: 0,
+    price_adjust_type: "increase",
+    price_adjust_mode: "percentage",
+    price_adjust_value: 0
   });
 
   useEffect(() => {
@@ -87,6 +90,7 @@ export default function CustomerList() {
 
   useEffect(() => {
     if (selectedUser) {
+      console.log(selectedUser)
       const baseData = {
         first_name: selectedUser.first_name || "",
         last_name: selectedUser.last_name || "",
@@ -95,7 +99,7 @@ export default function CustomerList() {
         role: selectedUser.role || "customer",
         password: selectedUser.password || "",
         status: selectedUser.status || "",
-        openapi_enabled:selectedUser.openapi_enabled||"0"
+        openapi_enabled: selectedUser.openapi_enabled || "0"
       };
 
       // Role-specific fields
@@ -129,6 +133,14 @@ export default function CustomerList() {
         // Driver-specific field
         ...(selectedUser.role === "driver" && {
           vendor_id: selectedUser.driver?.vendor_id || 0,
+        }),
+
+        // customer specified field
+        ...(selectedUser.role === "customer" && {
+          //price_adjust_type: selectedUser.cusomer
+          price_adjust_mode: selectedUser.pricing.adjust_mode,
+          price_adjust_type: selectedUser.pricing.adjust_type,
+          price_adjust_value: selectedUser.pricing.adjust_value
         }),
       };
 
@@ -306,6 +318,9 @@ export default function CustomerList() {
         logo: "",
         description: "",
         vendor_id: 0,
+        price_adjust_type: "increase",
+        price_adjust_mode: "percentage",
+        price_adjust_value: 0
       });
       setIsModalOpen(false);
       setIsEditing(false);
@@ -421,6 +436,7 @@ export default function CustomerList() {
       vendor_id: Yup.number().when("role", (role, schema) =>
         role === "driver" ? schema.required(t("user.vendorIdRequired")) : schema
       ),
+
     });
 
   return (
@@ -597,8 +613,68 @@ export default function CustomerList() {
                   >
                     <option value="0">Disabled</option>
                     <option value="1">Enable</option>
-                    
+
                   </select>
+                </div>
+
+                {/* price adjustment type  */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t("PRICE_ADJUSTMENT_TYPE")} *
+                  </label>
+                  <select
+                    value={formData ? formData.price_adjust_type : ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price_adjust_type: e.target.value })
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  >
+                    <option value="increase">Increase</option>
+                    <option value="decrease">Decrease</option>
+
+                  </select>
+                </div>
+
+                {/* price adjustment mode  */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t("PRICE_ADJUSTMENT_MODE")} *
+                  </label>
+                  <select
+                    value={formData ? formData.price_adjust_mode : ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price_adjust_mode: e.target.value })
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  >
+                    <option value="percentage">Percentage</option>
+                    <option value="fixed">Fixed</option>
+
+                  </select>
+
+                </div>
+
+                {/* price adjustment value */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t("PRICE_ADJUSTMENT_VALUE")}
+                  </label>
+                  <input
+                    type="number"
+                    defaultValue={formData.price_adjust_value}
+                    value={formData ? formData.price_adjust_value : 0}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price_adjust_value: e.target.value })
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+
+                </div>
+
+                {/* price adjustment value */}
+                <div className="mb-4">
+
+
                 </div>
 
                 {/* Conditional Fields Based on Role */}
@@ -1001,6 +1077,9 @@ export default function CustomerList() {
                           logo: "",
                           description: "",
                           vendor_id: 0,
+                          price_adjust_type: "increase",
+                          price_adjust_mode: "percentage",
+                          price_adjust_value: 0
                         });
                       }}
                       className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -1071,6 +1150,9 @@ export default function CustomerList() {
                 logo: "",
                 description: "",
                 vendor_id: 0,
+                price_adjust_type: "increase",
+                price_adjust_mode: "percentage",
+                price_adjust_value: 0
               });
             }}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-green-300 px-4 py-2.5 text-theme-sm font-medium text-black-700 shadow-theme-xs hover:bg-gray-50 hover:text-black-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
@@ -1124,6 +1206,24 @@ export default function CustomerList() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
+                  {t("PRICE_ADJUSTMENT_TYPE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("PRICE_ADJUSTMENT_MODE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  {t("PRICE_ADJUSTMENT_VALUE")}
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
                   {t("STATUS")}
                 </TableCell>
                 <TableCell
@@ -1162,6 +1262,16 @@ export default function CustomerList() {
                           </div>
                         )}
                       </div>
+                    </TableCell>
+
+                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                      {user?.pricing?.adjust_type}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                      {user?.pricing?.adjust_mode}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                      {user?.pricing?.adjust_value}
                     </TableCell>
 
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">

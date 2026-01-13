@@ -923,7 +923,10 @@
   "ALL_LOCALES": "All Locales",
   "ALL_STATUSES": "All Statuses",
   "ITEMS_PER_PAGE": "Items per page",
-  "OPEN_API_ENABLE":"Open API"
+  "OPEN_API_ENABLE":"Open API",
   
+  "PRICE_ADJUSTMENT_TYPE":"Price Adjustment Type",
+  "PRICE_ADJUSTMENT_MODE":"Price Adjustment  Mode",
+  "PRICE_ADJUSTMENT_VALUE":"Price Adjustment Value"
 
 }
